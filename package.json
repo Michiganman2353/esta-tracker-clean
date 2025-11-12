@@ -1,20 +1,8 @@
 {
   "name": "esta-tracker-clean",
   "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
-  },
-  "dependencies": {
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest",
-    "firebase-admin": "^12.5.0"
-  },
-  "engines": {
-    "node": "20.x"
-  }
+  "lockfileVersion": 2,
+  "requires": true,
+  "packages": {},
+  "dependencies": {}
 }
