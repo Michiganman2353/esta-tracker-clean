@@ -1,0 +1,41 @@
+/ src/services/firebase.js
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore, collection, addDoc, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+// ESTA LOGIC
+export const logWorkHours = async (userId, hours) => {
+  await addDoc(collection(db, 'workLogs'), { userId, hours, date: new Date() });
+};
+
+export const getSickBalance = async (userId) => {
+  const q = query(collection(db, 'workLogs'), where('userId', '==', userId));
+  const snap = await getDocs(q);
+  const total = snap.docs.reduce((sum, d) => sum + d.data().hours, 0);
+  const accrued = Math.floor(total / 30);
+  const userDoc = await getDoc(doc(db, 'users', userId));
+  const isSmall = userDoc.data()?.isSmallEmployer || false;
+  const cap = isSmall ? 40 : 72;
+  return Math.min(accrued, cap);
+};
+
+export const requestSickLeave = async (userId, hours, reason) => {
+  const balance = await getSickBalance(userId);
+  if (hours > balance) throw new Error('Not enough balance');
+  await addDoc(collection(db, 'sickRequests'), {
+    userId, hours, reason, status: 'pending', date: new Date()
+  });
+};
