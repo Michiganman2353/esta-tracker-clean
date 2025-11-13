@@ -1,6 +1,9 @@
-import FirebaseContext, { withFirebase } from './context';
+// components/firebase/index.js
 import Firebase from './firebase';
+import FirebaseContext, { useFirebase, withFirebase } from './context';
 
+// Default: Firebase instance (for legacy)
 export default Firebase;
 
-export { FirebaseContext, withFirebase };
+// Named exports
+export { FirebaseContext, useFirebase, withFirebase };
