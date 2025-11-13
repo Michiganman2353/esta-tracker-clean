@@ -1,0 +1,23 @@
+{
+  "extends": [
+    "react-app",
+    "react-app/jest",
+    "airbnb",
+    "prettier"
+  ],
+  "rules": {
+    "react/prop-types": "off",  // Disable for hooks era
+    "import/prefer-default-export": "off",  // Modular exports
+    "no-console": "warn",  // Allow dev logs
+    "react-hooks/exhaustive-deps": "warn",  // Soft on deps
+    "no-unused-vars": "warn"  // Soft on unused
+  },
+  "overrides": [
+    {
+      "files": ["*.test.js", "*.test.jsx"],
+      "env": {
+        "jest": true
+      }
+    }
+  ]
+}
