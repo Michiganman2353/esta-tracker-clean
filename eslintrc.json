@@ -6,18 +6,29 @@
     "prettier"
   ],
   "rules": {
-    "react/prop-types": "off",  // Disable for hooks era
-    "import/prefer-default-export": "off",  // Modular exports
-    "no-console": "warn",  // Allow dev logs
+    "react/prop-types": "off",  // Hooks era – types via TS or none
+    "import/prefer-default-export": "off",  // Modular named exports
+    "no-console": "warn",  // Dev logs OK
     "react-hooks/exhaustive-deps": "warn",  // Soft on deps
-    "no-unused-vars": "warn"  // Soft on unused
+    "no-unused-vars": "warn",  // Soft on unused
+    "import/no-unresolved": "off",  // CRA handles
+    "import/extensions": "off",  // JS/JSX implicit
+    "import/order": "off"  // Flexible imports
   },
   "overrides": [
     {
       "files": ["*.test.js", "*.test.jsx"],
       "env": {
         "jest": true
+      },
+      "rules": {
+        "import/no-extraneous-dependencies": "off"
       }
     }
-  ]
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
 }
