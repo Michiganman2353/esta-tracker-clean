@@ -1,231 +1,162 @@
-import React, { Component } from 'react';
-import { compose } from 'recompose';
-
+// src/components/account/index.js
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  AuthUserContext,
-  withAuthorization,
-  withEmailVerification,
-} from '../Session';
-import { withFirebase } from '../Firebase';
+  EmailAuthProvider,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+  TwitterAuthProvider,
+  linkWithPopup,
+  unlink,
+  reauthenticateWithCredential,
+} from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../lib/firebase';
 import { PasswordForgetForm } from '../PasswordForget';
 import PasswordChangeForm from '../PasswordChange';
+import { AuthUserContext } from '../Session';
 
 const SIGN_IN_METHODS = [
-  {
-    id: 'password',
-    provider: null,
-  },
-  {
-    id: 'google.com',
-    provider: 'googleProvider',
-  },
-  {
-    id: 'facebook.com',
-    provider: 'facebookProvider',
-  },
-  {
-    id: 'twitter.com',
-    provider: 'twitterProvider',
-  },
+  { id: 'password', provider: null, name: 'Email/Password' },
+  { id: 'google.com', provider: GoogleAuthProvider, name: 'Google' },
+  { id: 'facebook.com', provider: FacebookAuthProvider, name: 'Facebook' },
+  { id: 'twitter.com', provider: TwitterAuthProvider, name: 'Twitter' },
 ];
 
-const AccountPage = () => (
-  <AuthUserContext.Consumer>
-    {authUser => (
-      <div>
-        <h1>Account: {authUser.email}</h1>
-        <PasswordForgetForm />
-        <PasswordChangeForm />
-        <LoginManagement authUser={authUser} />
+const AccountPage = () => {
+  const authUser = useContext(AuthUserContext);
+  if (!authUser) return null;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 space-y-8">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Account: {authUser.email}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              Manage your login methods and security
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            <PasswordForgetForm />
+            <PasswordChangeForm />
+            <LoginManagement authUser={authUser} />
+          </div>
+        </div>
       </div>
-    )}
-  </AuthUserContext.Consumer>
-);
-
-class LoginManagementBase extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      activeSignInMethods: [],
-      error: null,
-    };
-  }
-
-  componentDidMount() {
-    this.fetchSignInMethods();
-  }
-
-  fetchSignInMethods = () => {
-    this.props.firebase.auth
-      .fetchSignInMethodsForEmail(this.props.authUser.email)
-      .then(activeSignInMethods =>
-        this.setState({ activeSignInMethods, error: null }),
-      )
-      .catch(error => this.setState({ error }));
-  };
-
-  onSocialLoginLink = provider => {
-    this.props.firebase.auth.currentUser
-      .linkWithPopup(this.props.firebase[provider])
-      .then(this.fetchSignInMethods)
-      .catch(error => this.setState({ error }));
-  };
-
-  onDefaultLoginLink = password => {
-    const credential = this.props.firebase.emailAuthProvider.credential(
-      this.props.authUser.email,
-      password,
-    );
-
-    this.props.firebase.auth.currentUser
-      .linkAndRetrieveDataWithCredential(credential)
-      .then(this.fetchSignInMethods)
-      .catch(error => this.setState({ error }));
-  };
-
-  onUnlink = providerId => {
-    this.props.firebase.auth.currentUser
-      .unlink(providerId)
-      .then(this.fetchSignInMethods)
-      .catch(error => this.setState({ error }));
-  };
-
-  render() {
-    const { activeSignInMethods, error } = this.state;
-
-    return (
-      <div>
-        Sign In Methods:
-        <ul>
-          {SIGN_IN_METHODS.map(signInMethod => {
-            const onlyOneLeft = activeSignInMethods.length === 1;
-            const isEnabled = activeSignInMethods.includes(
-              signInMethod.id,
-            );
-
-            return (
-              <li key={signInMethod.id}>
-                {signInMethod.id === 'password' ? (
-                  <DefaultLoginToggle
-                    onlyOneLeft={onlyOneLeft}
-                    isEnabled={isEnabled}
-                    signInMethod={signInMethod}
-                    onLink={this.onDefaultLoginLink}
-                    onUnlink={this.onUnlink}
-                  />
-                ) : (
-                  <SocialLoginToggle
-                    onlyOneLeft={onlyOneLeft}
-                    isEnabled={isEnabled}
-                    signInMethod={signInMethod}
-                    onLink={this.onSocialLoginLink}
-                    onUnlink={this.onUnlink}
-                  />
-                )}
-              </li>
-            );
-          })}
-        </ul>
-        {error && error.message}
-      </div>
-    );
-  }
-}
-
-const SocialLoginToggle = ({
-  onlyOneLeft,
-  isEnabled,
-  signInMethod,
-  onLink,
-  onUnlink,
-}) =>
-  isEnabled ? (
-    <button
-      type="button"
-      onClick={() => onUnlink(signInMethod.id)}
-      disabled={onlyOneLeft}
-    >
-      Deactivate {signInMethod.id}
-    </button>
-  ) : (
-    <button
-      type="button"
-      onClick={() => onLink(signInMethod.provider)}
-    >
-      Link {signInMethod.id}
-    </button>
+    </div>
   );
+};
 
-class DefaultLoginToggle extends Component {
-  constructor(props) {
-    super(props);
+const LoginManagement = ({ authUser }) => {
+  const [methods, setMethods] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-    this.state = { passwordOne: '', passwordTwo: '' };
-  }
+  useEffect(() => {
+    const fetchMethods = async () => {
+      try {
+        const result = await auth.fetchSignInMethodsForEmail(authUser.email);
+        setMethods(result);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMethods();
+  }, [authUser.email]);
 
-  onSubmit = event => {
-    event.preventDefault();
-
-    this.props.onLink(this.state.passwordOne);
-    this.setState({ passwordOne: '', passwordTwo: '' });
+  const handleLink = async (provider) => {
+    setError('');
+    try {
+      if (provider) {
+        const providerInstance = new provider();
+        await linkWithPopup(auth.currentUser, providerInstance);
+      } else {
+        // Email link requires password
+        const password = prompt('Enter your password to link email:');
+        if (!password) return;
+        const credential = EmailAuthProvider.credential(authUser.email, password);
+        await reauthenticateWithCredential(auth.currentUser, credential);
+      }
+      const result = await auth.fetchSignInMethodsForEmail(authUser.email);
+      setMethods(result);
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
-  onChange = event => {
-    this.setState({ [event.target.name]: event.target.value });
+  const handleUnlink = async (providerId) => {
+    setError('');
+    try {
+      await unlink(auth.currentUser, providerId);
+      const result = await auth.fetchSignInMethodsForEmail(authUser.email);
+      setMethods(result);
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
-  render() {
-    const {
-      onlyOneLeft,
-      isEnabled,
-      signInMethod,
-      onUnlink,
-    } = this.props;
-
-    const { passwordOne, passwordTwo } = this.state;
-
-    const isInvalid =
-      passwordOne !== passwordTwo || passwordOne === '';
-
-    return isEnabled ? (
-      <button
-        type="button"
-        onClick={() => onUnlink(signInMethod.id)}
-        disabled={onlyOneLeft}
-      >
-        Deactivate {signInMethod.id}
-      </button>
-    ) : (
-      <form onSubmit={this.onSubmit}>
-        <input
-          name="passwordOne"
-          value={passwordOne}
-          onChange={this.onChange}
-          type="password"
-          placeholder="New Password"
-        />
-        <input
-          name="passwordTwo"
-          value={passwordTwo}
-          onChange={this.onChange}
-          type="password"
-          placeholder="Confirm New Password"
-        />
-
-        <button disabled={isInvalid} type="submit">
-          Link {signInMethod.id}
-        </button>
-      </form>
+  if (loading) {
+    return (
+      <div className="flex justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+      </div>
     );
   }
-}
 
-const LoginManagement = withFirebase(LoginManagementBase);
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+        Login Methods
+      </h2>
+      <ul className="space-y-3">
+        {SIGN_IN_METHODS.map((method) => {
+          const isEnabled = methods.includes(method.id);
+          const onlyOneLeft = methods.length === 1;
 
-const condition = authUser => !!authUser;
+          return (
+            <li
+              key={method.id}
+              className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
+            >
+              <span className="font-medium text-gray-900 dark:text-white">
+                {method.name}
+              </span>
+              {isEnabled ? (
+                <button
+                  onClick={() => handleUnlink(method.id)}
+                  disabled={onlyOneLeft}
+                  className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-md hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  aria-label={`Unlink ${method.name}`}
+                >
+                  {onlyOneLeft ? 'Required' : 'Unlink'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleLink(method.provider)}
+                  className="px-4 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-md hover:bg-green-100 transition"
+                  aria-label={`Link ${method.name}`}
+                >
+                  Link
+                </button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      {error && (
+        <p className="text-red-600 dark:text-red-400 text-sm p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+};
 
-export default compose(
-  withEmailVerification,
-  withAuthorization(condition),
-)(AccountPage);
+export default AccountPage;
