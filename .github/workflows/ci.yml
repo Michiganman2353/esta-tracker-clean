@@ -44,14 +44,13 @@ jobs:
 
       - name: Run Tests
         run: npm test -- --coverage --watchAll=false
-        continue-on-error: true
 
       - name: Security Audit
         run: |
           npm audit --audit-level=high
           npx depcheck --ignores=eslint,prettier
 
-      - name: Upload Coverage
+      - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
           file: ./coverage/lcov.info
