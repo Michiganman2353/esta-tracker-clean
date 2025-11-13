@@ -1,135 +1,187 @@
-import React, { Component } from 'react';
-
+// src/components/messages/messages.js
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import {
+  collection,
+  query,
+  orderBy,
+  limitToLast,
+  startAfter,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+  onSnapshot,
+} from 'firebase/firestore';
 import { AuthUserContext } from '../Session';
-import { withFirebase } from '../Firebase';
+import { db } from '../firebase';
 import MessageList from './MessageList';
 
-class Messages extends Component {
-  constructor(props) {
-    super(props);
+const PAGE_SIZE = 20;
 
-    this.state = {
-      text: '',
-      loading: false,
-      messages: [],
-      limit: 5,
-    };
-  }
+const Messages = () => {
+  const authUser = useContext(AuthUserContext);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [text, setText] = useState('');
+  const [lastDoc, setLastDoc] = useState(null);
+  const unsubscribeRef = useRef(null);
+  const listRef = useRef(null);
 
-  componentDidMount() {
-    this.onListenForMessages();
-  }
+  // Real-time listener
+  useEffect(() => {
+    if (!authUser) return;
 
-  onListenForMessages = () => {
-    this.setState({ loading: true });
+    const messagesRef = collection(db, 'messages');
+    const q = query(messagesRef, orderBy('createdAt', 'desc'), limitToLast(PAGE_SIZE));
 
-    this.props.firebase
-      .messages()
-      .orderByChild('createdAt')
-      .limitToLast(this.state.limit)
-      .on('value', snapshot => {
-        const messageObject = snapshot.val();
+    setLoading(true);
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const newMessages = snapshot.docs.map((doc) => ({
+        uid: doc.id,
+        ...doc.data(),
+      }));
+      setMessages(newMessages.reverse());
+      setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
+      setHasMore(snapshot.docs.length === PAGE_SIZE);
+      setLoading(false);
+    });
 
-        if (messageObject) {
-          const messageList = Object.keys(messageObject).map(key => ({
-            ...messageObject[key],
-            uid: key,
-          }));
+    unsubscribeRef.current = unsubscribe;
+    return () => unsubscribeRef.current?.();
+  }, [authUser]);
 
-          this.setState({
-            messages: messageList,
-            loading: false,
-          });
-        } else {
-          this.setState({ messages: null, loading: false });
-        }
+  // Load more
+  const loadMore = async () => {
+    if (!lastDoc || loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+    try {
+      const messagesRef = collection(db, 'messages');
+      const q = query(
+        messagesRef,
+        orderBy('createdAt', 'desc'),
+        startAfter(lastDoc),
+        limitToLast(PAGE_SIZE)
+      );
+
+      const snapshot = await getDocs(q);
+      const newMessages = snapshot.docs.map((doc) => ({
+        uid: doc.id,
+        ...doc.data(),
+      }));
+
+      setMessages((prev) => [...prev, ...newMessages.reverse()]);
+      setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
+      setHasMore(snapshot.docs.length === PAGE_SIZE);
+    } catch (error) {
+      console.error('Load more failed:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  // Send message
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!text.trim() || !authUser) return;
+
+    try {
+      await addDoc(collection(db, 'messages'), {
+        text: text.trim(),
+        userId: authUser.uid,
+        createdAt: serverTimestamp(),
       });
+      setText('');
+      // Scroll to bottom
+      setTimeout(() => {
+        listRef.current?.scrollToItem(messages.length, 'end');
+      }, 100);
+    } catch (error) {
+      console.error('Send failed:', error);
+    }
   };
 
-  componentWillUnmount() {
-    this.props.firebase.messages().off();
+  // Edit message
+  const handleEdit = async (message, newText) => {
+    try {
+      await updateDoc(doc(db, 'messages', message.uid), {
+        text: newText,
+        editedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error('Edit failed:', error);
+    }
+  };
+
+  // Delete message
+  const handleDelete = async (uid) => {
+    try {
+      await deleteDoc(doc(db, 'messages', uid));
+    } catch (error) {
+      console.error('Delete failed:', error);
+    }
+  };
+
+  if (loading) {
+    return <LoadingSkeleton count={5} />;
   }
 
-  onChangeText = event => {
-    this.setState({ text: event.target.value });
-  };
+  return (
+    <div className="flex flex-col h-full max-h-screen">
+      {/* Message List */}
+      <div className="flex-1 overflow-hidden">
+        <MessageList
+          ref={listRef}
+          authUser={authUser}
+          messages={messages}
+          onEditMessage={handleEdit}
+          onRemoveMessage={handleDelete}
+          loadMore={loadMore}
+          hasMore={hasMore}
+          isLoading={loadingMore}
+        />
+      </div>
 
-  onCreateMessage = (event, authUser) => {
-    this.props.firebase.messages().push({
-      text: this.state.text,
-      userId: authUser.uid,
-      createdAt: this.props.firebase.serverValue.TIMESTAMP,
-    });
+      {/* Input */}
+      <form
+        onSubmit={handleSubmit}
+        className="border-t border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800"
+      >
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Type a message..."
+            className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            maxLength={500}
+          />
+          <button
+            type="submit"
+            disabled={!text.trim()}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
+          >
+            Send
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
 
-    this.setState({ text: '' });
+const LoadingSkeleton = ({ count = 3 }) => (
+  <div className="space-y-4 p-4">
+    {Array.from({ length: count }).map((_, i) => (
+      <div key={i} className="animate-pulse">
+        <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+        <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded w-1/2"></div>
+      </div>
+    ))}
+  </div>
+);
 
-    event.preventDefault();
-  };
-
-  onEditMessage = (message, text) => {
-    const { uid, ...messageSnapshot } = message;
-
-    this.props.firebase.message(message.uid).set({
-      ...messageSnapshot,
-      text,
-      editedAt: this.props.firebase.serverValue.TIMESTAMP,
-    });
-  };
-
-  onRemoveMessage = uid => {
-    this.props.firebase.message(uid).remove();
-  };
-
-  onNextPage = () => {
-    this.setState(
-      state => ({ limit: state.limit + 5 }),
-      this.onListenForMessages,
-    );
-  };
-
-  render() {
-    const { text, messages, loading } = this.state;
-
-    return (
-      <AuthUserContext.Consumer>
-        {authUser => (
-          <div>
-            {!loading && messages && (
-              <button type="button" onClick={this.onNextPage}>
-                More
-              </button>
-            )}
-
-            {loading && <div>Loading ...</div>}
-
-            {messages && (
-              <MessageList
-                authUser={authUser}
-                messages={messages}
-                onEditMessage={this.onEditMessage}
-                onRemoveMessage={this.onRemoveMessage}
-              />
-            )}
-
-            {!messages && <div>There are no messages ...</div>}
-
-            <form
-              onSubmit={event =>
-                this.onCreateMessage(event, authUser)
-              }
-            >
-              <input
-                type="text"
-                value={text}
-                onChange={this.onChangeText}
-              />
-              <button type="submit">Send</button>
-            </form>
-          </div>
-        )}
-      </AuthUserContext.Consumer>
-    );
-  }
-}
-
-export default withFirebase(Messages);
+export default Messages;
