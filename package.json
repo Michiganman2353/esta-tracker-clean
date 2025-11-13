@@ -2,6 +2,24 @@
   "name": "esta-tracker-clean",
   "version": "1.0.0",
   "private": true,
+  "description": "Real-time U.S. ESTA visa waiver status tracking. Secure, fast, PWA-installable.",
+  "author": "Michiganman2353 <your-email@example.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Michiganman2353/esta-tracker-clean.git"
+  },
+  "keywords": [
+    "esta",
+    "visa",
+    "tracker",
+    "firebase",
+    "react",
+    "pwa",
+    "travel",
+    "auth"
+  ],
+  "license": "MIT",
+  "homepage": "https://estatracker.com",
   "dependencies": {
     "firebase": "^10.13.2",
     "react": "^18.3.1",
@@ -9,23 +27,67 @@
     "react-router-dom": "^6.26.2",
     "react-scripts": "5.0.1"
   },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^14.3.1",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.10",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.5.3"
+  },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "npm run lint && npm run test:ci && react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test:ci": "react-scripts test --watchAll=false --coverage --passWithNoTests",
+    "test:watch": "react-scripts test --watchAll",
+    "eject": "react-scripts eject",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "lint:strict": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,css}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,css}\"",
+    "type-check": "tsc --noEmit",
+    "audit:fix": "npm audit fix --force",
+    "pre-commit": "lint-staged"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
-      "react-app/jest"
+      "react-app/jest",
+      "airbnb",
+      "prettier"
+    ],
+    "rules": {
+      "react/prop-types": "off",
+      "import/prefer-default-export": "off",
+      "no-console": "warn"
+    },
+    "overrides": [
+      {
+        "files": ["**/*.test.js", "**/*.test.jsx"],
+        "env": {
+          "jest": true
+        }
+      }
     ]
   },
   "browserslist": {
     "production": [
       ">0.2%",
       "not dead",
-      "not op_mini all"
+      "not op_mini all",
+      "not safari < 12"
     ],
     "development": [
       "last 1 chrome version",
@@ -34,6 +96,24 @@
     ]
   },
   "engines": {
-    "node": "20.x"
+    "node": ">=20.0.0 <21.0.0",
+    "npm": ">=10.0.0"
+  },
+  "resolutions": {
+    "react-error-overlay": "^6.0.11"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
   }
 }
