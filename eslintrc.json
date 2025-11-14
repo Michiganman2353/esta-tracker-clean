@@ -14,8 +14,6 @@
     "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
     "import/no-unresolved": "off",
     "import/extensions": "off",
-
-    /** Clean, consistent, zero-conflicts import ordering */
     "import/order": [
       "warn",
       {
@@ -24,13 +22,9 @@
         "alphabetize": { "order": "asc", "caseInsensitive": true }
       }
     ],
-
-    /** React rule overrides for more realistic dev workflow */
     "react/jsx-no-comment-textnodes": "off",
     "react/jsx-no-target-blank": ["warn", { "allowReferrer": false, "enforceDynamicLinks": "always" }],
     "react/no-unescaped-entities": "warn",
-
-    /** AirBnB can be overly aggressive — these smooth things out */
     "react/jsx-props-no-spreading": "off",
     "react/react-in-jsx-scope": "off",
     "react/state-in-constructor": "off",
@@ -38,9 +32,18 @@
   },
   "overrides": [
     {
-      "files": ["*.test.js", "*.test.jsx"],
+      "files": ["*.test.js", "*.test.jsx", "*.test.ts", "*.test.tsx"],
       "env": {
         "jest": true
+      },
+      "rules": {
+        "import/no-extraneous-dependencies": "off"
+      }
+    },
+    {
+      "files": ["*.stories.js", "*.stories.jsx"],
+      "env": {
+        "storybook": true
       },
       "rules": {
         "import/no-extraneous-dependencies": "off"
@@ -54,7 +57,22 @@
     "import/resolver": {
       "node": {
         "extensions": [".js", ".jsx", ".json"]
+      },
+      "alias": {
+        "map": [
+          ["@components", "./src/components"],
+          ["@lib", "./src/lib"],
+          ["@constants", "./src/constants"]
+        ],
+        "extensions": [".js", ".jsx"]
       }
+    }
+  },
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
     }
   }
 }
