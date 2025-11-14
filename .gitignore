@@ -1,101 +1,104 @@
-# See https://help.github.com/ignore-files/ for more about ignoring files.
+# ==================== #
+# Node Dependencies
+# ==================== #
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Lock files (prefer using only one)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
 # ==================== #
-# Dependencies & Builds
+# Build Artifacts
 # ==================== #
-/node_modules
-/npm-debug.log*
-/yarn-debug.log*
-/yarn-error.log*
-/package-lock.json
-/yarn.lock
+build/
+dist/
+.next/
+out/
+coverage/
 
-# Production builds
-/build
-/dist
-/.next
+# Vercel
+.vercel/
+.vercelignore
 
-# Testing
-/coverage
-/__tests__
-/*.test.js
-/*.test.jsx
-/*.spec.js
-/*.spec.jsx
-
-# Ejected CRA
-/config
-/scripts
-/public/static
+# CRA / Scripts / Config after eject
+config/
+scripts/
+public/static/
 
 # ==================== #
 # Environment & Secrets
 # ==================== #
 .env
+.env.*
+.env.*.local
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-.env.*.local
 
-# Firebase secrets
+# Firebase (private)
 .firebaserc
-.firebase
-/.runtimeconfig.json
-/serviceAccountKey.json
+.firebase/
+.firebase/
+runtimeconfig.json
+.serviceAccountKey.json
+firebase-debug.log
+firebase-debug.*
+firebase-emulator-config.json
 
-# Vercel
-.vercel
-/.vercel
-/.vercel.app
-
-# Tokens & keys
+# Secret keys & certs
 *.key
 *.pem
 *.p12
+*.pfx
 *.crt
 *.cer
-*.jks
-*.keystore
-*.p8
-*.p10
-*.p7b
-*.pfx
-*.p12
-*.pem
-*.key
 *.csr
 *.der
 *.jks
 *.keystore
-*.p12
 *.p7b
-*.pfx
+*.p8
+*.p10
 
 # ==================== #
-# IDEs & Editors
+# Testing
+# ==================== #
+__tests__/
+*.test.*
+*.spec.*
+
+# Jest cache
+jest-cache/
+jest-tmp/
+
+# ==================== #
+# IDE & Editor Files
 # ==================== #
 # VSCode
-.vscode/settings.json
-.vscode/tasks.json
-.vscode/launch.json
-.vscode/extensions.json
-.vscode/**/*.code-snippets
+.vscode/
+!.vscode/extensions.json
 
 # JetBrains
-.idea
+.idea/
 *.iml
 *.iws
-.out
 
-# Vim
+# General editors
 *.swp
 *.swo
-
-# Emacs
 *~
+*.tmp
 
-# macOS
+# ==================== #
+# OS & System Files
+# ==================== #
 .DS_Store
 .DS_Store?
 ._*
@@ -103,30 +106,20 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
-
-# Windows
-Thumbs.db
-ehthumbs.db
 Desktop.ini
 
 # ==================== #
 # Logs & Temp
 # ==================== #
-*.log
 logs/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-
-# OS temp
-tmp/
+*.log
+*.pid
+*.seed
+*.pid.lock
 temp/
-.cache
-
-# Lock files
-yarn-error.log
-pnpm-lock.yaml
+tmp/
+.cache/
+.cache-loader/
 
 # ==================== #
 # PWA & Service Workers
@@ -135,32 +128,29 @@ sw-cache/
 sw-offline/
 service-worker-*.js
 workbox-*
-
-# IndexedDB (PWA offline)
 *.idb
 *.localstorage
 
 # ==================== #
-# Firebase Emulators
+# API / Server output
 # ==================== #
-firebase-debug.log
-firebase-debug.*
-firebase-emulator-config.json
+api/.cache/
+api/node_modules/
+api/dist/
 
 # ==================== #
-# Vercel Previews
+# Screenshots & Assets (Project Custom)
 # ==================== #
-.vercel/project.json
+screenshots/
+og-image.*
+assets/dev-only/
 
 # ==================== #
-# Custom (ESTA Tracker)
+# Local Development Configs
 # ==================== #
-# Screenshots & assets
-/screenshots
-/og-image.*
+local-env.json
+*.local.json
 
-# Analytics
-/analytics
-
-# Local dev
-/local-env.json
+# Misc
+*.orig
+*.rej
