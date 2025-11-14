@@ -1,18 +1,21 @@
 // src/components/EmployeeDashboard.js
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { PDFDownloadLink, Document, Page, Text, View } from '@react-pdf/renderer'; // npm i @react-pdf/renderer
+import { PDFDownloadLink, Document, Page, Text, View } from '@react-pdf/renderer';
 import { useAuth } from '../contexts/AuthContext';
 import { logWorkHours, getSickBalance, requestSickLeave } from '../services/firebase';
-import { debounce } from 'lodash'; // Add to deps if not present
-import { ROLES } from '../../constants/roles'; // From upgraded roles.js
-import { useFocusTrap } from '../../hooks/useFocusTrap'; // Add hook for accessibility
+import { debounce } from 'lodash';
+import { ROLES } from '../../constants/roles';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 const ELITE_VALIDATION = {
   hoursMin: 0.25,
   hoursMax: 24,
   reasonMin: 10,
   reasonMax: 500,
+  accrualRate: 1 / 30, // MI ESTA: 1hr sick time per 30hr worked
+  maxAccrual: 40, // Annual cap
+  maxRollover: 40, // Carryover max
 };
 
 const EmployeeDashboard = () => {
@@ -23,8 +26,8 @@ const EmployeeDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [offlineQueue, setOfflineQueue] = useState([]); // PWA offline requests
-  const focusRef = useFocusTrap(); // Accessibility trap
+  const [offlineQueue, setOfflineQueue] = useState([]);
+  const focusRef = useFocusTrap();
 
   // Debounced input for performance
   const debouncedSetHours = useCallback(debounce((value) => {
@@ -38,12 +41,11 @@ const EmployeeDashboard = () => {
         try {
           const bal = await getSickBalance(user.uid);
           setBalance(bal);
-          localStorage.setItem('sickBalance', bal.toString()); // Cache for offline
+          localStorage.setItem('sickBalance', bal.toString());
         } catch (err) {
           if (navigator.onLine) {
-            setError('Failed to load balance. Retry?');
+            setError('Failed to load sick time balance. Retry?');
           } else {
-            // Offline fallback
             const cached = localStorage.getItem('sickBalance');
             if (cached) setBalance(parseFloat(cached));
           }
@@ -51,7 +53,7 @@ const EmployeeDashboard = () => {
       };
       loadBalance();
 
-      // Auto-refresh every 5min (accrual)
+      // Auto-refresh every 5min (accrual updates)
       const interval = setInterval(loadBalance, 5 * 60 * 1000);
       return () => clearInterval(interval);
     }
@@ -64,7 +66,7 @@ const EmployeeDashboard = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Employee Dashboard</h1>
-          <p className="text-gray-600 mb-4">Please sign in to access.</p>
+          <p className="text-gray-600 mb-4">Please sign in to access sick time tracking.</p>
           <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
             Sign In
           </button>
@@ -84,6 +86,13 @@ const EmployeeDashboard = () => {
   }, [reason]);
 
   const isFormValid = isValidHours && isValidReason;
+
+  // Accrual calc (MI ESTA: 1hr/30hr worked)
+  const accrualEarned = useMemo(() => {
+    // Assume weekly worked hours from localStorage or API
+    const workedHours = parseFloat(localStorage.getItem('weeklyWorked') || '0');
+    return Math.min(ELITE_VALIDATION.maxAccrual, workedHours * ELITE_VALIDATION.accrualRate);
+  }, []);
 
   // Offline queue sync
   useEffect(() => {
@@ -106,12 +115,13 @@ const EmployeeDashboard = () => {
     setSuccess('');
     try {
       await logWorkHours(user.uid, parseFloat(hours));
-      setSuccess('Hours logged successfully!');
+      setSuccess('Hours logged – accrual updated!');
       setHours('');
       // Reload balance
       const bal = await getSickBalance(user.uid);
       setBalance(bal);
       localStorage.setItem('sickBalance', bal.toString());
+      localStorage.setItem('weeklyWorked', (parseFloat(localStorage.getItem('weeklyWorked') || '0') + parseFloat(hours)).toString());
     } catch (err) {
       if (navigator.onLine) {
         setError(err.message || 'Logging failed. Retry?');
@@ -134,7 +144,7 @@ const EmployeeDashboard = () => {
     setSuccess('');
     try {
       await requestSickLeave(user.uid, parseFloat(hours), reason);
-      setSuccess('Sick leave requested! Approval pending.');
+      setSuccess('Sick leave requested! Approval pending under MI ESTA.');
       setHours('');
       setReason('');
     } catch (err) {
@@ -149,27 +159,38 @@ const EmployeeDashboard = () => {
     }
   };
 
-  // PDF Report (compliance)
+  // PDF Report (MI ESTA compliance – print/paystub)
   const SickLeaveReport = () => (
-    <PDFDownloadLink document={<LeavePDF balance={balance} />} fileName="sick-time-report.pdf">
+    <PDFDownloadLink document={<LeavePDF balance={balance} accrual={accrualEarned} />} fileName="esta-sick-time-report.pdf">
       {({ loading }) => (
         <button
           disabled={loading}
           className="w-full py-2 px-4 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 transition"
-          aria-label="Download sick time report"
+          aria-label="Download ESTA sick time report (MI compliance)"
         >
-          {loading ? 'Generating...' : 'Download Report'}
+          {loading ? 'Generating PDF...' : 'Download ESTA Report'}
         </button>
       )}
     </PDFDownloadLink>
   );
 
-  const LeavePDF = ({ balance }) => (
+  const LeavePDF = ({ balance, accrual }) => (
     <Document>
-      <Page>
-        <Text style={{ fontSize: 24, marginBottom: 20 }}>Sick Time Report</Text>
-        <Text>Current Balance: {balance.toFixed(2)} hours</Text>
-        <Text>Generated: {new Date().toLocaleString()}</Text>
+      <Page size="A4" style={{ padding: 40 }}>
+        <View style={{ textAlign: 'center', marginBottom: 20 }}>
+          <Text style={{ fontSize: 24, fontWeight: 'bold' }}>ESTA Sick Time Report</Text>
+          <Text style={{ fontSize: 12, marginTop: 5 }}>Michigan Earned Sick Time Act Compliance</Text>
+        </View>
+        <View style={{ marginBottom: 10 }}>
+          <Text>Employee: {user.email}</Text>
+          <Text>Date: {new Date().toLocaleDateString()}</Text>
+        </View>
+        <View style={{ marginBottom: 10 }}>
+          <Text>Current Balance: {balance.toFixed(2)} hours</Text>
+          <Text>Accrual This Period: {accrual.toFixed(2)} hours (1:30 rate)</Text>
+          <Text>Max Annual: 40 hours | Max Rollover: 40 hours</Text>
+        </View>
+        <Text style={{ fontSize: 10, marginTop: 20 }}>Generated by ESTA Tracker – For internal use only.</Text>
       </Page>
     </Document>
   );
@@ -184,100 +205,9 @@ const EmployeeDashboard = () => {
         >
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Employee Dashboard
+              ESTA Dashboard
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Balance: <span className="font-semibold text-green-600 dark:text-green-400">{balance.toFixed(2)}</span> hours
-            </p>
-          </div>
-
-          {/* Log Hours */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Log Work Hours
-            </h3>
-            <input
-              type="number"
-              step="0.25"
-              min={ELITE_VALIDATION.hoursMin}
-              max={ELITE_VALIDATION.hoursMax}
-              value={hours}
-              onChange={(e) => debouncedSetHours(e.target.value)}
-              placeholder="Hours (e.g., 8.5)"
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              aria-label="Hours worked"
-            />
-            <button
-              onClick={handleLogHours}
-              disabled={loading || !isValidHours}
-              className="w-full py-3 px-4 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-              aria-label="Log hours"
-            >
-              {loading ? 'Logging...' : 'Log Hours'}
-            </button>
-          </div>
-
-          {/* Request Sick Leave */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Request Sick Leave
-            </h3>
-            <input
-              type="number"
-              step="0.25"
-              min={ELITE_VALIDATION.hoursMin}
-              max={balance}
-              value={hours}
-              onChange={(e) => setHours(e.target.value)}
-              placeholder="Hours"
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              aria-label="Sick hours"
-            />
-            <textarea
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="Reason (min 10 chars)"
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none h-20"
-              maxLength={ELITE_VALIDATION.reasonMax}
-              aria-label="Leave reason"
-            />
-            <button
-              onClick={handleRequestSickLeave}
-              disabled={loading || !isFormValid}
-              className="w-full py-3 px-4 bg-orange-600 text-white font-bold rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-              aria-label="Request sick leave"
-            >
-              {loading ? 'Requesting...' : 'Request Sick Leave'}
-            </button>
-          </div>
-
-          {/* Report Export */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Export Report
-            </h3>
-            <SickLeaveReport />
-          </div>
-
-          {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-sm text-red-600 dark:text-red-400">
-                {error}
-              </p>
-            </div>
-          )}
-
-          {success && (
-            <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-              <p className="text-sm text-green-600 dark:text-green-400">
-                {success}
-              </p>
-            </div>
-          )}
-        </motion.div>
-      </div>
-    </div>
-  );
-};
-
-export default EmployeeDashboard;
+              Sick Time Balance: <span className="font-semibold text-green-600 dark:text-green-400">{balance.toFixed(2)}</span> hours
+              <br />
+              Accrual Earned: <span className="font-semibold text-blue-600 dark:text-blue-400">{acc
