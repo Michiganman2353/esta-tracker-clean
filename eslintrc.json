@@ -6,10 +6,23 @@
     "airbnb/hooks",
     "prettier"
   ],
+  "parser": "@babel/eslint-parser",
+  "plugins": ["@typescript-eslint"],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "requireConfigFile": false,
+    "babelOptions": {
+      "presets": ["@babel/preset-react"]
+    }
+  },
   "rules": {
     "react/prop-types": "off",
     "import/prefer-default-export": "off",
-    "no-console": "warn",
+    "no-console": ["error", { "allow": ["warn", "error"] }],
     "react-hooks/exhaustive-deps": "warn",
     "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
     "import/no-unresolved": "off",
@@ -28,11 +41,12 @@
     "react/jsx-props-no-spreading": "off",
     "react/react-in-jsx-scope": "off",
     "react/state-in-constructor": "off",
-    "react/function-component-definition": "off"
+    "react/function-component-definition": "off",
+    "react/jsx-uses-react": "off"
   },
   "overrides": [
     {
-      "files": ["*.test.js", "*.test.jsx", "*.test.ts", "*.test.tsx"],
+      "files": ["*.test.js", "*.test.jsx"],
       "env": {
         "jest": true
       },
@@ -48,6 +62,14 @@
       "rules": {
         "import/no-extraneous-dependencies": "off"
       }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "parser": "@typescript-eslint/parser",
+      "plugins": ["@typescript-eslint"],
+      "rules": {
+        "@typescript-eslint/no-unused-vars": "warn"
+      }
     }
   ],
   "settings": {
@@ -56,7 +78,7 @@
     },
     "import/resolver": {
       "node": {
-        "extensions": [".js", ".jsx", ".json"]
+        "extensions": [".js", ".jsx", ".ts", ".tsx", ".json"]
       },
       "alias": {
         "map": [
@@ -64,15 +86,8 @@
           ["@lib", "./src/lib"],
           ["@constants", "./src/constants"]
         ],
-        "extensions": [".js", ".jsx"]
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
       }
-    }
-  },
-  "parserOptions": {
-    "ecmaVersion": "latest",
-    "sourceType": "module",
-    "ecmaFeatures": {
-      "jsx": true
     }
   }
 }
