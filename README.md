@@ -31,7 +31,7 @@ Secure · Fast · Private · PWA-Installable
 
 - **Frontend:** React 18 + Create React App
 - **Routing:** React Router DOM v6
-- **Auth & Backend:** Firebase v10 (Auth + Firestore)
+- **Auth & Backend:** firebase v10 (Auth + Firestore)
 - **Deployment:** Vercel (edge network, custom domain)
 - **PWA:** Manifest + Service Worker
 - **Styling:** Tailwind CSS (optional) or vanilla CSS
