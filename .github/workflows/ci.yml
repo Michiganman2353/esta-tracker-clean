@@ -70,3 +70,5 @@ jobs:
       - name: Notify Failure
         if: failure()
         run: echo "CI failed – check logs! ⚠️"
+        - name: Install Dependencies
+  run: npm ci || npm install --legacy-peer-deps
