@@ -58,29 +58,15 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,css}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,css}\"",
     "type-check": "tsc --noEmit",
-    "audit:fix": "npm audit fix --force",
-    "pre-commit": "lint-staged"
+    "audit:fix": "npm audit fix --force"
   },
   "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest",
-      "airbnb",
-      "prettier"
-    ],
+    "extends": ["react-app", "react-app/jest", "airbnb", "prettier"],
     "rules": {
       "react/prop-types": "off",
       "import/prefer-default-export": "off",
       "no-console": "warn"
-    },
-    "overrides": [
-      {
-        "files": ["**/*.test.js", "**/*.test.jsx"],
-        "env": {
-          "jest": true
-        }
-      }
-    ]
+    }
   },
   "browserslist": {
     "production": [
@@ -89,13 +75,6 @@
       "not op_mini all",
       "not safari < 12"
     ],
-    {
-  "scripts": {
-    "lint:fix": "eslint . --ext .js,.jsx --fix",
-    "format": "prettier --write \"**/*.{js,jsx,json,css,md}\"",
-    "pre-commit": "npm run lint:fix && npm run format"
-  }
-}
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
@@ -115,12 +94,7 @@
     }
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md,css}": [
-      "prettier --write"
-    ]
+    "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
+    "*.{json,md,css}": ["prettier --write"]
   }
 }
