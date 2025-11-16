@@ -1,106 +1,41 @@
-name: Elite CI/CD
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, develop]
   pull_request:
-    branches: [main, master]
-
-permissions:
-  contents: read
-  security-events: write
-  pull-requests: write
+    branches: [main, master, develop]
 
 jobs:
-  elite-build:
-    name: Build & Test (Node ${{ matrix.node }})
+  test:
+    name: Test & Build
     runs-on: ubuntu-latest
-
+    
     strategy:
       matrix:
-        node: ['20.x']
-
-    timeout-minutes: 10
-
+        node-version: [18.x, 20.x]
+    
     steps:
-
-      # -------------------------
-      # Checkout Code
-      # -------------------------
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      # -------------------------
-      # Node Setup
-      # -------------------------
-      - name: Setup Node.js
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-
-      # -------------------------
-      # Install Dependencies
-      # -------------------------
-      - name: Install Dependencies
-        run: npm ci || npm install --legacy-peer-deps
-
-      # -------------------------
-      # Linting
-      # -------------------------
-      - name: Lint Code
-        run: npm run lint || echo "Lint warnings – manual review"
-        continue-on-error: true
-
-      # -------------------------
-      # Type Checking
-      # -------------------------
-      - name: Type Check
-        run: npm run type-check || echo "No TS – skip"
-        continue-on-error: true
-
-      # -------------------------
-      # Testing
-      # -------------------------
-      - name: Run Tests
-        id: test
-        run: npm test -- --coverage --watchAll=false || echo "No tests – add later"
-        continue-on-error: true
-
-      # -------------------------
-      # Security Audit
-      # -------------------------
-      - name: Security Audit
-        run: |
-          npm audit --audit-level=high || echo "Some vulnerabilities found"
-          npx depcheck --ignores=eslint,prettier || echo "Depcheck passed"
-
-      # -------------------------
-      # Build
-      # -------------------------
-      - name: Build Production
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Type check
+        run: npm run typecheck
+      
+      - name: Lint
+        run: npm run lint
+      
+      - name: Run tests
+        run: npm run test
+      
+      - name: Build
         run: npm run build
-
-      # -------------------------
-      # Codecov Upload (only if tests succeeded)
-      # -------------------------
-      - name: Upload Coverage to Codecov
-        if: steps.test.outcome == 'success'
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage/lcov.info
-          fail_ci_if_error: false
-
-      # -------------------------
-      # Success / Failure Messaging
-      # -------------------------
-      - name: Notify Success
-        if: success()
-        run: echo "CI passed – deploy ready! 🚀"
-
-      - name: Notify Failure
-        if: failure()
-        run: echo "CI failed – check logs! ⚠️"

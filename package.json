@@ -1,292 +1,31 @@
 {
-  "name": "esta-tracker",
-  "version": "1.0.0",
+  "name": "esta-tracker-monorepo",
+  "version": "2.0.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.3",
-    "firebase": "^10.8.1"
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "npm run dev --workspace=packages/frontend",
+    "dev:backend": "npm run dev --workspace=packages/backend",
+    "build": "npm run build --workspaces --if-present",
+    "build:frontend": "npm run build --workspace=packages/frontend",
+    "build:backend": "npm run build --workspace=packages/backend",
+    "test": "npm run test --workspaces --if-present",
+    "test:frontend": "npm run test --workspace=packages/frontend",
+    "test:backend": "npm run test --workspace=packages/backend",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "clean": "rm -rf node_modules packages/*/node_modules packages/*/dist packages/*/build",
+    "postinstall": "npm run postinstall --workspaces --if-present"
   },
   "devDependencies": {
-    "react-scripts": "5.0.1"
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
   },
-  "eslintConfig": {
-    "extends": ["react-app", "react-app/jest"]
-  },
-  "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
-}
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-const axios = require('axios');
-
-admin.initializeApp();
-
-// QuickBooks OAuth2 Token (Store in Firebase Secrets)
-const QB_CLIENT_ID = functions.config().quickbooks.client_id;
-const QB_CLIENT_SECRET = functions.config().quickbooks.client_secret;
-const QB_REALM_ID = functions.config().quickbooks.realm_id;
-const QB_TOKEN = functions.config().quickbooks.access_token; // Refresh via cron
-
-// Cron Job: Pull Payroll Hours (Daily)
-exports.pullQuickBooksPayroll = functions.pubsub.schedule('0 2 * * *').onRun(async () => {
-  try {
-    const response = await axios.get(`https://sandbox-quickbooks.api.intuit.com/v3/company/${QB_REALM_ID}/reports/Timesheet`, {
-      headers: {
-        'Authorization': `Bearer ${QB_TOKEN}`,
-        'Accept': 'application/json'
-      },
-      params: { start_date: new Date(Date.now() - 86400000).toISOString().split('T')[0] } // Last 24h
-    });
-    const timesheets = response.data.Rows.Row; // Parse QB response
-    for (const sheet of timesheets) {
-      const userId = sheet.ColData[0].value; // Map QB employee ID to ESTA userId
-      const hours = parseFloat(sheet.ColData[1].value);
-      await logWorkHours(userId, hours); // Trigger ESTA accrual
-    }
-  } catch (err) {
-    console.error('QB Pull Error: ' + err.message);
-  }
-  return null;
-});
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { db } from '../services/firebase';
-import { collection, query, where, getDocs, addDoc, orderBy } from 'firebase/firestore';
-import { getSickBalance, approveSickRequest } from '../services/firebase';
-import { PDFDownloadLink, Document, Page, Text, View } from '@react-pdf/renderer';
-import { CSVLink } from 'react-csv';
-import { DateRangePicker } from 'react-date-range';
-import 'react-date-range/dist/styles.css';
-import 'react-date-range/dist/theme/default.css';
-import { format } from 'date-fns';
-
-export default function EmployerDashboard() {
-  const { user, role } = useAuth();
-  const navigate = useNavigate();
-  const [employees, setEmployees] = useState([]);
-  const [requests, setRequests] = useState([]);
-  const [newEmail, setNewEmail] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [auditData, setAuditData] = useState([]);
-  const [dateRange, setDateRange] = useState([{
-    startDate: new Date(),
-    endDate: new Date(),
-    key: 'selection'
-  }]);
-
-  useEffect(() => {
-    if (user && role === 'employer') {
-      loadEmployees();
-      loadRequests();
-    } else {
-      navigate('/login');
-    }
-  }, [user, role, navigate]);
-
-  const loadEmployees = async () => {
-    try {
-      const q = query(collection(db, 'users'), where('employerId', '==', user.uid));
-      const snapshot = await getDocs(q);
-      const employeeList = await Promise.all(snapshot.docs.map(async (d) => ({
-        id: d.id,
-        email: d.data().email,
-        balance: await getSickBalance(d.id),
-        isSmallEmployer: d.data().isSmallEmployer || false
-      })));
-      setEmployees(employeeList);
-    } catch (err) {
-      setError('Error loading employees: ' + err.message);
-    }
-  };
-
-  const loadRequests = async () => {
-    try {
-      const q = query(collection(db, 'sickRequests'), where('employerId', '==', user.uid), where('status', '==', 'pending'));
-      const snapshot = await getDocs(q);
-      const requestList = snapshot.docs.map(d => ({
-        id: d.id,
-        ...d.data()
-      }));
-      setRequests(requestList);
-    } catch (err) {
-      setError('Error loading requests: ' + err.message);
-    }
-  };
-
-  const addEmployee = async () => {
-    try {
-      await addDoc(collection(db, 'users'), {
-        email: newEmail,
-        employerId: user.uid,
-        role: 'employee',
-        isSmallEmployer: false,
-        totalHours: 0
-      });
-      setSuccess('Employee added!');
-      setNewEmail('');
-      loadEmployees();
-    } catch (err) {
-      setError('Add employee error: ' + err.message);
-    }
-  };
-
-  const handleApprove = async (requestId, status) => {
-    try {
-      await approveSickRequest(requestId, status, user.uid);
-      setSuccess('Request updated!');
-      loadRequests();
-      loadEmployees();
-    } catch (err) {
-      setError('Approval error: ' + err.message);
-    }
-  };
-
-  const generateAudit = async () => {
-    try {
-      const startTimestamp = dateRange[0].startDate.getTime();
-      const endTimestamp = dateRange[0].endDate.getTime();
-      const q = query(collection(db, 'workLogs'), where('employerId', '==', user.uid), where('timestamp', '>=', startTimestamp), where('timestamp', '<=', endTimestamp), orderBy('timestamp'));
-      const snapshot = await getDocs(q);
-      const auditList = snapshot.docs.map(d => ({
-        id: d.id,
-        ...d.data()
-      }));
-      setAuditData(auditList);
-      setSuccess('Audit data generated!');
-    } catch (err) {
-      setError('Audit generation error: ' + err.message);
-    }
-  };
-
-  const AuditPDF = ({ data }) => (
-    <Document>
-      <Page size="A4" style={{ padding: 40 }}>
-        <View style={{ textAlign: 'center', marginBottom: 20 }}>
-          <Text style={{ fontSize: 24, fontWeight: 'bold' }}>ESTA Audit Report</Text>
-          <Text style={{ fontSize: 12, marginTop: 5 }}>Michigan Earned Sick Time Act Compliance</Text>
-        </View>
-        <View style={{ marginBottom: 10 }}>
-          <Text>Employer: {user.email}</Text>
-          <Text>Date Range: {format(dateRange[0].startDate, 'MM/dd/yyyy')} to {format(dateRange[0].endDate, 'MM/dd/yyyy')}</Text>
-        </View>
-        <View style={{ marginBottom: 10 }}>
-          <Text>Audit History</Text>
-          {data.map((item, i) => (
-            <Text key={i}>{item.userId} logged {item.hours}h on {format(new Date(item.timestamp.seconds * 1000), 'MM/dd/yyyy')}</Text>
-          ))}
-        </View>
-        <Text style={{ fontSize: 10, marginTop: 20 }}>Generated by ESTA Tracker – For internal use only.</Text>
-      </Page>
-    </Document>
-  );
-
-  return (
-    <div style={{ padding: '2rem', maxWidth: '600px', margin: 'auto' }}>
-      <h1>Employer Admin Dashboard</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <h2>Add Employee</h2>
-      <input placeholder="Employee Email" value={newEmail} onChange={e => setNewEmail(e.target.value)} />
-      <button onClick={addEmployee}>Add</button>
-      <h2>Employees</h2>
-      <ul>
-        {employees.map(emp => (
-          <li key={emp.id}>
-            {emp.email} — Balance: {emp.balance} hours
-          </li>
-        ))}
-      </ul>
-      <h2>Pending Requests</h2>
-      <ul>
-        {requests.map(req => (
-          <li key={req.id}>
-            {req.userId} requests {req.hours}h ({req.reason})
-            <button onClick={() => handleApprove(req.id, 'approved')}>Approve</button>
-            <button onClick={() => handleApprove(req.id, 'denied')}>Deny</button>
-          </li>
-        ))}
-      </ul>
-      <h2>Audit Exports</h2>
-      <DateRangePicker
-        ranges={dateRange}
-        onChange={item => setDateRange([item.selection])}
-        moveRangeOnFirstSelection={false}
-      />
-      <button onClick={generateAudit}>Generate Audit Data</button>
-      {auditData.length > 0 && (
-        <>
-          <PDFDownloadLink document={<AuditPDF data={auditData} />} fileName="esta-audit-report.pdf">
-            {({ loading }) => <button disabled={loading}>{loading ? 'Generating PDF...' : 'Download PDF Audit'}</button>}
-          </PDFDownloadLink>
-          <CSVLink data={auditData} filename="esta-audit.csv" className="button">Download CSV Audit</CSVLink>
-        </>
-      )}
-    </div>
-  );
-}
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-const axios = require('axios');
-
-admin.initializeApp();
-
-// ADP OAuth2 Token (Store in Firebase Secrets)
-const ADP_CLIENT_ID = functions.config().adp.client_id;
-const ADP_CLIENT_SECRET = functions.config().adp.client_secret;
-const ADP_TOKEN = functions.config().adp.access_token; // Refresh via cron
-
-// Cron Job: Pull ADP Payroll Hours (Daily)
-exports.pullADPPayroll = functions.pubsub.schedule('0 2 * * *').onRun(async () => {
-  try {
-    const response = await axios.get(`https://api.adp.com/hr/v2/timesheets`, {
-      headers: {
-        'Authorization': `Bearer ${ADP_TOKEN}`,
-        'Accept': 'application/json'
-      },
-      params: { start_date: new Date(Date.now() - 86400000).toISOString().split('T')[0] } // Last 24h
-    });
-    const timesheets = response.data.timesheets; // Parse ADP response
-    for (const sheet of timesheets) {
-      const userId = sheet.employeeId; // Map ADP employee ID to ESTA userId
-      const hours = parseFloat(sheet.hours);
-      await logWorkHours(userId, hours); // Trigger ESTA accrual
-    }
-  } catch (err) {
-    console.error('ADP Pull Error: ' + err.message);
-  }
-  return null;
-});
-
-// Carryover Logic (Annual Cron: Jan 1)
-exports.carryoverSickTime = functions.pubsub.schedule('0 0 1 1 *').onRun(async () => {
-  const users = await getDocs(collection(db, 'users'));
-  const batch = db.batch();
-  users.forEach(async (userDoc) => {
-    const data = userDoc.data();
-    if (data.role === 'employee') {
-      const balance = await getSickBalance(userDoc.id);
-      const unused = balance - data.used || 0;
-      const cap = data.isSmallEmployer ? 40 : 72;
-      const carryover = Math.min(unused, cap);
-      batch.update(userDoc.ref, { totalHours: 0, used: 0, carryover });
-    }
-  });
-  await batch.commit();
-  return null;
-});
-"devDependencies": {
-  "tailwindcss": "^3.4.14",
-  "date-fns": "^4.1.0",
-  "axios": "^1.7.7"
 }

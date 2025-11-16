@@ -1,48 +1,58 @@
-# ESTA Tracker
+# ESTA Tracker - Michigan Earned Sick Time Act Compliance System
 
-**Real-Time U.S. Visa Waiver (ESTA) Status Tracking**  
-Secure · Fast · Private · PWA-Installable
+A modern, full-stack TypeScript monorepo application for managing Michigan's Earned Sick Time Act (ESTA) compliance. Built with Vite + React 18 (frontend) and Node.js + Express (backend), with PostgreSQL-ready database architecture.
 
-[![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000.svg?style=for-the-badge&logo=vercel)](https://estatracker.com) [![React 18](https://img.shields.io/badge/React-18.3.1-61DAFB.svg?style=for-the-badge&logo=react)](https://reactjs.org) [![Firebase v10](https://img.shields.io/badge/Firebase-v10.13.2-FFCA28.svg?style=for-the-badge&logo=firebase)](https://firebase.google.com) [![PWA Ready](https://img.shields.io/badge/PWA-Installable-4CAF50.svg?style=for-the-badge)](https://web.dev/pwa-checklist/) [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+## 🎯 Features
 
-> **Live App:** [https://estatracker.com](https://estatracker.com)  
-> **Status:** Production | Mobile-First | Dark Mode | Offline Capable
+### Michigan ESTA Compliance
+- ✅ **Small Employer Rules** (<10 employees): 40 hours sick time per year, max 40 paid + 32 unpaid hours usage, carryover cap 40 hours
+- ✅ **Large Employer Rules** (≥10 employees): 1 hour accrual per 30 hours worked, max 72 paid hours per year, carryover cap 72 hours
+- ✅ **Year-to-year carryover** with compliance caps
+- ✅ **Usage categories** per Michigan law (illness, medical, preventive care, family care, domestic violence, sexual assault, stalking)
+- ✅ **Anti-retaliation protections** with audit trail
+- ✅ **3-year compliance audit trail** for state inspections
 
----
+### Technical Features
+- 🏗️ Modern Monorepo Architecture (npm workspaces)
+- ⚡ Vite for lightning-fast development
+- ⚛️ React 18 with TypeScript
+- 🎨 Tailwind CSS for styling
+- 🔒 Type-safe end-to-end with TypeScript
+- 🧪 Vitest for testing
+- 🐘 PostgreSQL-ready data layer
 
-## 🚀 Features
+## 🚀 Quick Start
 
-| Feature | Status |
-|--------|--------|
-| Real-time ESTA status sync | ✅ |
-| Google / Email / Password Auth | ✅ |
-| Protected routes & session persistence | ✅ |
-| Firestore user profile sync | ✅ |
-| PWA: Installable on iOS & Android | ✅ |
-| Dark mode + responsive design | ✅ |
-| Offline support (service worker) | ✅ |
-| SEO optimized (meta, OG, JSON-LD) | ✅ |
-| Security headers (CSP, HSTS) | ✅ |
-| Vercel edge network + custom domain | ✅ |
- [![Coverage](https://codecov.io/gh/Michiganman2353/esta-tracker-clean/branch/master/graph/badge.svg)](https://codecov.io/gh/Michiganman2353/esta-tracker-clean)
----
+### Prerequisites
+- Node.js ≥18.0.0
+- npm ≥9.0.0
 
-## 🛠 Tech Stack
-
-- **Frontend:** React 18 + Create React App
-- **Routing:** React Router DOM v6
-- **Auth & Backend:** firebase v10 (Auth + Firestore)
-- **Deployment:** Vercel (edge network, custom domain)
-- **PWA:** Manifest + Service Worker
-- **Styling:** Tailwind CSS (optional) or vanilla CSS
-
----
-
-## ⚡ Quick Start
-
-### 1. Clone & Install
+### Installation
 
 ```bash
 git clone https://github.com/Michiganman2353/esta-tracker-clean.git
 cd esta-tracker-clean
 npm install
+cp .env.example .env
+npm run dev
+```
+
+Frontend: http://localhost:5173  
+Backend: http://localhost:3001
+
+## 📋 Available Scripts
+
+```bash
+npm run dev              # Start both frontend and backend
+npm run build            # Build all packages
+npm run test             # Run tests in all packages
+npm run lint             # Lint all packages
+```
+
+## 📄 License
+
+MIT License
+
+---
+
+**Built for Michigan ESTA compliance**

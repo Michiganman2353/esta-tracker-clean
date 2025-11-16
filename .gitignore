@@ -8,8 +8,7 @@ yarn-error.log*
 pnpm-debug.log*
 .pnpm-store/
 
-# Lock files (prefer using only one)
-package-lock.json
+# Lock files (keep package-lock.json for consistency)
 yarn.lock
 pnpm-lock.yaml
 
@@ -21,15 +20,18 @@ dist/
 .next/
 out/
 coverage/
+*.tsbuildinfo
+
+# Vite
+.vite/
+vite.config.*.timestamp-*
 
 # Vercel
 .vercel/
 .vercelignore
 
-# CRA / Scripts / Config after eject
-config/
-scripts/
-public/static/
+# TypeScript
+*.tsbuildinfo
 
 # ==================== #
 # Environment & Secrets
@@ -70,13 +72,10 @@ firebase-emulator-config.json
 # ==================== #
 # Testing
 # ==================== #
-__tests__/
-*.test.*
-*.spec.*
-
-# Jest cache
+# Keep test files, just ignore cache
 jest-cache/
 jest-tmp/
+.vitest/
 
 # ==================== #
 # IDE & Editor Files
