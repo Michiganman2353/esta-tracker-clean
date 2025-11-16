@@ -51,7 +51,7 @@ npm run lint             # Lint all packages
 
 ## 📄 License
 
-MIT License
+
 
 ---
 
