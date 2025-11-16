@@ -33,7 +33,8 @@ A modern, full-stack TypeScript monorepo application for managing Michigan's Ear
 git clone https://github.com/Michiganman2353/esta-tracker-clean.git
 cd esta-tracker-clean
 npm install
-cp .env.example .env
+cp .env.example .env.local
+# Edit .env.local with your configuration
 npm run dev
 ```
 
@@ -48,6 +49,14 @@ npm run build            # Build all packages
 npm run test             # Run tests in all packages
 npm run lint             # Lint all packages
 ```
+
+## 🚀 Deployment
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions on deploying to Vercel, including:
+- Environment variable configuration
+- Firebase setup
+- Build process verification
+- Troubleshooting common issues
 
 ## 📄 License
 
