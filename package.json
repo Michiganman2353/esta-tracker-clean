@@ -25,3 +25,36 @@
     "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
   }
 }
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+const axios = require('axios');
+
+admin.initializeApp();
+
+// QuickBooks OAuth2 Token (Store in Firebase Secrets)
+const QB_CLIENT_ID = functions.config().quickbooks.client_id;
+const QB_CLIENT_SECRET = functions.config().quickbooks.client_secret;
+const QB_REALM_ID = functions.config().quickbooks.realm_id;
+const QB_TOKEN = functions.config().quickbooks.access_token; // Refresh via cron
+
+// Cron Job: Pull Payroll Hours (Daily)
+exports.pullQuickBooksPayroll = functions.pubsub.schedule('0 2 * * *').onRun(async () => {
+  try {
+    const response = await axios.get(`https://sandbox-quickbooks.api.intuit.com/v3/company/${QB_REALM_ID}/reports/Timesheet`, {
+      headers: {
+        'Authorization': `Bearer ${QB_TOKEN}`,
+        'Accept': 'application/json'
+      },
+      params: { start_date: new Date(Date.now() - 86400000).toISOString().split('T')[0] } // Last 24h
+    });
+    const timesheets = response.data.Rows.Row; // Parse QB response
+    for (const sheet of timesheets) {
+      const userId = sheet.ColData[0].value; // Map QB employee ID to ESTA userId
+      const hours = parseFloat(sheet.ColData[1].value);
+      await logWorkHours(userId, hours); // Trigger ESTA accrual
+    }
+  } catch (err) {
+    console.error('QB Pull Error: ' + err.message);
+  }
+  return null;
+});
