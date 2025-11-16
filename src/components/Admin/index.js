@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../services/firebase';
-import { collection, query, where, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { getSickBalance, approveSickRequest } from '../../services/firebase';
 
 export default function Admin() {
@@ -12,7 +12,7 @@ export default function Admin() {
   const [requests, setRequests] = useState([]);
   const [newEmail, setNewEmail] = useState('');
   const [error, setError] = useState('');
-  const [isSmallEmployer, setIsSmallEmployer] = useState(false); // Toggle for new employees
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     if (user && role === 'employer') {
@@ -30,7 +30,8 @@ export default function Admin() {
       const employeeList = await Promise.all(snapshot.docs.map(async (d) => ({
         id: d.id,
         email: d.data().email,
-        balance: await getSickBalance(d.id)
+        balance: await getSickBalance(d.id),
+        isSmallEmployer: d.data().isSmallEmployer || false
       })));
       setEmployees(employeeList);
     } catch (err) {
@@ -58,9 +59,10 @@ export default function Admin() {
         email: newEmail,
         employerId: user.uid,
         role: 'employee',
-        isSmallEmployer,
+        isSmallEmployer: false,  // Default; toggle per employer
         totalHours: 0
       });
+      setSuccess('Employee added!');
       setNewEmail('');
       loadEmployees();
     } catch (err) {
@@ -71,6 +73,7 @@ export default function Admin() {
   const handleApprove = async (requestId, status) => {
     try {
       await approveSickRequest(requestId, status, user.uid);
+      setSuccess('Request updated!');
       loadRequests();
       loadEmployees();
     } catch (err) {
@@ -82,31 +85,28 @@ export default function Admin() {
     <div style={{ padding: '2rem', maxWidth: '600px', margin: 'auto' }}>
       <h1>Employer Admin Dashboard</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
+      {success && <p style={{ color: 'green' }}>{success}</p>}
       <h2>Add Employee</h2>
       <input placeholder="Employee Email" value={newEmail} onChange={e => setNewEmail(e.target.value)} />
-      <label>
-        Small Employer (40h cap)?
-        <input type="checkbox" checked={isSmallEmployer} onChange={e => setIsSmallEmployer(e.target.checked)} />
-      </label>
       <button onClick={addEmployee}>Add</button>
       <h2>Employees</h2>
       <ul>
         {employees.map(emp => (
           <li key={emp.id}>
-            {emp.email} — Balance: {emp.balance} hours
+            {emp.email} — Balance: {emp.balance} hours (Small Employer: {emp.isSmallEmployer ? 'Yes' : 'No'})
           </li>
         ))}
       </ul>
       <h2>Pending Requests</h2
-<ul>
-  {requests.map(req => (
-    <li key={req.id}>
-      {req.userId} requests {req.hours}h ({req.reason})
-      <button onClick={() => handleApprove(req.id, 'approved')}>Approve</button>
-      <button onClick={() => handleApprove(req.id, 'denied')}>Deny</button>
-    </li>
-  ))}
-</ul>
+      <ul>
+        {requests.map(req => (
+          <li key={req.id}>
+            {req.userId} requests {req.hours}h ({req.reason})
+            <button onClick={() => handleApprove(req.id, 'approved')}>Approve</button>
+            <button onClick={() => handleApprove(req.id, 'denied')}>Deny</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
