@@ -1,0 +1,22 @@
+{
+  "name": "ESTA Tracker - Michigan Sick Time Compliance",
+  "short_name": "ESTA Tracker",
+  "description": "Michigan Earned Sick Time Act (ESTA) compliance tracking and management system",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#1f2937",
+  "background_color": "#ffffff",
+  "categories": ["business", "productivity", "utilities"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "prefer_related_applications": false
+}
