@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   calculateAccrual,
   calculateCarryover,
-  validateUsageRequest,
   SMALL_EMPLOYER_RULES,
   LARGE_EMPLOYER_RULES,
 } from '../services/compliance.js';
