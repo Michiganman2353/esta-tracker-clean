@@ -285,3 +285,8 @@ exports.carryoverSickTime = functions.pubsub.schedule('0 0 1 1 *').onRun(async (
   await batch.commit();
   return null;
 });
+"devDependencies": {
+  "tailwindcss": "^3.4.14",
+  "date-fns": "^4.1.0",
+  "axios": "^1.7.7"
+}
