@@ -256,3 +256,9 @@ export default function EmployeeDashboard() {
     </div>
   );
 }
+import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+
+// In loadRequests/generateAudit
+const startTimestamp = startOfDay(filterStart).getTime();
+const endTimestamp = endOfDay(filterEnd).getTime();
+const q = query(collection(db, 'sickRequests'), where('employerId', '==', user.uid), where('status', '==', 'pending'), where('timestamp', '>=', startTimestamp), where('timestamp', '<=', endTimestamp));
