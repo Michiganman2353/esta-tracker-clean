@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { PDFDownloadLink, Document, Page, Text, View } from '@react-pdf/renderer';
-import { useAuth } from '../contexts/AuthContext';
-import { logWorkHours, getSickBalance, requestSickLeave } from '../services/firebase';
+import { useAuth } from '../Session';
+import { db } from '../../lib/firebase';
+import { collection, addDoc, query, where, getDocs, serverTimestamp } from 'firebase/firestore';
 import { debounce } from 'lodash';
-import { ROLES } from '../../constants/roles';
-import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 const ELITE_VALIDATION = {
   hoursMin: 0.25,
@@ -18,7 +17,7 @@ const ELITE_VALIDATION = {
 };
 
 export default function EmployeeDashboard() {
-  const { user, roles } = useAuth();
+  const { authUser, loading: authLoading } = useAuth();
   const [hours, setHours] = useState('');
   const [balance, setBalance] = useState(0);
   const [reason, setReason] = useState('');
@@ -26,17 +25,58 @@ export default function EmployeeDashboard() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [offlineQueue, setOfflineQueue] = useState([]);
-  const focusRef = useFocusTrap();
 
   // Debounced input for performance
   const debouncedSetHours = useCallback(debounce((value) => setHours(value), 300), []);
 
+  // Firebase helper functions
+  const getSickBalance = async (uid) => {
+    const userDoc = await getDocs(query(collection(db, 'users'), where('uid', '==', uid)));
+    if (!userDoc.empty) {
+      return userDoc.docs[0].data().sickBalance || 0;
+    }
+    return 0;
+  };
+
+  const logWorkHours = async (uid, hours) => {
+    await addDoc(collection(db, 'workHours'), {
+      uid,
+      hours,
+      timestamp: serverTimestamp(),
+    });
+  };
+
+  const requestSickLeave = async (uid, hours, reason) => {
+    await addDoc(collection(db, 'sickRequests'), {
+      uid,
+      hours,
+      reason,
+      status: 'pending',
+      timestamp: serverTimestamp(),
+    });
+  };
+
+  // Authentication check
+  if (!authUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Employee Dashboard</h1>
+          <p className="text-gray-600 mb-4">Please sign in to access sick time tracking.</p>
+          <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            Sign In
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Load balance (with offline fallback)
   useEffect(() => {
-    if (user) {
+    if (authUser) {
       const loadBalance = async () => {
         try {
-          const bal = await getSickBalance(user.uid);
+          const bal = await getSickBalance(authUser.uid);
           setBalance(bal);
           localStorage.setItem('sickBalance', bal.toString());
         } catch (err) {
@@ -54,23 +94,7 @@ export default function EmployeeDashboard() {
       const interval = setInterval(loadBalance, 5 * 60 * 1000);
       return () => clearInterval(interval);
     }
-  }, [user]);
-
-  // Role guard (HR vs Employee)
-  const isHR = roles?.[ROLES.HR] === ROLES.HR;
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Employee Dashboard</h1>
-          <p className="text-gray-600 mb-4">Please sign in to access sick time tracking.</p>
-          <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-            Sign In
-          </button>
-        </div>
-      </div>
-    );
-  }
+  }, [authUser]);
 
   // Validation
   const isValidHours = useMemo(() => {
@@ -93,14 +117,14 @@ export default function EmployeeDashboard() {
 
   // Offline queue sync
   useEffect(() => {
-    if (navigator.onLine) {
+    if (navigator.onLine && authUser) {
       offlineQueue.forEach(async (req) => {
-        if (req.type === 'log') await logWorkHours(user.uid, req.hours);
-        if (req.type === 'request') await requestSickLeave(user.uid, req.hours, req.reason);
+        if (req.type === 'log') await logWorkHours(authUser.uid, req.hours);
+        if (req.type === 'request') await requestSickLeave(authUser.uid, req.hours, req.reason);
       });
       setOfflineQueue([]);
     }
-  }, [navigator.onLine, user, offlineQueue]);
+  }, [navigator.onLine, authUser, offlineQueue]);
 
   const handleLogHours = async () => {
     if (!isValidHours) {
@@ -111,10 +135,10 @@ export default function EmployeeDashboard() {
     setError('');
     setSuccess('');
     try {
-      await logWorkHours(user.uid, parseFloat(hours));
+      await logWorkHours(authUser.uid, parseFloat(hours));
       setSuccess('Hours logged – accrual updated!');
       setHours('');
-      const bal = await getSickBalance(user.uid);
+      const bal = await getSickBalance(authUser.uid);
       setBalance(bal);
       localStorage.setItem('sickBalance', bal.toString());
       localStorage.setItem('weeklyWorked', (parseFloat(localStorage.getItem('weeklyWorked') || '0') + parseFloat(hours)).toString());
@@ -139,7 +163,7 @@ export default function EmployeeDashboard() {
     setError('');
     setSuccess('');
     try {
-      await requestSickLeave(user.uid, parseFloat(hours), reason);
+      await requestSickLeave(authUser.uid, parseFloat(hours), reason);
       setSuccess('Sick leave requested! Approval pending under MI ESTA.');
       setHours('');
       setReason('');
@@ -178,7 +202,7 @@ export default function EmployeeDashboard() {
           <Text style={{ fontSize: 12, marginTop: 5 }}>Michigan Earned Sick Time Act Compliance</Text>
         </View>
         <View style={{ marginBottom: 10 }}>
-          <Text>Employee: {user.email}</Text>
+          <Text>Employee: {authUser.email}</Text>
           <Text>Date: {new Date().toLocaleDateString()}</Text>
         </View>
         <View style={{ marginBottom: 10 }}>
@@ -192,7 +216,7 @@ export default function EmployeeDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4" ref={focusRef}>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="max-w-md mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -256,9 +280,3 @@ export default function EmployeeDashboard() {
     </div>
   );
 }
-import { format, subDays, startOfDay, endOfDay } from 'date-fns';
-
-// In loadRequests/generateAudit
-const startTimestamp = startOfDay(filterStart).getTime();
-const endTimestamp = endOfDay(filterEnd).getTime();
-const q = query(collection(db, 'sickRequests'), where('employerId', '==', user.uid), where('status', '==', 'pending'), where('timestamp', '>=', startTimestamp), where('timestamp', '<=', endTimestamp));
