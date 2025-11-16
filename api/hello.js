@@ -50,7 +50,7 @@ export default async function handler(req, res) {
   try {
     // Health checks
     const timestamp = new Date().toISOString();
-    const firebaseReady = !!process.env.fIREBASE_PROJECT_ID;
+    const firebaseReady = !!process.env.FIREBASE_PROJECT_ID;
     const authReady = await auth.listUsers(1).then(() => true).catch(() => false);
     const dbReady = await db.listCollections().then(() => true).catch(() => false);
 
