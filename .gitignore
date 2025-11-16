@@ -37,12 +37,14 @@ vite.config.*.timestamp-*
 # Environment & Secrets
 # ==================== #
 .env
-.env.*
-.env.*.local
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*.local
+
+# Allow .env.example to be committed
+!.env.example
 
 # Firebase (private)
 .firebaserc
