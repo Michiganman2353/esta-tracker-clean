@@ -42,11 +42,14 @@ The `vercel.json` file configures these automatically, but verify in your projec
 
 ### vercel.json Configuration
 
-The project includes a `vercel.json` with:
+The project uses a modern `vercel.json` configuration with:
 
 - ✅ **Security headers** (CSP, X-Frame-Options, HSTS)
-- ✅ **SPA routing** (all routes → index.html)
-- ✅ **Static build** configuration for frontend
+- ✅ **SPA routing** (rewrites all routes → index.html)
+- ✅ **Build settings** explicitly defined
+- ✅ **Output directory** pointing to `packages/frontend/dist`
+
+The configuration uses the latest Vercel format without deprecated `builds` or `routes` properties.
 
 **Note**: API routes and service workers are not currently configured. Future updates may add serverless functions.
 
@@ -156,7 +159,7 @@ The build process defined in `vercel.json`:
 2. `npm run build:frontend` - Runs `npm run build --workspace=packages/frontend`
 3. Frontend build: `tsc && vite build`
 4. Output: Static files in `packages/frontend/dist`
-5. Serverless functions: Deployed from `api/` directory
+5. Vercel serves these files with configured security headers and SPA routing
 
 ## Verifying Deployment
 
