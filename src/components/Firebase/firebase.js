@@ -1,92 +1,60 @@
-# .github/workflows/ci.yml
-name: Elite CI/CD
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  sendEmailVerification,
+} from 'firebase/auth';
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
-on:
-  push:
-    branches: [main, master]
-  pull_request:
-    branches: [main, master]
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_REACT_APP_API_KEY,
+  authDomain: import.meta.env.VITE_REACT_APP_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_REACT_APP_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_REACT_APP_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_REACT_APP_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_REACT_APP_APP_ID,
+};
 
-permissions:
-  contents: read
-  security-events: write
-  pull-requests: write
+// Lazy Init
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-jobs:
-  elite-build:
-    name: Build & Test (Node ${{ matrix.node }})
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: ['20.x']
-    timeout-minutes: 10
+// Exports
+export const auth = getAuth(app);
+export const db = getFirestore(app);
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+export const googleProvider = new GoogleAuthProvider();
+export const facebookProvider = new FacebookAuthProvider();
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
-          cache: 'npm'
-          cache-dependency-path: package-lock.json
+// Auth Helpers
+export const signInWithEmail = (email: string, password: string) =>
+  signInWithEmailAndPassword(auth, email, password);
 
-      - name: Install Dependencies
-        run: npm ci --ignore-scripts
+export const createUserWithEmail = (email: string, password: string) =>
+  createUserWithEmailAndPassword(auth, email, password);
 
-      - name: Lint Code
-        run: npm run lint || echo "Lint failed – check formatting"
+export const signInWithGoogle = () => signInWithPopup(auth, googleProvider);
+export const signInWithFacebook = () => signInWithPopup(auth, facebookProvider);
 
-      - name: Run Tests
-        run: npm test -- --coverage --watchAll=false
-        continue-on-error: true
+export const resetPassword = (email: string) => sendPasswordResetEmail(auth, email);
+export const sendVerificationEmail = () =>
+  sendEmailVerification(auth.currentUser!, { url: 'https://estatracker.com' });
 
-      - name: Build Production
-        run: npm run build --if-present
+// Firestore Helpers
+export const getUserDoc = async (uid: string) => {
+  const userRef = doc(db, 'users', uid);
+  const snap = await getDoc(userRef);
+  return snap.exists() ? snap.data() : null;
+};
 
-      - name: Security Audit
-        run: |
-          npm audit --audit-level=high
-          npx depcheck --ignores=eslint,prettier
+export const saveUserDoc = async (uid: string, data: object) => {
+  const userRef = doc(db, 'users', uid);
+  await setDoc(userRef, { ...data, updatedAt: serverTimestamp() }, { merge: true });
+  return userRef;
+};
 
-      - name: Upload SARIF (Security)
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: results.sarif
-
-      - name: Generate Badge
-        uses: schneidermike/action-badge@v1
-        if: success()
-        with:
-          label: CI
-          status: passing
-          color: green
-          path: .github/badges/ci-badge.svg
-
-      - name: Notify Failure
-        if: failure()
-        uses: 8398a7/action-slack@v3
-        with:
-          status: failure
-          text: "CI failed on ${{ github.ref }} – Fix ASAP!"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
-  deploy-preview:
-    name: Deploy Preview
-    needs: elite-build
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          github-comment: true
+export default app;
