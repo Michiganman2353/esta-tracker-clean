@@ -26,11 +26,22 @@ export default function Register({ onRegister }: RegisterProps) {
     setLoading(true);
 
     try {
+      console.log('Registration: Sending request...', { name, email });
       const response = await apiClient.register({ name, email, password });
+      console.log('Registration: Response received', { token: !!response.token, user: response.user });
+      
+      if (!response.token || !response.user) {
+        throw new Error('Invalid response from server');
+      }
+
       apiClient.setToken(response.token);
+      console.log('Registration: Token set, calling onRegister');
       onRegister(response.user as User);
+      console.log('Registration: Complete');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
+      console.error('Registration error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Registration failed. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

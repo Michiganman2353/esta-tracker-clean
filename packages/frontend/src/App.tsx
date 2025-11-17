@@ -21,10 +21,12 @@ function App() {
 
   async function checkAuth() {
     try {
+      console.log('App: Checking authentication...');
       const response = await apiClient.getCurrentUser();
+      console.log('App: User authenticated', response.user);
       setUser(response.user as User);
     } catch (error) {
-      console.error('Not authenticated', error);
+      console.log('App: Not authenticated or error fetching user', error);
     } finally {
       setLoading(false);
     }

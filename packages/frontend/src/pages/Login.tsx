@@ -18,11 +18,22 @@ export default function Login({ onLogin }: LoginProps) {
     setLoading(true);
 
     try {
+      console.log('Login: Sending request...', { email });
       const response = await apiClient.login(email, password);
+      console.log('Login: Response received', { token: !!response.token, user: response.user });
+      
+      if (!response.token || !response.user) {
+        throw new Error('Invalid response from server');
+      }
+
       apiClient.setToken(response.token);
+      console.log('Login: Token set, calling onLogin');
       onLogin(response.user as User);
+      console.log('Login: Complete');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      console.error('Login error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Login failed. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
