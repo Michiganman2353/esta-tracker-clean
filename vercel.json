@@ -5,11 +5,10 @@
     {
       "src": "package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "build", "buildCommand": "npm run build" }
+      "config": { "distDir": "packages/frontend/dist", "buildCommand": "npm run build:frontend" }
     }
   ],
   "routes": [
-    { "src": "/sw.js", "dest": "/service-worker.js" },
     { "src": "/(.*)", "dest": "/index.html" }
   ],
   "headers": [
@@ -28,12 +27,5 @@
       ]
     }
   ],
-  "functions": {
-    "api/*.js": {
-      "runtime": "nodejs20",
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  },
   "env": { "NODE_ENV": "production" }
 }
