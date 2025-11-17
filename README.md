@@ -2,7 +2,7 @@
 
 **<span style="color:#28A745;">"ESTA Tracker: The HR Power Small Businesses Deserve – Without the Department."</span>**
 
-**<span style="color:#FFC107;">Empower Your Business: Automate Compliance, Slash Risks, and Scale Nationally!</span>**  
+**<span style="color:#FFC107;">Empower Your Business: Automate Compliance!</span>**  
 A Complete Strategic, Technical, and Operational Blueprint  
 Prepared for Production & Scaffolding Phase
 
@@ -53,8 +53,8 @@ The platform acts as a turnkey HR compliance engine: tracking hours, generating 
 
 **<span style="color:#FFC107;">3.1 Sick Time Accrual Engine</span>**  
 - 1 hour per 30 hours worked (Michigan ESTA default).  
-- Cap: 72 hours for employers with >50 employees.  
-- Cap: 40 hours for small employers (less than 50 employees).  
+- Annual Cap: 72 hours for employers with >50 employees.  
+- Annual Cap: 40 hours for small employers (less than 50 employees).  
 - Rule versioning for legal updates.  
 - Accrual simulation tool for forecasting.
 
