@@ -70,9 +70,9 @@ esta-tracker-clean/
 │   │   └── dist/         # Build output
 │   └── backend/          # Express + TypeScript API (future use)
 │       └── src/
-├── scripts/              # Utility scripts
-├── DEPLOYMENT.md         # ✅ Updated deployment guide
+├── AUDIT_SUMMARY.md      # ✅ Repository audit summary
 ├── DEPENDENCIES.md       # ✅ Accurate dependency audit
+├── DEPLOYMENT.md         # ✅ Updated deployment guide
 ├── README.md             # ✅ Business plan (no changes needed)
 ├── package.json          # Root workspace configuration
 ├── vercel.json           # ✅ Updated Vercel configuration
