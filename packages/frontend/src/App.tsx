@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { apiClient } from './lib/api';
 import { User } from './types';
+import { MaintenanceMode } from './components/MaintenanceMode';
 
 // Pages (we'll create these)
 import Dashboard from './pages/Dashboard';
@@ -100,6 +101,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <MaintenanceMode />
       <Routes>
         <Route path="/login" element={!user ? <Login onLogin={setUser} /> : <Navigate to="/" />} />
         <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
