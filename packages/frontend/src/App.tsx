@@ -12,6 +12,10 @@ import RegisterManager from './pages/RegisterManager';
 import EmployeeDashboard from './pages/EmployeeDashboard';
 import EmployerDashboard from './pages/EmployerDashboard';
 import AuditLog from './pages/AuditLog';
+import VerifyEmail from './pages/VerifyEmail';
+import PendingApproval from './pages/PendingApproval';
+import AccountRejected from './pages/AccountRejected';
+import Maintenance from './pages/Maintenance';
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -101,11 +105,19 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public routes */}
         <Route path="/login" element={!user ? <Login onLogin={setUser} /> : <Navigate to="/" />} />
         <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
         <Route path="/register/employee" element={!user ? <RegisterEmployee onRegister={setUser} /> : <Navigate to="/" />} />
         <Route path="/register/manager" element={!user ? <RegisterManager /> : <Navigate to="/" />} />
         
+        {/* Status pages - accessible without full auth */}
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/pending-approval" element={<PendingApproval />} />
+        <Route path="/account-rejected" element={<AccountRejected />} />
+        <Route path="/maintenance" element={<Maintenance />} />
+        
+        {/* Protected routes */}
         {user ? (
           <>
             <Route path="/" element={<Dashboard user={user} />} />
