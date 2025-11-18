@@ -22,7 +22,22 @@ export default function Login({ onLogin }: LoginProps) {
       apiClient.setToken(response.token);
       onLogin(response.user as User);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      console.error('Login error:', err);
+      
+      // Type guard for ApiError
+      const error = err as { status?: number; message?: string; isNetworkError?: boolean };
+      
+      if (error.isNetworkError) {
+        setError('Unable to connect to server. Please check your internet connection and try again.');
+      } else if (error.status === 401) {
+        setError('Invalid email or password. Please try again.');
+      } else if (error.status === 403) {
+        setError('Your account is pending approval. Please wait for an administrator to activate your account.');
+      } else if (error.status && error.status >= 400 && error.status < 500) {
+        setError(error.message || 'Login failed. Please check your credentials.');
+      } else {
+        setError('Login failed. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }

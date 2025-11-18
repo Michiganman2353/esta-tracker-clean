@@ -36,8 +36,22 @@ export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) 
       const response = await apiClient.registerEmployee({ name, email, password });
       apiClient.setToken(response.token);
       onRegister(response.user as User);
+      // Navigation will happen automatically via App.tsx
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
+      console.error('Registration error:', err);
+      
+      // Type guard for ApiError
+      const error = err as { status?: number; message?: string; isNetworkError?: boolean };
+      
+      if (error.isNetworkError) {
+        setError('Unable to connect to server. Please check your internet connection and try again.');
+      } else if (error.status === 409) {
+        setError('This email is already registered. Please use a different email or try logging in.');
+      } else if (error.status && error.status >= 400 && error.status < 500) {
+        setError(error.message || 'Registration failed. Please check your information and try again.');
+      } else {
+        setError('Registration failed. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }
