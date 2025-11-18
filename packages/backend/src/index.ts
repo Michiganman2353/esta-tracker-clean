@@ -8,6 +8,7 @@ import { requestsRouter } from './routes/requests.js';
 import { auditRouter } from './routes/audit.js';
 import { retaliationRouter } from './routes/retaliation.js';
 import { employerRouter } from './routes/employer.js';
+import { documentsRouter } from './routes/documents.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -62,6 +63,7 @@ app.use('/api/v1/requests', requestsRouter);
 app.use('/api/v1/audit', auditRouter);
 app.use('/api/v1/retaliation', retaliationRouter);
 app.use('/api/v1/employer', employerRouter);
+app.use('/api/v1/documents', documentsRouter);
 
 // Error handling
 app.use(errorHandler);

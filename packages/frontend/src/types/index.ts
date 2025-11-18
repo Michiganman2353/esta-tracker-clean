@@ -47,6 +47,8 @@ export interface SickTimeRequest {
   requestedAt: string;
   reviewedAt?: string;
   reviewedBy?: string;
+  hasDocuments?: boolean;
+  documentIds?: string[];
 }
 
 export interface WorkLog {
@@ -109,4 +111,33 @@ export interface EmployerSettings {
   enableAntiRetaliationAlerts: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+// Document Management Types
+
+export interface Document {
+  id: string;
+  requestId: string;
+  userId: string;
+  tenantId: string;
+  fileName: string;
+  originalFileName: string;
+  storagePath: string;
+  contentType: string;
+  status: 'pending' | 'uploaded' | 'failed';
+  uploadedAt: Date | null;
+  createdAt: Date;
+  immutable?: boolean;
+  approvedAt?: Date;
+  accessCount?: number;
+  lastAccessedAt?: Date;
+  lastAccessedBy?: string;
+}
+
+export interface DocumentUploadProgress {
+  documentId: string | null;
+  fileName: string;
+  progress: number;
+  status: 'preparing' | 'uploading' | 'confirming' | 'completed' | 'error';
+  error?: string;
 }
