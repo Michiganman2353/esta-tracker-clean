@@ -51,7 +51,8 @@ The project uses a modern `vercel.json` configuration with:
 
 The configuration uses the latest Vercel format without deprecated `builds` or `routes` properties.
 
-**Note**: API routes and service workers are not currently configured. Future updates may add serverless functions.
+**Cron Jobs**: The project includes 7 scheduled cron jobs for automated maintenance and compliance tasks. See [VERCEL_CRON_SETUP.md](./VERCEL_CRON_SETUP.md) for detailed configuration.
+
 
 ## Environment Variables
 
@@ -70,8 +71,13 @@ Configure these in the **Vercel Dashboard** → **Project Settings** → **Envir
 | `VITE_FIREBASE_STORAGE_BUCKET` | Your Firebase storage bucket | Required for Firebase Storage |
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | Your messaging sender ID | Required for Firebase |
 | `VITE_FIREBASE_APP_ID` | Your Firebase app ID | Required for Firebase |
+| `FIREBASE_SERVICE_ACCOUNT` | Service account JSON | Required for cron jobs (Admin SDK) |
+| `CRON_SECRET` | Secure random string | Required for cron job authentication |
 
 **Note**: All frontend environment variables must be prefixed with `VITE_` to be accessible in the Vite build.
+
+**Cron Job Variables**: See [VERCEL_CRON_SETUP.md](./VERCEL_CRON_SETUP.md) for detailed instructions on setting up `FIREBASE_SERVICE_ACCOUNT` and `CRON_SECRET`.
+
 
 #### Development/Preview Environment
 
