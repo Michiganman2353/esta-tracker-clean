@@ -142,10 +142,30 @@ The platform acts as a turnkey HR compliance engine: tracking hours, generating 
 - UI goals: simple, clean, employer friendly.
 
 **<span style="color:#FFC107;">4.2 Backend</span>**  
-- Firebase Auth  
-- Firestore database  
-- Firebase Functions  
-- Firebase Storage (documents + uploads)
+- **Vercel Serverless Functions** (Primary API - `/api/`)
+  - User registration and authentication
+  - Batch data validation and CSV processing
+  - Audit pack generation
+  - Document upload management
+  - Employee calendar and scheduling
+- **Firebase Services**
+  - Firebase Auth (Authentication)
+  - Firestore (Database)
+  - Firebase Storage (Document uploads)
+  - Firebase Functions (Background jobs and triggers)
+
+**<span style="color:#FFC107;">4.2.1 API Endpoints</span>**  
+See `/api/README.md` for detailed API documentation:
+- `POST /api/register` - User registration
+- `POST /api/verifyUser` - Email verification
+- `POST /api/approveUser` - Admin approval (admin only)
+- `POST /api/validateBatch` - Batch data validation
+- `POST /api/processCsv` - CSV import processing
+- `POST /api/generateAuditPack` - Compliance reporting
+- `POST /api/uploadDoctorNote` - Medical document upload
+- `GET /api/getEmployeeCalendar` - Employee schedule view
+
+Full migration documentation available in `VERCEL_MIGRATION.md`.
 
 **<span style="color:#FFC107;">4.3 Data Model (Simplified)</span>**  
 ```json
