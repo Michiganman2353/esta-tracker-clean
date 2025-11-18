@@ -1,20 +1,16 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { signIn } from '../lib/authService';
 import { isFirebaseConfigured } from '../lib/firebase';
 import { apiClient } from '../lib/api';
-import { User } from '../types';
 
-interface LoginProps {
-  onLogin: (user: User) => void;
-}
-
-export default function Login({ onLogin }: LoginProps) {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   
   const verified = searchParams.get('verified') === 'true';
 
@@ -26,13 +22,14 @@ export default function Login({ onLogin }: LoginProps) {
     try {
       if (isFirebaseConfigured) {
         // Use Firebase authentication
-        const user = await signIn(email, password);
-        onLogin(user);
+        await signIn(email, password);
+        // AuthContext will handle the navigation
+        navigate('/');
       } else {
         // Fallback to existing API for local development
         const response = await apiClient.login(email, password);
         apiClient.setToken(response.token);
-        onLogin(response.user as User);
+        navigate('/');
       }
     } catch (err) {
       console.error('Login error:', err);

@@ -3,14 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { registerEmployee } from '../lib/authService';
 import { isFirebaseConfigured } from '../lib/firebase';
 import { apiClient } from '../lib/api';
-import { User } from '../types';
 import EmailVerification from '../components/EmailVerification';
 
-interface RegisterEmployeeProps {
-  onRegister: (user: User) => void;
-}
-
-export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) {
+export default function RegisterEmployee() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

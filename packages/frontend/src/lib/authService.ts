@@ -258,6 +258,54 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
 }
 
 /**
+ * Check user verification and approval status via API
+ */
+export async function checkUserStatus(uid: string): Promise<{
+  emailVerified: boolean;
+  status: string;
+  approved: boolean;
+}> {
+  try {
+    const response = await fetch(`/api/checkUserStatus?uid=${uid}`);
+    if (!response.ok) {
+      throw new Error('Failed to check user status');
+    }
+    const data = await response.json();
+    return {
+      emailVerified: data.emailVerified,
+      status: data.status,
+      approved: data.approved,
+    };
+  } catch (error) {
+    console.error('Error checking user status:', error);
+    throw error;
+  }
+}
+
+/**
+ * Verify user after email verification detected
+ */
+export async function verifyUserAccount(uid: string): Promise<void> {
+  try {
+    const response = await fetch('/api/verifyUser', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ uid }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to verify user');
+    }
+  } catch (error) {
+    console.error('Error verifying user:', error);
+    throw error;
+  }
+}
+
+/**
  * Sign in with email and password
  */
 export async function signIn(email: string, password: string): Promise<User> {

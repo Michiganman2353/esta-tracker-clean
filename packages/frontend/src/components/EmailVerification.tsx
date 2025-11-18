@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sendEmailVerification, reload } from 'firebase/auth';
-import { httpsCallable } from 'firebase/functions';
-import { auth, functions, isFirebaseConfigured } from '../lib/firebase';
+import { auth, isFirebaseConfigured } from '../lib/firebase';
+import { checkUserStatus, verifyUserAccount } from '../lib/authService';
 
 interface EmailVerificationProps {
   email: string;
+  userId?: string;
   onVerified?: () => void;
 }
 
-export default function EmailVerification({ email, onVerified }: EmailVerificationProps) {
+export default function EmailVerification({ email, userId, onVerified }: EmailVerificationProps) {
   const [checking, setChecking] = useState(false);
   const [resending, setResending] = useState(false);
   const [resendMessage, setResendMessage] = useState('');
   const [autoCheckCount, setAutoCheckCount] = useState(0);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   // Auto-check verification status every 5 seconds (max 24 times = 2 minutes)
@@ -26,25 +28,36 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
       if (!auth?.currentUser) return;
       
       try {
+        // Reload Firebase user to get latest email verification status
         await reload(auth.currentUser);
         
         if (auth.currentUser.emailVerified) {
-          // Email is verified! Now activate the account
+          // Email is verified! Now activate the account via API
           try {
-            if (functions) {
-              // Call Cloud Function to activate account and set custom claims
-              const approveUser = httpsCallable(functions, 'approveUserAfterVerification');
-              await approveUser({});
+            await verifyUserAccount(auth.currentUser.uid);
+            
+            // Wait a moment for custom claims to propagate
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Force token refresh to get new custom claims
+            await auth.currentUser.getIdToken(true);
+            
+            if (onVerified) {
+              onVerified();
+            } else {
+              navigate('/login?verified=true');
             }
           } catch (activationError) {
             console.error('Error activating account:', activationError);
-            // Continue anyway - they might be able to login even without custom claims
-          }
-
-          if (onVerified) {
-            onVerified();
-          } else {
-            navigate('/login?verified=true');
+            // If API fails, try polling status
+            const status = await checkUserStatus(auth.currentUser.uid);
+            if (status.approved) {
+              if (onVerified) {
+                onVerified();
+              } else {
+                navigate('/login?verified=true');
+              }
+            }
           }
         }
       } catch (error) {
@@ -67,6 +80,7 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
 
     if (!isAuto) {
       setChecking(true);
+      setError('');
     }
 
     try {
@@ -74,16 +88,18 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
       await reload(auth.currentUser);
       
       if (auth.currentUser.emailVerified) {
-        // Email is verified! Now activate the account
+        // Email is verified! Now activate the account via API
         try {
-          if (functions) {
-            // Call Cloud Function to activate account and set custom claims
-            const approveUser = httpsCallable(functions, 'approveUserAfterVerification');
-            await approveUser({});
-          }
+          await verifyUserAccount(auth.currentUser.uid);
+          
+          // Wait a moment for custom claims to propagate
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Force token refresh to get new custom claims
+          await auth.currentUser.getIdToken(true);
         } catch (activationError) {
           console.error('Error activating account:', activationError);
-          // Continue anyway - they might be able to login even without custom claims
+          setError('Account verified but activation failed. Please try logging in.');
         }
 
         // Email is verified and account activated!
@@ -100,8 +116,7 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
     } catch (error) {
       console.error('Error checking verification:', error);
       if (!isAuto) {
-        setResendMessage('Error checking verification status. Please try again.');
-        setTimeout(() => setResendMessage(''), 3000);
+        setError('Error checking verification status. Please try again.');
       }
     } finally {
       if (!isAuto) {
@@ -222,6 +237,12 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
               }`}
             >
               <p className="text-sm">{resendMessage}</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="rounded-md p-3 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200">
+              <p className="text-sm">{error}</p>
             </div>
           )}
 
