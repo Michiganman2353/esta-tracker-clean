@@ -16,7 +16,7 @@ interface AuthRequest extends Request {
 function createMockUser(email: string, name: string, role: 'employee' | 'employer' | 'admin' = 'employee') {
   const now = new Date().toISOString();
   return {
-    id: '1',
+    id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     email,
     name,
     role,
