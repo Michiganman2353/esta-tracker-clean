@@ -4,7 +4,25 @@ export const authRouter = Router();
 
 // Mock authentication endpoints
 authRouter.post('/login', (req, res) => {
-  res.json({ token: 'mock-token', user: { id: '1', email: req.body.email, name: 'Test User', role: 'employee' } });
+  const { email } = req.body;
+  
+  // In a real app, check database for user status
+  // For now, we'll return a standard employee user
+  // Pending manager accounts won't be able to login until approved
+  
+  res.json({ 
+    token: 'mock-token', 
+    user: { 
+      id: '1', 
+      email: email, 
+      name: 'Test User', 
+      role: 'employee',
+      status: 'approved',
+      employerSize: 'small',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    } 
+  });
 });
 
 authRouter.post('/register', (req, res) => {
@@ -37,6 +55,7 @@ authRouter.post('/register/employee', (req, res) => {
       name, 
       role: 'employee',
       employerSize: 'small',
+      status: 'approved', // Employees are auto-approved
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     } 
@@ -70,11 +89,13 @@ authRouter.post('/register/manager', (req, res) => {
   // In a real app, you would:
   // 1. Hash the password
   // 2. Save user and company info to database
-  // 3. Generate real JWT token
-  // 4. Create employer settings record
+  // 3. Send notification to admin for approval
+  // 4. Create employer settings record after approval
   
+  // Manager registration requires approval before access is granted
   res.json({ 
-    token: 'mock-token-manager', 
+    success: true,
+    message: 'Registration submitted successfully. Your account is pending approval.',
     user: { 
       id: 'mgr-' + Date.now(), 
       email, 
@@ -84,6 +105,7 @@ authRouter.post('/register/manager', (req, res) => {
       employerSize,
       companyName,
       employeeCount,
+      status: 'pending',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     } 

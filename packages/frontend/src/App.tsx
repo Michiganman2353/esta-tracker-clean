@@ -46,7 +46,7 @@ function App() {
         <Route path="/login" element={!user ? <Login onLogin={setUser} /> : <Navigate to="/" />} />
         <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
         <Route path="/register/employee" element={!user ? <RegisterEmployee onRegister={setUser} /> : <Navigate to="/" />} />
-        <Route path="/register/manager" element={!user ? <RegisterManager onRegister={setUser} /> : <Navigate to="/" />} />
+        <Route path="/register/manager" element={!user ? <RegisterManager /> : <Navigate to="/" />} />
         
         {user ? (
           <>
