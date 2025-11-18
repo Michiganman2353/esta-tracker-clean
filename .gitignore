@@ -28,6 +28,7 @@ vite.config.*.timestamp-*
 
 # Vercel
 .vercel/
+!.vercel/README.md
 .vercelignore
 
 # TypeScript
