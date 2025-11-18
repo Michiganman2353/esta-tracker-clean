@@ -10,7 +10,7 @@ export interface AuthenticatedRequest extends Request {
     email?: string;
     role?: string;
     tenantId?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
@@ -51,11 +51,11 @@ export async function authenticate(
 
     // Attach user data to request
     req.user = {
+      ...decodedToken,
       uid: decodedToken.uid,
       email: decodedToken.email,
       role: decodedToken.role,
       tenantId: decodedToken.tenantId,
-      ...decodedToken,
     };
 
     next();
@@ -88,11 +88,11 @@ export async function optionalAuthenticate(
         const decodedToken = await auth.verifyIdToken(idToken);
         
         req.user = {
+          ...decodedToken,
           uid: decodedToken.uid,
           email: decodedToken.email,
           role: decodedToken.role,
           tenantId: decodedToken.tenantId,
-          ...decodedToken,
         };
       }
     }
