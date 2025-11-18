@@ -1,0 +1,362 @@
+/* PhotoCapture Component Styles */
+
+.photo-capture,
+.photo-preview {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 100%;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.photo-capture-header,
+.photo-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.photo-capture-header h3,
+.photo-preview-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.btn-cancel {
+  padding: 0.5rem 1rem;
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background-color: #e5e7eb;
+}
+
+/* Camera Error */
+.camera-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: #dc2626;
+  min-height: 400px;
+}
+
+.camera-error p {
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.camera-fallback {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  background-color: #fff;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+}
+
+.camera-fallback p {
+  color: #374151;
+  margin-bottom: 1rem;
+}
+
+.file-input {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Camera Container */
+.camera-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  position: relative;
+}
+
+.camera-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-color: #000;
+}
+
+.camera-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+}
+
+.btn-start-camera,
+.btn-capture {
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-start-camera {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-start-camera:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.btn-start-camera:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.btn-capture {
+  background-color: #ef4444;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-capture:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+.btn-capture:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.capture-icon {
+  font-size: 1.5rem;
+}
+
+.file-fallback {
+  text-align: center;
+}
+
+.file-label {
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #374151;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.file-label:hover {
+  background-color: white;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+/* Photo Preview */
+.photo-preview-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: #111827;
+}
+
+.photo-preview-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* Quality Warnings */
+.quality-warnings {
+  margin: 1rem 1.5rem;
+  padding: 1rem;
+  background-color: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 6px;
+}
+
+.quality-warnings h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.quality-warnings ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  list-style-type: disc;
+}
+
+.quality-warnings li {
+  margin: 0.25rem 0;
+  font-size: 0.875rem;
+  color: #78350f;
+}
+
+.warning-note {
+  margin: 0.75rem 0 0 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #92400e;
+}
+
+/* Photo Preview Actions */
+.photo-preview-actions {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-retake,
+.btn-confirm {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-retake {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-retake:hover {
+  background-color: #e5e7eb;
+}
+
+.btn-confirm {
+  background-color: #10b981;
+  color: white;
+}
+
+.btn-confirm:hover {
+  background-color: #059669;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .photo-capture,
+  .photo-preview {
+    border-radius: 0;
+  }
+
+  .photo-capture-header,
+  .photo-preview-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .photo-capture-header h3,
+  .photo-preview-header h3 {
+    font-size: 1.125rem;
+  }
+
+  .camera-controls {
+    padding: 1rem;
+  }
+
+  .btn-start-camera,
+  .btn-capture {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.9375rem;
+  }
+
+  .capture-icon {
+    font-size: 1.25rem;
+  }
+
+  .quality-warnings {
+    margin: 0.75rem 1rem;
+    padding: 0.875rem;
+  }
+
+  .photo-preview-actions {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .btn-retake,
+  .btn-confirm {
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+  }
+}
+
+/* Landscape Mode on Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .camera-controls {
+    flex-direction: row;
+    padding: 0.75rem;
+  }
+
+  .btn-start-camera,
+  .btn-capture {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Very Small Devices */
+@media (max-width: 375px) {
+  .photo-capture-header h3,
+  .photo-preview-header h3 {
+    font-size: 1rem;
+  }
+
+  .btn-cancel {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .camera-controls {
+    gap: 0.5rem;
+  }
+
+  .btn-start-camera,
+  .btn-capture {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .photo-preview-actions {
+    flex-direction: column;
+  }
+}
