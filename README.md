@@ -130,8 +130,48 @@ The platform acts as a turnkey HR compliance engine: tracking hours, generating 
 
 **<span style="color:#28A745;">Rock-Solid Foundation: Built for Scale, Speed, and Security!</span>**  
 
-**<span style="color:#FFC107;">4.1 Frontend</span>**  
-- React + Next.js (Vercel deployment)  
+**<span style="color:#FFC107;">4.1 Repository Structure</span>**  
+The project follows Vercel best practices with a clean, scalable structure:
+
+```
+esta-tracker-clean/
+├── public/                    # Static assets (served by Vercel)
+│   ├── favicon.ico
+│   ├── manifest.json
+│   └── vite.svg
+├── lib/                       # Shared business logic
+│   ├── firebase/              # Firebase initialization
+│   ├── auth/                  # Authentication service
+│   ├── api/                   # API client
+│   ├── accrual/               # ESTA accrual calculations
+│   └── documents/             # Document upload service
+├── types/                     # Shared TypeScript types
+│   └── index.ts
+├── packages/
+│   ├── frontend/              # React application
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   ├── pages/
+│   │   │   ├── contexts/
+│   │   │   └── lib/          # Re-exports from root /lib
+│   │   └── vite.config.ts
+│   └── backend/               # Backend services
+├── functions/                 # Firebase Cloud Functions
+├── .env.development           # Development environment template
+├── .env.production            # Production environment template
+├── .env.preview               # Preview environment template
+└── vercel.json                # Vercel deployment config
+```
+
+**Key Benefits:**
+- Root-level `/public` for Vercel static asset optimization
+- Shared `/lib` for reusable business logic across frontend/backend
+- Centralized `/types` for type safety
+- Environment templates for all deployment stages
+- Clean separation of concerns
+
+**<span style="color:#FFC107;">4.2 Frontend</span>**  
+- React + Vite (Vercel deployment)  
 - Component architecture:  
   - Dashboard  
   - Employee List  
@@ -141,13 +181,13 @@ The platform acts as a turnkey HR compliance engine: tracking hours, generating 
   - Employee Self-Service Portal  
 - UI goals: simple, clean, employer friendly.
 
-**<span style="color:#FFC107;">4.2 Backend</span>**  
+**<span style="color:#FFC107;">4.3 Backend</span>**  
 - Firebase Auth  
 - Firestore database  
 - Firebase Functions  
 - Firebase Storage (documents + uploads)
 
-**<span style="color:#FFC107;">4.3 Data Model (Simplified)</span>**  
+**<span style="color:#FFC107;">4.4 Data Model (Simplified)</span>**  
 ```json
 TENANTS collection:  
 - companyName  
@@ -182,7 +222,7 @@ HOUR_IMPORT_LOG:
 - processed records  
 - validation results
 
-<span style="color:#FFC107;">4.4 Security & Privacy</span>
+<span style="color:#FFC107;">4.5 Security & Privacy</span>
 •  <span style="color:#DC3545;">Role based Firestore rules.</span>
 •  <span style="color:#DC3545;">End to end encryption.</span>
 •  <span style="color:#DC3545;">Audit locked logs.</span>
