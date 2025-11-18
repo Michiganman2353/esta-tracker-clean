@@ -130,9 +130,9 @@ export async function registerManager(data: RegisterManagerData): Promise<{ user
     const err = error as { code?: string; message?: string };
     if (err.code === 'auth/email-already-in-use') {
       throw new Error('This email is already registered. Please use a different email or try logging in.');
-    } else if (error.code === 'auth/invalid-email') {
+    } else if (err.code === 'auth/invalid-email') {
       throw new Error('Invalid email address format.');
-    } else if (error.code === 'auth/weak-password') {
+    } else if (err.code === 'auth/weak-password') {
       throw new Error('Password is too weak. Please use at least 8 characters.');
     } else {
       throw new Error(err.message || 'Registration failed. Please try again.');
@@ -247,9 +247,9 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
     const err = error as { code?: string; message?: string };
     if (err.code === 'auth/email-already-in-use') {
       throw new Error('This email is already registered. Please use a different email or try logging in.');
-    } else if (error.code === 'auth/invalid-email') {
+    } else if (err.code === 'auth/invalid-email') {
       throw new Error('Invalid email address format.');
-    } else if (error.code === 'auth/weak-password') {
+    } else if (err.code === 'auth/weak-password') {
       throw new Error('Password is too weak. Please use at least 8 characters.');
     } else {
       throw new Error(err.message || 'Registration failed. Please try again.');
