@@ -3,6 +3,10 @@ import { ComplianceRules } from '../types';
 /**
  * Michigan ESTA Compliance Rules
  * Based on Michigan Earned Sick Time Act
+ * 
+ * Note: The ruleset version is managed via Edge Config and can be
+ * retrieved using the useAccrualRulesetVersion() hook or
+ * edgeConfigService.getAccrualRulesetVersion()
  */
 
 export const SMALL_EMPLOYER_THRESHOLD = 10;
