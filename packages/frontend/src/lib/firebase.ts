@@ -2,6 +2,7 @@ import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
+import { getFunctions, Functions } from 'firebase/functions';
 
 // Firebase configuration from environment variables
 const firebaseConfig = {
@@ -18,6 +19,7 @@ let app: FirebaseApp | undefined;
 let auth: Auth | undefined;
 let db: Firestore | undefined;
 let storage: FirebaseStorage | undefined;
+let functions: Functions | undefined;
 
 try {
   // Check if we have minimum required config
@@ -26,6 +28,7 @@ try {
     auth = getAuth(app);
     db = getFirestore(app);
     storage = getStorage(app);
+    functions = getFunctions(app);
   } else {
     console.warn('Firebase configuration incomplete. Running in mock mode.');
   }
@@ -33,5 +36,5 @@ try {
   console.error('Firebase initialization error:', error);
 }
 
-export { auth, db, storage };
+export { auth, db, storage, functions };
 export const isFirebaseConfigured = Boolean(app);
