@@ -42,17 +42,12 @@ export default function RegisterEmployee() {
           tenantCode: tenantCode.trim() || undefined,
         });
         
-        if (needsVerification) {
-          setShowVerification(true);
-        } else {
-          // Auto-login for employees if no verification needed (shouldn't happen)
-          onRegister(user);
-        }
+        setShowVerification(true);
       } else {
         // Fallback to existing API for local development
         const response = await apiClient.registerEmployee({ name, email, password });
         apiClient.setToken(response.token);
-        onRegister(response.user as User);
+        navigate('/');
       }
     } catch (err) {
       console.error('Registration error:', err);
