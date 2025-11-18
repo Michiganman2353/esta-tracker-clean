@@ -66,6 +66,7 @@ Create `/packages/frontend/.env.local`:
 
 ```env
 VITE_API_URL=http://localhost:3001
+VITE_APP_URL=http://localhost:5173
 VITE_FIREBASE_API_KEY=your-api-key-from-step-5
 VITE_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=your-project-id
@@ -73,6 +74,8 @@ VITE_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
 VITE_FIREBASE_APP_ID=your-app-id
 ```
+
+**Note:** `VITE_APP_URL` is required for email verification links. Set it to your application's base URL (e.g., `https://estatracker.com` for production).
 
 ### Backend (.env)
 
@@ -159,6 +162,7 @@ npm run dev
 2. Add environment variables in Vercel dashboard:
    - All `VITE_FIREBASE_*` variables from step 6
    - `VITE_API_URL` (your backend URL)
+   - `VITE_APP_URL` (your production URL, e.g., https://estatracker.com)
 
 ### Cloud Functions (Backend)
 
@@ -180,6 +184,7 @@ firebase deploy --only functions --project production
 - Check that Email/Password is enabled in Firebase Console
 - Verify API key is correct
 - Check browser console for detailed error messages
+- If you see `auth/configuration-not-found`: Ensure `VITE_APP_URL` is set in your environment variables
 
 ### Firestore permission denied
 
