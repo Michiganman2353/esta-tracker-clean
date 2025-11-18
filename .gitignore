@@ -39,6 +39,9 @@ vite.config.*.timestamp-*
 .env
 .env.*
 !.env.example
+!.env.development
+!.env.production
+!.env.preview
 .env.*.local
 .env.local
 .env.development.local

@@ -16,7 +16,9 @@
 
     "types": ["vite/client", "vitest/globals"],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@lib/*": ["../../lib/*"],
+      "@types": ["../../types"]
     }
   },
   "include": ["src"],
