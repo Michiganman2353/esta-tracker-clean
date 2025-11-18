@@ -1,0 +1,15 @@
+{
+  "name": "esta-tracker-api",
+  "version": "1.0.0",
+  "description": "Vercel API and Background Functions for ESTA Tracker",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@vercel/node": "^3.0.0",
+    "firebase-admin": "^12.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.10",
+    "typescript": "^5.3.3"
+  }
+}
