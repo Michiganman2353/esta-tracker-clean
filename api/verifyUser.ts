@@ -1,57 +1,29 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import * as admin from 'firebase-admin';
+import { initializeFirebase, setCorsHeaders, handlePreflight, verifyAuthToken, sendError, sendSuccess } from './_utils';
 
-// Initialize Firebase Admin if not already initialized
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
-}
-
-const db = admin.firestore();
-const auth = admin.auth();
+const { db, auth } = initializeFirebase();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  setCorsHeaders(res, req.headers.origin as string);
 
-  // Handle preflight
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return handlePreflight(res);
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return sendError(res, 405, 'Method not allowed');
   }
 
   try {
-    // Extract token from Authorization header
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Unauthorized: No token provided' });
-    }
-
-    const token = authHeader.split('Bearer ')[1];
-
-    // Verify the Firebase ID token
-    const decodedToken = await auth.verifyIdToken(token);
+    const decodedToken = await verifyAuthToken(req.headers.authorization);
     const uid = decodedToken.uid;
 
     // Get the current user's auth record
     const userRecord = await auth.getUser(uid);
 
     if (!userRecord.emailVerified) {
-      return res.status(400).json({ 
-        error: 'Email is not verified yet. Please verify your email first.',
-        emailVerified: false,
-      });
+      return sendError(res, 400, 'Email is not verified yet. Please verify your email first.');
     }
 
     // Get user document from Firestore
@@ -59,7 +31,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const userDoc = await userDocRef.get();
 
     if (!userDoc.exists) {
-      return res.status(404).json({ error: 'User document not found in Firestore.' });
+      return sendError(res, 404, 'User document not found in Firestore.');
     }
 
     const userData = userDoc.data();
@@ -96,8 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     console.log(`User ${uid} verified and activated`);
 
-    return res.status(200).json({
-      success: true,
+    return sendSuccess(res, {
       message: 'Account activated successfully',
       user: {
         id: uid,
@@ -109,17 +80,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error: any) {
     console.error('Email verification error:', error);
 
-    if (error.code === 'auth/id-token-expired') {
-      return res.status(401).json({ error: 'Token expired. Please log in again.' });
+    if (error.message?.includes('Token expired')) {
+      return sendError(res, 401, error.message);
     }
 
-    if (error.code === 'auth/invalid-id-token') {
-      return res.status(401).json({ error: 'Invalid token.' });
+    if (error.message?.includes('Invalid token')) {
+      return sendError(res, 401, error.message);
     }
 
-    return res.status(500).json({ 
-      error: 'Failed to verify user account',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
-    });
+    if (error.message?.includes('Unauthorized')) {
+      return sendError(res, 401, error.message);
+    }
+
+    return sendError(res, 500, 'Failed to verify user account', error.message);
   }
 }
