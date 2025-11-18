@@ -7,7 +7,7 @@ This document summarizes the changes made to properly configure Vercel secrets (
 ## Problem Statement
 
 The repository owner added 3 secrets to GitHub repository settings:
-- `VERCEL_TOKEN`: cCWR9S3mirDVwI315SjRzTep
+- `VERCEL_TOKEN`: (Vercel authentication token - stored securely in GitHub Secrets)
 - `VERCEL_ORG_ID`: To be obtained from .vercel/project.json
 - `VERCEL_PROJECT_ID`: To be obtained from .vercel/project.json
 

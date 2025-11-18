@@ -6,7 +6,7 @@ This is a quick reference for setting up Vercel secrets. For detailed informatio
 
 ✅ **GitHub Secrets (Repository Owner Action)**
 The repository owner has added to GitHub repository settings:
-- `VERCEL_TOKEN`: cCWR9S3mirDVwI315SjRzTep
+- `VERCEL_TOKEN`: (Vercel authentication token - stored securely)
 
 ⚠️ **Still Needed**:
 - `VERCEL_ORG_ID`: Must be obtained from `.vercel/project.json`
@@ -68,7 +68,7 @@ After adding the secrets, test by:
 
 Create `.env.local` (gitignored) with:
 ```bash
-VERCEL_TOKEN=cCWR9S3mirDVwI315SjRzTep
+VERCEL_TOKEN=your-vercel-token-here
 VERCEL_ORG_ID=your-org-id
 VERCEL_PROJECT_ID=your-project-id
 ```
