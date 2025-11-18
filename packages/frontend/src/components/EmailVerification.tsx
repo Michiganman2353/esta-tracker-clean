@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sendEmailVerification, reload } from 'firebase/auth';
-import { auth, isFirebaseConfigured } from '../lib/firebase';
+import { httpsCallable } from 'firebase/functions';
+import { auth, functions, isFirebaseConfigured } from '../lib/firebase';
 
 interface EmailVerificationProps {
   email: string;
@@ -28,6 +29,18 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
         await reload(auth.currentUser);
         
         if (auth.currentUser.emailVerified) {
+          // Email is verified! Now activate the account
+          try {
+            if (functions) {
+              // Call Cloud Function to activate account and set custom claims
+              const approveUser = httpsCallable(functions, 'approveUserAfterVerification');
+              await approveUser({});
+            }
+          } catch (activationError) {
+            console.error('Error activating account:', activationError);
+            // Continue anyway - they might be able to login even without custom claims
+          }
+
           if (onVerified) {
             onVerified();
           } else {
@@ -61,7 +74,19 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
       await reload(auth.currentUser);
       
       if (auth.currentUser.emailVerified) {
-        // Email is verified!
+        // Email is verified! Now activate the account
+        try {
+          if (functions) {
+            // Call Cloud Function to activate account and set custom claims
+            const approveUser = httpsCallable(functions, 'approveUserAfterVerification');
+            await approveUser({});
+          }
+        } catch (activationError) {
+          console.error('Error activating account:', activationError);
+          // Continue anyway - they might be able to login even without custom claims
+        }
+
+        // Email is verified and account activated!
         if (onVerified) {
           onVerified();
         } else {
