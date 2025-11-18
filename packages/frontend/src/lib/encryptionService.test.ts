@@ -4,8 +4,6 @@ import {
   decryptHybrid,
   encryptFile,
   decryptBlob,
-  type EncryptionResult,
-  type DecryptionInput,
 } from './encryptionService';
 
 describe('Encryption Service', () => {

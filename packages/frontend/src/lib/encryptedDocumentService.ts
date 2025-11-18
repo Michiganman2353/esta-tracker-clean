@@ -1,4 +1,4 @@
-import { encryptFile, decryptBlob, type EncryptionResult } from './encryptionService';
+import { encryptFile, decryptBlob } from './encryptionService';
 import {
   generateDocumentUploadUrl,
   uploadDocumentToSignedUrl,
@@ -166,7 +166,7 @@ export async function downloadEncryptedDocument(
  */
 export async function storeEncryptionKeysSecurely(
   documentId: string,
-  keys: EncryptionKeys
+  _keys: EncryptionKeys
 ): Promise<string> {
   // TODO: Implement secure key storage
   // This should call a backend API endpoint that:
@@ -198,7 +198,7 @@ export async function storeEncryptionKeysSecurely(
  * @returns Encryption keys
  */
 export async function retrieveEncryptionKeysSecurely(
-  keyId: string
+  _keyId: string
 ): Promise<EncryptionKeys> {
   // TODO: Implement secure key retrieval
   // This should call a backend API endpoint that:

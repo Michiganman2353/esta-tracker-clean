@@ -83,8 +83,7 @@ function bytesToHex(bytes: Uint8Array): string {
  * @returns Encrypted data (base64 string)
  */
 function serpentLikeEncrypt(data: string, key: string, iv: string): string {
-  // Convert key and IV to CryptoJS format
-  const cryptoKey = CryptoJS.enc.Hex.parse(key);
+  // Convert IV to CryptoJS format
   const cryptoIV = CryptoJS.enc.Hex.parse(iv);
   
   // Perform multiple rounds of AES encryption (simulating Serpent's 32 rounds)
