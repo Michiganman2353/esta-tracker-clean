@@ -138,19 +138,26 @@ service cloud.firestore {
     match /documents/{documentId} {
       // Employers can read all documents in their tenant
       allow read: if isEmployer() && 
-        belongsToTenant(resource.data.employerId);
+        belongsToTenant(resource.data.tenantId);
       
       // Employees can read their own documents
       allow read: if isEmployee() && 
         isOwner(resource.data.userId);
       
-      // Employees can create documents
+      // Employees can create documents for their own requests
       allow create: if isAuthenticated() && 
-        request.resource.data.userId == request.auth.uid;
+        request.resource.data.userId == request.auth.uid &&
+        belongsToTenant(request.resource.data.tenantId);
       
-      // Only employers can delete documents
+      // Documents can be updated by the owner if not marked immutable
+      allow update: if isAuthenticated() && 
+        isOwner(resource.data.userId) &&
+        (!('immutable' in resource.data) || resource.data.immutable == false);
+      
+      // Only employers can delete documents, and only if not immutable
       allow delete: if isEmployer() && 
-        belongsToTenant(resource.data.employerId);
+        belongsToTenant(resource.data.tenantId) &&
+        (!('immutable' in resource.data) || resource.data.immutable == false);
     }
     
     // Default: deny all other access

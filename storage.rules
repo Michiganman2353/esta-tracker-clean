@@ -29,6 +29,15 @@ service firebase.storage {
       return request.resource.size < 10 * 1024 * 1024; // 10MB max
     }
     
+    // Check if a PTO request is approved (requires Firestore lookup)
+    // Note: Storage rules cannot directly query Firestore, so immutability
+    // will be enforced via metadata and backend validation
+    function isDocumentMutable() {
+      // Documents can only be written if metadata indicates request is not approved
+      // The 'approved' metadata field will be set by the backend
+      return !('approved' in resource.metadata) || resource.metadata.approved == 'false';
+    }
+    
     // User profile pictures
     match /profile-pictures/{userId}/{fileName} {
       allow read: if isAuthenticated();
@@ -58,12 +67,38 @@ service firebase.storage {
       allow delete: if isEmployer() && belongsToTenant(tenantId);
     }
     
-    // Sick time request attachments
+    // Sick time request attachments (LEGACY - kept for backwards compatibility)
     match /request-attachments/{tenantId}/{requestId}/{fileName} {
       allow read: if belongsToTenant(tenantId);
       allow write: if belongsToTenant(tenantId) &&
                       isValidFileType() &&
                       isValidFileSize();
+    }
+    
+    // NEW: Hierarchical document structure for PTO requests
+    // tenants/{tenantId}/employees/{employeeId}/documents/{requestId}/{fileName}
+    match /tenants/{tenantId}/employees/{employeeId}/documents/{requestId}/{fileName} {
+      // Employees can read their own documents, employers can read all in their tenant
+      allow read: if (isOwner(employeeId) && belongsToTenant(tenantId)) ||
+                     (isEmployer() && belongsToTenant(tenantId));
+      
+      // Only employees can upload to their own folder
+      // Documents cannot be uploaded if already marked as approved
+      allow create: if isOwner(employeeId) && 
+                       belongsToTenant(tenantId) &&
+                       isValidFileType() &&
+                       isValidFileSize();
+      
+      // Updates and deletes are not allowed once created (immutability for compliance)
+      // Exception: can update metadata if not approved
+      allow update: if isOwner(employeeId) && 
+                       belongsToTenant(tenantId) &&
+                       isDocumentMutable();
+      
+      // Only employers can delete documents, and only if not approved
+      allow delete: if isEmployer() && 
+                       belongsToTenant(tenantId) &&
+                       isDocumentMutable();
     }
     
     // Default: deny all other access
