@@ -78,6 +78,11 @@ jest-cache/
 jest-tmp/
 .vitest/
 
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
 # ==================== #
 # IDE & Editor Files
 # ==================== #
