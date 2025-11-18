@@ -10,6 +10,19 @@ ESTA Tracker uses a comprehensive testing approach:
 - **E2E Tests**: Playwright for end-to-end browser testing
 - **CI/CD**: GitHub Actions for automated testing on every PR and push
 
+### Why Vitest Instead of Jest?
+
+While the original requirements mentioned Jest, this project uses **Vitest** for the following reasons:
+
+1. **Native Vite Integration**: The project uses Vite as its build tool, and Vitest is specifically designed to work seamlessly with Vite
+2. **Performance**: Vitest is significantly faster than Jest due to its use of Vite's transformation pipeline
+3. **Jest Compatibility**: Vitest uses a Jest-compatible API, so the syntax and most features are identical
+4. **Already Configured**: The project already had Vitest configured with 30 passing tests
+5. **Modern Features**: Built-in TypeScript support, ESM support, and better watch mode
+6. **Active Development**: Vitest is actively maintained and receives frequent updates
+
+If you need Jest-specific features, Vitest provides equivalent functionality in most cases. See the [Vitest documentation](https://vitest.dev/) for migration guides and feature comparisons.
+
 ## Unit Testing
 
 ### Framework
