@@ -1,9 +1,9 @@
-import { Response } from 'express';
+import { Response, Router } from 'express';
 import { getFirestore } from '../services/firebase';
 import { authenticate } from '../middleware/auth';
 import { AuthenticatedRequest } from '../middleware/auth';
 
-const router = require('express').Router();
+const router = Router();
 const db = getFirestore();
 
 interface CSVImportData {
@@ -41,7 +41,7 @@ router.post('/validate', authenticate, async (req: AuthenticatedRequest, res: Re
 
     if (type === 'employees') {
       // Check for duplicate emails in existing data
-      const emails = data.map((row: any) => row.email);
+      const emails = data.map((row) => (row as { email?: string }).email);
       const existingEmployees = await db
         .collection('users')
         .where('employerId', '==', tenantId)
@@ -54,7 +54,7 @@ router.post('/validate', authenticate, async (req: AuthenticatedRequest, res: Re
       });
     } else if (type === 'hours') {
       // Validate that all employees exist
-      const employeeEmails = [...new Set(data.map((row: any) => row.employeeEmail))];
+      const employeeEmails = [...new Set(data.map((row) => (row as { employeeEmail?: string }).employeeEmail))];
       const existingEmployees = await db
         .collection('users')
         .where('employerId', '==', tenantId)
@@ -108,7 +108,7 @@ router.post('/employees', authenticate, async (req: AuthenticatedRequest, res: R
 
     for (const row of data) {
       try {
-        const employeeData: any = {
+        const employeeData: Record<string, unknown> = {
           firstName: row.firstName,
           lastName: row.lastName,
           email: row.email,
@@ -200,7 +200,7 @@ router.post('/hours', authenticate, async (req: AuthenticatedRequest, res: Respo
     }
 
     // Get employee mapping
-    const employeeEmails = [...new Set(data.map((row: any) => row.employeeEmail))];
+    const employeeEmails = [...new Set(data.map((row) => (row as { employeeEmail?: string }).employeeEmail))];
     const employeeDocs = await db
       .collection('users')
       .where('employerId', '==', tenantId)

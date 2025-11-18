@@ -1,9 +1,9 @@
-import { Response, NextFunction } from 'express';
+import { Response, Router } from 'express';
 import { getFirestore } from '../services/firebase';
 import { authenticate } from '../middleware/auth';
 import { AuthenticatedRequest } from '../middleware/auth';
 
-const router = require('express').Router();
+const router = Router();
 const db = getFirestore();
 
 interface PolicyData {
@@ -20,6 +20,19 @@ interface PolicyData {
     createdBy: string;
     tenantId?: string;
   };
+}
+
+interface PolicyHistoryEntry {
+  policyId: string;
+  activatedAt: Date;
+  deactivatedAt?: Date;
+}
+
+interface TenantPolicyConfig {
+  tenantId: string;
+  activePolicyId: string;
+  policyHistory: PolicyHistoryEntry[];
+  customizations?: Record<string, unknown> | null;
 }
 
 /**
@@ -44,7 +57,7 @@ router.get('/', authenticate, async (req: AuthenticatedRequest, res: Response) =
     }
 
     const snapshot = await query.get();
-    const policies = snapshot.docs.map((doc: any) => ({
+    const policies = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
@@ -170,22 +183,25 @@ router.put('/active', authenticate, async (req: AuthenticatedRequest, res: Respo
     const configDoc = await configRef.get();
 
     const now = new Date();
-    let config: any;
+    let config: TenantPolicyConfig;
 
     if (configDoc.exists) {
-      config = configDoc.data();
+      const existingConfig = configDoc.data() as TenantPolicyConfig;
       // Deactivate previous policy
-      if (config.policyHistory && config.policyHistory.length > 0) {
-        const lastIndex = config.policyHistory.length - 1;
-        config.policyHistory[lastIndex].deactivatedAt = now;
+      if (existingConfig.policyHistory && existingConfig.policyHistory.length > 0) {
+        const lastIndex = existingConfig.policyHistory.length - 1;
+        existingConfig.policyHistory[lastIndex].deactivatedAt = now;
       }
       // Add new policy to history
-      config.policyHistory.push({
+      existingConfig.policyHistory.push({
         policyId,
         activatedAt: now,
       });
-      config.activePolicyId = policyId;
-      config.customizations = customizations || null;
+      config = {
+        ...existingConfig,
+        activePolicyId: policyId,
+        customizations: customizations || null,
+      };
     } else {
       config = {
         tenantId,

@@ -13,14 +13,14 @@ interface PTORequest {
 }
 
 interface CalendarProps {
-  user: User;
+  user?: User;
   ptoRequests?: PTORequest[];
   onDateClick?: (date: Date) => void;
 }
 
 type ViewMode = 'day' | 'week' | 'month';
 
-export default function Calendar({ user, ptoRequests = [], onDateClick }: CalendarProps) {
+export default function Calendar({ ptoRequests = [], onDateClick }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('month');
 

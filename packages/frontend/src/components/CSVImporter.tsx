@@ -7,6 +7,8 @@ import {
   generateEmployeeCSVTemplate,
   generateHoursCSVTemplate,
   type CSVImportResult,
+  type EmployeeCSVRow,
+  type HoursCSVRow,
 } from '../lib/csvImport';
 
 type ImportType = 'employees' | 'hours';
@@ -15,14 +17,12 @@ interface CSVImporterProps {
   importType: ImportType;
   existingEmployeeEmails?: string[];
   onImportComplete?: (data: Record<string, unknown>[]) => void;
-  onCancel?: () => void;
 }
 
 export default function CSVImporter({
   importType,
   existingEmployeeEmails = [],
   onImportComplete,
-  onCancel,
 }: CSVImporterProps) {
   const [file, setFile] = useState<File | null>(null);
   const [importResult, setImportResult] = useState<CSVImportResult | null>(null);
@@ -50,7 +50,7 @@ export default function CSVImporter({
       // Run business rules validation
       if (result.valid) {
         const bizValidation = validateEmployeeBusinessRules(
-          result.data as any[],
+          result.data as unknown as EmployeeCSVRow[],
           new Set(existingEmployeeEmails)
         );
         setBusinessValidation(bizValidation);
@@ -61,7 +61,7 @@ export default function CSVImporter({
       // Run business rules validation
       if (result.valid) {
         const bizValidation = validateHoursBusinessRules(
-          result.data as any[],
+          result.data as unknown as HoursCSVRow[],
           new Set(existingEmployeeEmails)
         );
         setBusinessValidation(bizValidation);
