@@ -1,4 +1,4 @@
-import { initializeApp, FirebaseApp } from 'firebase/app';
+import { initializeApp, FirebaseApp, getApps } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
@@ -28,7 +28,17 @@ let analytics: Analytics | undefined;
 try {
   // Check if we have minimum required config
   if (firebaseConfig.apiKey && firebaseConfig.projectId) {
-    app = initializeApp(firebaseConfig);
+    // Check if Firebase app is already initialized to prevent duplicate initialization errors
+    const existingApps = getApps();
+    if (existingApps.length > 0) {
+      // Use the existing app instead of initializing a new one
+      app = existingApps[0];
+    } else {
+      // Initialize new Firebase app
+      app = initializeApp(firebaseConfig);
+    }
+    
+    // Initialize Firebase services
     auth = getAuth(app);
     db = getFirestore(app);
     storage = getStorage(app);
