@@ -1,5 +1,4 @@
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { getStorage, ref, uploadBytesResumable, UploadTask } from 'firebase/storage';
 
 /**
  * Document upload service for secure document handling
