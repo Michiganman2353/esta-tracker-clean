@@ -3,6 +3,8 @@ import { Router, Request, Response, NextFunction } from 'express';
 export const authRouter = Router();
 
 // Simple in-memory store for mock tokens
+// NOTE: This in-memory token store is for development/testing only.
+// In production, replace with a persistent and shared session store (e.g., Redis, database).
 const tokenStore = new Map<string, { email: string; name: string; role: 'employee' | 'employer' | 'admin' }>();
 
 // Extend Express Request type to include user
