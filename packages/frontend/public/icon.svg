@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="#1f2937" stroke="#60a5fa" stroke-width="2"/>
+  
+  <!-- Clock face -->
+  <circle cx="16" cy="16" r="10" fill="none" stroke="#60a5fa" stroke-width="1.5"/>
+  
+  <!-- Clock hands representing time tracking -->
+  <line x1="16" y1="16" x2="16" y2="9" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/>
+  <line x1="16" y1="16" x2="21" y2="16" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Small checkmark for compliance -->
+  <path d="M 11 16 L 13 18 L 17 14" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
