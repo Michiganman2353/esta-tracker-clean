@@ -62,9 +62,9 @@ export const approveUserAfterVerification = functions.https.onCall(
 
       const userData = userDoc.data();
 
-      // Update user status to active
+      // Update user status to approved (matches frontend User type)
       await userDocRef.update({
-        status: 'active',
+        status: 'approved',
         emailVerified: true,
         verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -101,7 +101,7 @@ export const approveUserAfterVerification = functions.https.onCall(
           id: uid,
           email: userRecord.email,
           role: userData?.role,
-          status: 'active',
+          status: 'approved',
         },
       };
     } catch (error) {
@@ -142,7 +142,7 @@ export const setUserClaims = functions.https.onCall(async (data, context) => {
 
     // Update Firestore document
     await db.collection('users').doc(uid).update({
-      status: 'active',
+      status: 'approved',
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 

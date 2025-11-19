@@ -326,6 +326,38 @@ export async function signIn(email: string, password: string): Promise<User> {
 
     const userData = userDoc.data() as User;
 
+    // Auto-activate user if email is verified but status is still pending
+    // This handles cases where the Cloud Function wasn't called or failed
+    if (userData.status === 'pending' && firebaseUser.emailVerified) {
+      console.log('Auto-activating user with verified email');
+      try {
+        await setDoc(doc(db, 'users', firebaseUser.uid), {
+          ...userData,
+          status: 'approved',
+          emailVerified: true,
+          verifiedAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        }, { merge: true });
+        
+        userData.status = 'approved';
+        
+        // Log the auto-activation
+        await setDoc(doc(collection(db, 'auditLogs')), {
+          userId: firebaseUser.uid,
+          employerId: userData.employerId,
+          action: 'auto_activated_on_login',
+          details: {
+            email: firebaseUser.email,
+            role: userData.role,
+          },
+          timestamp: serverTimestamp(),
+        });
+      } catch (activationError) {
+        console.error('Error auto-activating user:', activationError);
+        // Continue with pending status check below
+      }
+    }
+
     // Check if account is approved
     if (userData.status === 'pending') {
       throw new Error('Your account is pending approval. You will receive an email once approved.');

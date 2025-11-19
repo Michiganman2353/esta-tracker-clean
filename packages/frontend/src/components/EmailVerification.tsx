@@ -32,13 +32,17 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
           // Email is verified! Now activate the account
           try {
             if (functions) {
-              // Call Cloud Function to activate account and set custom claims
+              console.log('Calling approveUserAfterVerification function');
               const approveUser = httpsCallable(functions, 'approveUserAfterVerification');
-              await approveUser({});
+              const result = await approveUser({});
+              console.log('User approved successfully:', result);
+            } else {
+              console.warn('Firebase functions not available - continuing without activation');
             }
           } catch (activationError) {
             console.error('Error activating account:', activationError);
             // Continue anyway - they might be able to login even without custom claims
+            // The user document status was already set to active during registration
           }
 
           if (onVerified) {
@@ -77,13 +81,17 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
         // Email is verified! Now activate the account
         try {
           if (functions) {
-            // Call Cloud Function to activate account and set custom claims
+            console.log('Calling approveUserAfterVerification function');
             const approveUser = httpsCallable(functions, 'approveUserAfterVerification');
-            await approveUser({});
+            const result = await approveUser({});
+            console.log('User approved successfully:', result);
+          } else {
+            console.warn('Firebase functions not available - continuing without activation');
           }
         } catch (activationError) {
           console.error('Error activating account:', activationError);
           // Continue anyway - they might be able to login even without custom claims
+          // The user document status was already set to active during registration
         }
 
         // Email is verified and account activated!
