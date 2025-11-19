@@ -78,7 +78,7 @@ Go to your repository settings and add these as secrets:
 3. Add each secret:
    - Name: `VERCEL_ORG_ID`, Value: `team_1234567890abcdef`
    - Name: `VERCEL_PROJECT_ID`, Value: `prj_abcdef1234567890`
-   - Name: `VERCEL_TOKEN`, Value: Your Vercel API token
+   - Name: `VERCEL`, Value: Your Vercel API token
 
 ## Verification
 
