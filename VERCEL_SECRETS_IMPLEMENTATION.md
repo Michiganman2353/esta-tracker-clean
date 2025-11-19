@@ -2,12 +2,12 @@
 
 ## Overview
 
-This document summarizes the changes made to properly configure Vercel secrets (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID) in the repository.
+This document summarizes the changes made to properly configure Vercel secrets (VERCEL, VERCEL_ORG_ID, VERCEL_PROJECT_ID) in the repository.
 
 ## Problem Statement
 
 The repository owner added 3 secrets to GitHub repository settings:
-- `VERCEL_TOKEN`: (Vercel authentication token - stored securely in GitHub Secrets)
+- `VERCEL`: (Vercel authentication token - stored securely in GitHub Secrets)
 - `VERCEL_ORG_ID`: To be obtained from .vercel/project.json
 - `VERCEL_PROJECT_ID`: To be obtained from .vercel/project.json
 
@@ -75,7 +75,7 @@ Comprehensive rewrite including:
 
 The workflow already properly references the secrets:
 ```yaml
-vercel-token: ${{ secrets.VERCEL_TOKEN }}
+vercel-token: ${{ secrets.VERCEL }}
 vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
 vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
 ```

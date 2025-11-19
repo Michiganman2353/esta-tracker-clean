@@ -144,7 +144,7 @@ See `.github/workflows/ci.yml` for the complete workflow configuration.
 
 For Vercel preview deployments, the following secrets must be configured in GitHub:
 
-- `VERCEL_TOKEN`: Vercel authentication token
+- `VERCEL`: Vercel authentication token (for GitHub Actions)
 - `VERCEL_ORG_ID`: Vercel organization ID
 - `VERCEL_PROJECT_ID`: Vercel project ID
 
@@ -162,7 +162,7 @@ To get these values:
 6. **Add to GitHub Secrets**:
    - Go to repository Settings → Secrets and variables → Actions
    - Add each secret with the exact names above
-   - Paste the token value for `VERCEL_TOKEN`
+   - Paste the token value for `VERCEL`
 
 **Security Note**: Never commit tokens or IDs directly to the repository. Always use GitHub Secrets for CI/CD or local `.env.local` files (gitignored) for development.
 

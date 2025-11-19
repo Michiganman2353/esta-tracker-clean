@@ -6,10 +6,11 @@ This document explains how to properly configure Vercel secrets for the ESTA Tra
 
 The following secrets are required for Vercel deployment and CI/CD:
 
-### 1. VERCEL_TOKEN
+### 1. VERCEL
 - **Purpose**: Authentication token for Vercel CLI and API access
 - **Where to get it**: [Vercel Account Tokens](https://vercel.com/account/tokens)
 - **Required for**: CLI deployments, GitHub Actions, CI/CD
+- **Note**: This is the Vercel authentication token, stored as `VERCEL` in GitHub Secrets
 
 ### 2. VERCEL_ORG_ID
 - **Purpose**: Identifies your Vercel organization/team
@@ -29,13 +30,13 @@ The following secrets are required for Vercel deployment and CI/CD:
 **Purpose**: Used by GitHub Actions CI/CD workflow
 
 The following secrets should be added to GitHub:
-- `VERCEL_TOKEN`
+- `VERCEL` (the Vercel authentication token)
 - `VERCEL_ORG_ID`
 - `VERCEL_PROJECT_ID`
 
 These are already referenced in `.github/workflows/ci.yml`:
 ```yaml
-vercel-token: ${{ secrets.VERCEL_TOKEN }}
+vercel-token: ${{ secrets.VERCEL }}
 vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
 vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
 ```
@@ -47,7 +48,7 @@ vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
 **Git Status**: Tracked (committed, safe)
 
 Contains placeholders with detailed instructions:
-- `VERCEL_TOKEN=your-vercel-token-here`
+- `VERCEL=your-vercel-token-here` (or use VERCEL_TOKEN for local development)
 - `VERCEL_ORG_ID=your-vercel-org-id`
 - `VERCEL_PROJECT_ID=your-vercel-project-id`
 
@@ -112,7 +113,7 @@ Go to your repository and add these values:
 2. Click "New repository secret" for each:
    - Name: `VERCEL_ORG_ID`, Value: the orgId from project.json
    - Name: `VERCEL_PROJECT_ID`, Value: the projectId from project.json
-   - Name: `VERCEL_TOKEN`, Value: your Vercel authentication token
+   - Name: `VERCEL`, Value: your Vercel authentication token
 
 ## Vercel Configuration Files
 
@@ -140,7 +141,7 @@ This file configures build settings, security headers, and routing.
 ### ✅ What's Properly Secured:
 
 1. **GitHub Secrets** (Encrypted storage)
-   - VERCEL_TOKEN stored in repository secrets
+   - VERCEL (authentication token) stored in repository secrets
    - VERCEL_ORG_ID stored in repository secrets
    - VERCEL_PROJECT_ID stored in repository secrets
    - Only accessible to GitHub Actions workflows
@@ -175,7 +176,7 @@ This file configures build settings, security headers, and routing.
 After configuring all secrets, verify:
 
 ### For GitHub Actions (CI/CD)
-- [ ] `VERCEL_TOKEN` added to GitHub repository secrets
+- [ ] `VERCEL` (authentication token) added to GitHub repository secrets
 - [ ] `VERCEL_ORG_ID` added to GitHub repository secrets
 - [ ] `VERCEL_PROJECT_ID` added to GitHub repository secrets
 - [ ] Create a test pull request
@@ -246,7 +247,7 @@ If you need to rotate the Vercel token:
 1. **Generate new token**: Visit [Vercel Account Tokens](https://vercel.com/account/tokens)
 2. **Update GitHub Secrets**: 
    - Go to repository Settings → Secrets and variables → Actions
-   - Edit `VERCEL_TOKEN` with new value
+   - Edit `VERCEL` with new value
 3. **Update local `.env.local`**: Replace old token
 4. **Notify team members**: Share new token securely
 5. **Revoke old token**: In Vercel account settings
@@ -261,7 +262,7 @@ If you need to rotate the Vercel token:
 
 ## Summary
 
-✅ **GitHub Secrets**: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID configured in repository settings  
+✅ **GitHub Secrets**: VERCEL (authentication token), VERCEL_ORG_ID, VERCEL_PROJECT_ID configured in repository settings  
 ✅ **Documentation**: `.env.example` contains placeholders and instructions  
 ✅ **CI/CD Workflow**: `.github/workflows/ci.yml` properly references secrets  
 ✅ **Local Setup**: Instructions provided for creating `.env.local`  

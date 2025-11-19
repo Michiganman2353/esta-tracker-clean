@@ -63,8 +63,8 @@ For CLI deployments and CI/CD integration, you'll need a Vercel token:
 2. **Create New Token**: Click "Create" and give it a descriptive name (e.g., "ESTA Tracker Deployment")
 3. **Copy Token**: Save it securely - you won't be able to see it again
 4. **Configure Token**:
-   - **For GitHub Actions**: Add to repository secrets as `VERCEL_TOKEN`
-   - **For Local CLI**: Add to `.env.local` as `VERCEL_TOKEN=your-token-here`
+   - **For GitHub Actions**: Add to repository secrets as `VERCEL` (authentication token)
+   - **For Local CLI**: Add to `.env.local` as `VERCEL_TOKEN=your-token-here` (for local Vercel CLI usage)
    - **Never commit**: The token should never be committed to git
 
 ### Required Environment Variables
