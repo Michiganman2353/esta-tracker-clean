@@ -4,12 +4,17 @@
   "description": "Vercel API and Background Functions for ESTA Tracker",
   "private": true,
   "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
   "dependencies": {
     "@vercel/node": "^3.0.0",
     "firebase-admin": "^12.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.10",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
   }
 }

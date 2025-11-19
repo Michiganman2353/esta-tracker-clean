@@ -271,6 +271,39 @@ class ApiClient {
       body: JSON.stringify(data),
     });
   }
+
+  // Encryption & Decryption
+  /**
+   * Decrypt encrypted data using the secure decrypt endpoint
+   * Requires authentication and authorization
+   * 
+   * @param payload - Encrypted payload (encryptedData, encryptedAESKey, iv, authTag)
+   * @param privateKey - RSA private key in PEM format
+   * @param resourceOwnerId - Optional: User ID that owns the encrypted data
+   * @param tenantId - Optional: Tenant ID for the encrypted data
+   * @returns Decrypted data
+   */
+  async decryptData(
+    payload: {
+      encryptedData: string;
+      encryptedAESKey: string;
+      iv: string;
+      authTag: string;
+    },
+    privateKey: string,
+    resourceOwnerId?: string,
+    tenantId?: string
+  ) {
+    return this.request<{ success: boolean; decrypted: string }>('/api/secure/decrypt', {
+      method: 'POST',
+      body: JSON.stringify({
+        payload,
+        privateKey,
+        resourceOwnerId,
+        tenantId
+      }),
+    });
+  }
 }
 
 export const apiClient = new ApiClient(API_URL);
