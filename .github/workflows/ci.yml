@@ -80,6 +80,8 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     needs: test
+    env:
+      VERCEL: ${{ secrets.VERCEL }}
     steps:
       - uses: actions/checkout@v4
 
