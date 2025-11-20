@@ -21,9 +21,30 @@
  * All application pages and layout are controlled from here.
  */
 
+/**
+ * Custom React hook for managing multi-step wizard flows.
+ *
+ * @file useWizard.ts
+ * @description Provides state and navigation helpers for wizard-style UIs.
+ * @usage
+ *   const {
+ *     steps,
+ *     currentStep,
+ *     currentStepIndex,
+ *     isFirstStep,
+ *     isLastStep,
+ *     goToNext,
+ *     goToPrevious,
+ *     goToStep,
+ *     markStepComplete,
+ *     markStepIncomplete,
+ *     reset,
+ *   } = useWizard(initialSteps);
+ *
+ * @param {WizardStep[]} initialSteps - Array of step objects to initialize the wizard.
+ * @returns {object} Wizard state and navigation functions.
+ */
 import { useState, useCallback } from 'react';
-
-export interface WizardStep {
   id: string;
   title: string;
   isComplete: boolean;
