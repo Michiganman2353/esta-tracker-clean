@@ -122,7 +122,7 @@ jobs:
         with:
           # SECURITY: Using GitHub Secrets to securely reference the Vercel token
           # This secret must be configured in repository settings before deployment will work
-          vercel-token: ${{ secrets.VERCEL }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod'
