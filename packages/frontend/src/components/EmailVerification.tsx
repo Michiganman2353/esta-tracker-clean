@@ -66,6 +66,7 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
 
   async function checkVerification(isAuto = false) {
     if (!auth?.currentUser || !isFirebaseConfigured) {
+      console.warn('Cannot check verification: auth not available');
       return;
     }
 
@@ -74,8 +75,22 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
     }
 
     try {
-      // Reload user data from Firebase
-      await reload(auth.currentUser);
+      // Reload user data from Firebase with retry logic
+      let reloadAttempts = 0;
+      const maxReloadAttempts = 3;
+      
+      while (reloadAttempts < maxReloadAttempts) {
+        try {
+          await reload(auth.currentUser);
+          break;
+        } catch (reloadError) {
+          reloadAttempts++;
+          if (reloadAttempts >= maxReloadAttempts) {
+            throw reloadError;
+          }
+          await new Promise(resolve => setTimeout(resolve, 1000 * reloadAttempts));
+        }
+      }
       
       if (auth.currentUser.emailVerified) {
         // Email is verified! Now activate the account
@@ -102,14 +117,25 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
           navigate('/login?verified=true');
         }
       } else if (!isAuto) {
-        setResendMessage('Email not verified yet. Please check your inbox.');
-        setTimeout(() => setResendMessage(''), 3000);
+        setResendMessage('Email not verified yet. Please check your inbox and spam folder.');
+        setTimeout(() => setResendMessage(''), 5000);
       }
     } catch (error) {
       console.error('Error checking verification:', error);
       if (!isAuto) {
-        setResendMessage('Error checking verification status. Please try again.');
-        setTimeout(() => setResendMessage(''), 3000);
+        const err = error as { code?: string; message?: string };
+        let errorMessage = 'Error checking verification status. ';
+        
+        if (err.code === 'auth/network-request-failed') {
+          errorMessage += 'Please check your internet connection and try again.';
+        } else if (err.code === 'auth/too-many-requests') {
+          errorMessage += 'Too many requests. Please wait a moment and try again.';
+        } else {
+          errorMessage += 'Please try again or contact support if the problem persists.';
+        }
+        
+        setResendMessage(errorMessage);
+        setTimeout(() => setResendMessage(''), 5000);
       }
     } finally {
       if (!isAuto) {
@@ -120,7 +146,8 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
 
   async function resendVerificationEmail() {
     if (!auth?.currentUser || !isFirebaseConfigured) {
-      setResendMessage('Authentication not available. Please refresh and try again.');
+      setResendMessage('Authentication not available. Please refresh the page and try again.');
+      setTimeout(() => setResendMessage(''), 5000);
       return;
     }
 
@@ -128,23 +155,50 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
     setResendMessage('');
 
     try {
-      await sendEmailVerification(auth.currentUser, {
-        url: window.location.origin + '/login?verified=true',
-        handleCodeInApp: false,
-      });
-      setResendMessage('Verification email sent! Please check your inbox.');
+      // Retry logic for sending email
+      let sendAttempts = 0;
+      const maxSendAttempts = 2;
+      let lastError: Error | null = null;
+      
+      while (sendAttempts < maxSendAttempts) {
+        try {
+          await sendEmailVerification(auth.currentUser, {
+            url: window.location.origin + '/login?verified=true',
+            handleCodeInApp: false,
+          });
+          setResendMessage('✓ Verification email sent! Please check your inbox and spam folder.');
+          return; // Success
+        } catch (sendError) {
+          lastError = sendError as Error;
+          sendAttempts++;
+          if (sendAttempts < maxSendAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          }
+        }
+      }
+      
+      // If we get here, all attempts failed
+      throw lastError;
     } catch (error: unknown) {
       console.error('Error resending verification email:', error);
       
-      const err = error as { code?: string };
+      const err = error as { code?: string; message?: string };
+      let errorMessage = '';
+      
       if (err.code === 'auth/too-many-requests') {
-        setResendMessage('Too many requests. Please wait a few minutes before trying again.');
+        errorMessage = 'Too many requests. Please wait a few minutes before trying again.';
+      } else if (err.code === 'auth/network-request-failed') {
+        errorMessage = 'Network error. Please check your internet connection and try again.';
+      } else if (err.code === 'auth/timeout') {
+        errorMessage = 'Request timed out. Please check your connection and try again.';
       } else {
-        setResendMessage('Failed to send verification email. Please try again later.');
+        errorMessage = 'Failed to send verification email. Please try again later or contact support.';
       }
+      
+      setResendMessage(errorMessage);
     } finally {
       setResending(false);
-      setTimeout(() => setResendMessage(''), 5000);
+      setTimeout(() => setResendMessage(''), 8000); // Longer display time for error messages
     }
   }
 

@@ -34,6 +34,28 @@ export interface RegisterEmployeeData {
 }
 
 /**
+ * Validate email format
+ */
+function validateEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+/**
+ * Validate password strength
+ */
+function validatePassword(password: string): { valid: boolean; message?: string } {
+  if (password.length < 8) {
+    return { valid: false, message: 'Password must be at least 8 characters long' };
+  }
+  // Add more robust password validation
+  if (!/[A-Z]/.test(password) && !/[a-z]/.test(password)) {
+    return { valid: false, message: 'Password must contain letters' };
+  }
+  return { valid: true };
+}
+
+/**
  * Generate a unique tenant code (company code)
  */
 function generateTenantCode(): string {
@@ -46,27 +68,107 @@ function generateTenantCode(): string {
 }
 
 /**
+ * Retry a function with exponential backoff
+ */
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  initialDelay: number = 1000
+): Promise<T> {
+  let lastError: Error | unknown;
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      
+      // Don't retry on certain errors
+      const err = error as { code?: string };
+      if (err.code && [
+        'auth/email-already-in-use',
+        'auth/invalid-email',
+        'auth/weak-password',
+        'auth/invalid-credential',
+        'auth/user-not-found',
+        'auth/wrong-password',
+        'auth/too-many-requests',
+      ].includes(err.code)) {
+        throw error;
+      }
+      
+      if (attempt < maxRetries - 1) {
+        const delay = initialDelay * Math.pow(2, attempt);
+        console.log(`Attempt ${attempt + 1} failed, retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  
+  throw lastError;
+}
+
+/**
  * Register a new manager/employer account
  */
 export async function registerManager(data: RegisterManagerData): Promise<{ user: User; needsVerification: boolean }> {
+  // Pre-flight validation checks
   if (!auth || !db || !isFirebaseConfigured) {
-    throw new Error('Firebase not configured. Please check your environment variables.');
+    console.error('Firebase configuration check failed:', {
+      auth: !!auth,
+      db: !!db,
+      isFirebaseConfigured,
+    });
+    throw new Error('Firebase not configured. Please check your environment variables or contact support.');
   }
+
+  // Store in local variables to satisfy TypeScript
+  const firebaseAuth = auth;
+  const firebaseDb = db;
 
   // Validate window.location is available (for action code URL)
   if (typeof window === 'undefined' || !window.location) {
     throw new Error('Window location not available. Please try again.');
   }
 
+  // Validate input data
+  if (!validateEmail(data.email)) {
+    throw new Error('Invalid email address format. Please enter a valid email.');
+  }
+
+  const passwordValidation = validatePassword(data.password);
+  if (!passwordValidation.valid) {
+    throw new Error(passwordValidation.message || 'Invalid password');
+  }
+
+  if (!data.name || data.name.trim().length < 2) {
+    throw new Error('Please enter your full name (at least 2 characters)');
+  }
+
+  if (!data.companyName || data.companyName.trim().length < 2) {
+    throw new Error('Please enter a valid company name (at least 2 characters)');
+  }
+
+  if (!data.employeeCount || data.employeeCount < 1 || data.employeeCount > 10000) {
+    throw new Error('Please enter a valid employee count (1-10000)');
+  }
+
   try {
     console.log('Starting manager registration for:', data.email);
+    console.log('Registration environment:', {
+      origin: window.location.origin,
+      isFirebaseConfigured,
+      timestamp: new Date().toISOString(),
+    });
     
-    // Create Firebase Auth user
-    const userCredential: UserCredential = await createUserWithEmailAndPassword(
-      auth,
-      data.email,
-      data.password
-    );
+    // Create Firebase Auth user with retry logic
+    const userCredential: UserCredential = await retryWithBackoff(async () => {
+      return await createUserWithEmailAndPassword(
+        firebaseAuth,
+        data.email,
+        data.password
+      );
+    });
 
     const { user: firebaseUser } = userCredential;
     console.log('Firebase user created:', firebaseUser.uid);
@@ -77,22 +179,25 @@ export async function registerManager(data: RegisterManagerData): Promise<{ user
     // Determine employer size
     const employerSize = data.employeeCount >= 10 ? 'large' : 'small';
 
-    // Create tenant/company document
+    // Create tenant/company document with retry
     const tenantId = `tenant_${firebaseUser.uid}`;
     console.log('Creating tenant document:', tenantId);
-    await setDoc(doc(db, 'tenants', tenantId), {
-      id: tenantId,
-      companyName: data.companyName,
-      tenantCode,
-      size: employerSize,
-      employeeCount: data.employeeCount,
-      ownerId: firebaseUser.uid,
-      status: 'pending', // Pending until email verified
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
+    
+    await retryWithBackoff(async () => {
+      await setDoc(doc(firebaseDb, 'tenants', tenantId), {
+        id: tenantId,
+        companyName: data.companyName,
+        tenantCode,
+        size: employerSize,
+        employeeCount: data.employeeCount,
+        ownerId: firebaseUser.uid,
+        status: 'pending', // Pending until email verified
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
     });
 
-    // Create user document in Firestore
+    // Create user document in Firestore with retry
     console.log('Creating user document in Firestore');
     const userData: User = {
       id: firebaseUser.uid,
@@ -106,38 +211,46 @@ export async function registerManager(data: RegisterManagerData): Promise<{ user
       updatedAt: new Date().toISOString(),
     };
 
-    await setDoc(doc(db, 'users', firebaseUser.uid), {
-      ...userData,
-      emailVerified: false,
-      tenantId,
-      tenantCode,
-      companyName: data.companyName,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-
-    // Create audit log
-    await setDoc(doc(collection(db, 'auditLogs')), {
-      userId: firebaseUser.uid,
-      employerId: tenantId,
-      action: 'registration',
-      details: {
-        role: 'employer',
-        companyName: data.companyName,
-        employeeCount: data.employeeCount,
+    await retryWithBackoff(async () => {
+      await setDoc(doc(firebaseDb, 'users', firebaseUser.uid), {
+        ...userData,
+        emailVerified: false,
+        tenantId,
         tenantCode,
-      },
-      timestamp: serverTimestamp(),
+        companyName: data.companyName,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
     });
 
-    // Send email verification with action code settings
+    // Create audit log with retry
+    await retryWithBackoff(async () => {
+      await setDoc(doc(collection(firebaseDb, 'auditLogs')), {
+        userId: firebaseUser.uid,
+        employerId: tenantId,
+        action: 'registration',
+        details: {
+          role: 'employer',
+          companyName: data.companyName,
+          employeeCount: data.employeeCount,
+          tenantCode,
+        },
+        timestamp: serverTimestamp(),
+      });
+    });
+
+    // Send email verification with action code settings and retry
     console.log('Sending email verification to:', data.email);
     const actionCodeSettings = {
       url: window.location.origin + '/login?verified=true',
       handleCodeInApp: false,
     };
     console.log('Action code settings:', actionCodeSettings);
-    await sendEmailVerification(firebaseUser, actionCodeSettings);
+    
+    await retryWithBackoff(async () => {
+      await sendEmailVerification(firebaseUser, actionCodeSettings);
+    }, 2, 2000); // Fewer retries for email, shorter delay
+    
     console.log('Email verification sent successfully');
 
     return { user: userData, needsVerification: true };
@@ -145,18 +258,26 @@ export async function registerManager(data: RegisterManagerData): Promise<{ user
     console.error('Manager registration error:', error);
     
     const err = error as { code?: string; message?: string };
+    
+    // Enhanced error messages with actionable guidance
     if (err.code === 'auth/email-already-in-use') {
       throw new Error('This email is already registered. Please use a different email or try logging in.');
     } else if (err.code === 'auth/invalid-email') {
-      throw new Error('Invalid email address format.');
+      throw new Error('Invalid email address format. Please check and try again.');
     } else if (err.code === 'auth/weak-password') {
-      throw new Error('Password is too weak. Please use at least 8 characters.');
+      throw new Error('Password is too weak. Please use at least 8 characters with letters.');
     } else if (err.code === 'auth/configuration-not-found') {
-      throw new Error('Firebase authentication is not properly configured. Please contact support.');
+      throw new Error('Firebase authentication is not properly configured. Please contact support at support@estatracker.com.');
     } else if (err.code === 'auth/network-request-failed') {
-      throw new Error('Network error. Please check your internet connection and try again.');
+      throw new Error('Network error. Please check your internet connection and try again. If the problem persists, contact support.');
+    } else if (err.code === 'auth/timeout') {
+      throw new Error('Request timed out. Please check your internet connection and try again.');
+    } else if (err.code === 'auth/too-many-requests') {
+      throw new Error('Too many registration attempts. Please wait a few minutes and try again.');
+    } else if (err.message?.includes('CORS') || err.message?.includes('cors')) {
+      throw new Error('Connection error. Please try again or contact support if the problem persists.');
     } else {
-      throw new Error(err.message || 'Registration failed. Please try again.');
+      throw new Error(err.message || 'Registration failed. Please try again or contact support at support@estatracker.com.');
     }
   }
 }
@@ -165,17 +286,50 @@ export async function registerManager(data: RegisterManagerData): Promise<{ user
  * Register a new employee account
  */
 export async function registerEmployee(data: RegisterEmployeeData): Promise<{ user: User; needsVerification: boolean }> {
+  // Pre-flight validation checks
   if (!auth || !db || !isFirebaseConfigured) {
-    throw new Error('Firebase not configured. Please check your environment variables.');
+    console.error('Firebase configuration check failed:', {
+      auth: !!auth,
+      db: !!db,
+      isFirebaseConfigured,
+    });
+    throw new Error('Firebase not configured. Please check your environment variables or contact support.');
   }
+
+  // Store in local variables to satisfy TypeScript
+  const firebaseAuth = auth;
+  const firebaseDb = db;
 
   // Validate window.location is available (for action code URL)
   if (typeof window === 'undefined' || !window.location) {
     throw new Error('Window location not available. Please try again.');
   }
 
+  // Validate input data
+  if (!validateEmail(data.email)) {
+    throw new Error('Invalid email address format. Please enter a valid email.');
+  }
+
+  const passwordValidation = validatePassword(data.password);
+  if (!passwordValidation.valid) {
+    throw new Error(passwordValidation.message || 'Invalid password');
+  }
+
+  if (!data.name || data.name.trim().length < 2) {
+    throw new Error('Please enter your full name (at least 2 characters)');
+  }
+
+  if (!data.tenantCode && !data.employerEmail) {
+    throw new Error('Please provide either a company code or employer email');
+  }
+
   try {
     console.log('Starting employee registration for:', data.email);
+    console.log('Registration environment:', {
+      origin: window.location.origin,
+      isFirebaseConfigured,
+      timestamp: new Date().toISOString(),
+    });
     
     // Validate tenant code or employer email
     let tenantId = '';
@@ -184,15 +338,17 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
 
     if (data.tenantCode) {
       console.log('Looking up tenant by code:', data.tenantCode);
-      // Find tenant by code
-      const tenantsQuery = query(
-        collection(db, 'tenants'),
-        where('tenantCode', '==', data.tenantCode.toUpperCase())
-      );
-      const tenantSnapshot = await getDocs(tenantsQuery);
+      // Find tenant by code with retry
+      const tenantSnapshot = await retryWithBackoff(async () => {
+        const tenantsQuery = query(
+          collection(firebaseDb, 'tenants'),
+          where('tenantCode', '==', data.tenantCode!.toUpperCase())
+        );
+        return await getDocs(tenantsQuery);
+      });
 
       if (tenantSnapshot.empty) {
-        throw new Error('Invalid company code. Please check with your employer.');
+        throw new Error('Invalid company code. Please check with your employer and try again.');
       }
 
       const tenantDoc = tenantSnapshot.docs[0];
@@ -202,16 +358,23 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       companyName = tenantData.companyName;
       console.log('Found tenant:', tenantId, companyName);
     } else if (data.employerEmail) {
-      // Find tenant by employer email domain
+      // Find tenant by employer email domain with retry
       const emailDomain = data.employerEmail.split('@')[1];
-      const tenantsQuery = query(
-        collection(db, 'tenants'),
-        where('emailDomain', '==', emailDomain)
-      );
-      const tenantSnapshot = await getDocs(tenantsQuery);
+      
+      if (!emailDomain) {
+        throw new Error('Invalid employer email format');
+      }
+      
+      const tenantSnapshot = await retryWithBackoff(async () => {
+        const tenantsQuery = query(
+          collection(firebaseDb, 'tenants'),
+          where('emailDomain', '==', emailDomain)
+        );
+        return await getDocs(tenantsQuery);
+      });
 
       if (tenantSnapshot.empty) {
-        throw new Error('No company found with this email domain. Please use a company code instead.');
+        throw new Error('No company found with this email domain. Please use a company code instead or contact your employer.');
       }
 
       const tenantDoc = tenantSnapshot.docs[0];
@@ -223,18 +386,20 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       throw new Error('Please provide either a company code or employer email.');
     }
 
-    // Create Firebase Auth user
+    // Create Firebase Auth user with retry
     console.log('Creating Firebase auth user for employee');
-    const userCredential: UserCredential = await createUserWithEmailAndPassword(
-      auth,
-      data.email,
-      data.password
-    );
+    const userCredential: UserCredential = await retryWithBackoff(async () => {
+      return await createUserWithEmailAndPassword(
+        firebaseAuth,
+        data.email,
+        data.password
+      );
+    });
 
     const { user: firebaseUser } = userCredential;
     console.log('Firebase user created:', firebaseUser.uid);
 
-    // Create user document in Firestore
+    // Create user document in Firestore with retry
     const userData: User = {
       id: firebaseUser.uid,
       email: data.email,
@@ -247,36 +412,44 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       updatedAt: new Date().toISOString(),
     };
 
-    await setDoc(doc(db, 'users', firebaseUser.uid), {
-      ...userData,
-      emailVerified: false,
-      tenantId,
-      companyName,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-
-    // Create audit log
-    await setDoc(doc(collection(db, 'auditLogs')), {
-      userId: firebaseUser.uid,
-      employerId: tenantId,
-      action: 'registration',
-      details: {
-        role: 'employee',
+    await retryWithBackoff(async () => {
+      await setDoc(doc(firebaseDb, 'users', firebaseUser.uid), {
+        ...userData,
+        emailVerified: false,
         tenantId,
-        registrationMethod: data.tenantCode ? 'tenantCode' : 'employerEmail',
-      },
-      timestamp: serverTimestamp(),
+        companyName,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
     });
 
-    // Send email verification with action code settings
+    // Create audit log with retry
+    await retryWithBackoff(async () => {
+      await setDoc(doc(collection(firebaseDb, 'auditLogs')), {
+        userId: firebaseUser.uid,
+        employerId: tenantId,
+        action: 'registration',
+        details: {
+          role: 'employee',
+          tenantId,
+          registrationMethod: data.tenantCode ? 'tenantCode' : 'employerEmail',
+        },
+        timestamp: serverTimestamp(),
+      });
+    });
+
+    // Send email verification with action code settings and retry
     console.log('Sending email verification to:', data.email);
     const actionCodeSettings = {
       url: window.location.origin + '/login?verified=true',
       handleCodeInApp: false,
     };
     console.log('Action code settings:', actionCodeSettings);
-    await sendEmailVerification(firebaseUser, actionCodeSettings);
+    
+    await retryWithBackoff(async () => {
+      await sendEmailVerification(firebaseUser, actionCodeSettings);
+    }, 2, 2000); // Fewer retries for email, shorter delay
+    
     console.log('Email verification sent successfully');
 
     return { user: userData, needsVerification: true };
@@ -284,18 +457,26 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
     console.error('Employee registration error:', error);
     
     const err = error as { code?: string; message?: string };
+    
+    // Enhanced error messages with actionable guidance
     if (err.code === 'auth/email-already-in-use') {
       throw new Error('This email is already registered. Please use a different email or try logging in.');
     } else if (err.code === 'auth/invalid-email') {
-      throw new Error('Invalid email address format.');
+      throw new Error('Invalid email address format. Please check and try again.');
     } else if (err.code === 'auth/weak-password') {
-      throw new Error('Password is too weak. Please use at least 8 characters.');
+      throw new Error('Password is too weak. Please use at least 8 characters with letters.');
     } else if (err.code === 'auth/configuration-not-found') {
-      throw new Error('Firebase authentication is not properly configured. Please contact support.');
+      throw new Error('Firebase authentication is not properly configured. Please contact support at support@estatracker.com.');
     } else if (err.code === 'auth/network-request-failed') {
-      throw new Error('Network error. Please check your internet connection and try again.');
+      throw new Error('Network error. Please check your internet connection and try again. If the problem persists, contact support.');
+    } else if (err.code === 'auth/timeout') {
+      throw new Error('Request timed out. Please check your internet connection and try again.');
+    } else if (err.code === 'auth/too-many-requests') {
+      throw new Error('Too many registration attempts. Please wait a few minutes and try again.');
+    } else if (err.message?.includes('CORS') || err.message?.includes('cors')) {
+      throw new Error('Connection error. Please try again or contact support if the problem persists.');
     } else {
-      throw new Error(err.message || 'Registration failed. Please try again.');
+      throw new Error(err.message || 'Registration failed. Please try again or contact support at support@estatracker.com.');
     }
   }
 }
