@@ -93,13 +93,13 @@ jobs:
 
   # Production deployment for master branch
   # IMPORTANT: This job uses GitHub Secrets to securely store the Vercel authentication token.
-  # The VERCEL secret is referenced via ${{ secrets.VERCEL }} and is never exposed in code.
+  # The VERCEL_TOKEN secret is referenced via ${{ secrets.VERCEL_TOKEN }} and is never exposed in code.
   # 
   # SECURITY NOTE: Secrets must be configured in GitHub repository settings under
   # Settings > Secrets and variables > Actions before this workflow can succeed.
   # 
   # SETUP VERIFICATION: This deployment step should NOT be considered complete until:
-  # 1. The VERCEL secret is properly configured in GitHub repository settings
+  # 1. The VERCEL_TOKEN secret is properly configured in GitHub repository settings
   # 2. The VERCEL_ORG_ID secret is properly configured
   # 3. The VERCEL_PROJECT_ID secret is properly configured
   # 4. A successful deployment has been verified in your CI/CD pipeline
@@ -122,7 +122,7 @@ jobs:
         with:
           # SECURITY: Using GitHub Secrets to securely reference the Vercel token
           # This secret must be configured in repository settings before deployment will work
-          vercel-token: ${{ secrets.VERCEL }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod'
