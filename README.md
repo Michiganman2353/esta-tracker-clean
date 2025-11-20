@@ -342,7 +342,26 @@ const decrypted = await decryptWithKMS(encrypted);
 - Company names (for display)
 - Timestamps
 
-📚 **Full Documentation:** See [KMS_SETUP_GUIDE.md](./KMS_SETUP_GUIDE.md)
+📚 **Full Documentation:** See [KMS_SETUP_GUIDE.md](./docs/setup/KMS_SETUP_GUIDE.md)
+
+---
+
+## 📚 Documentation
+
+### Core Documentation
+- **[README.md](./README.md)** - Master plan, vision, and business strategy
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Production deployment guide
+- **[TESTING.md](./TESTING.md)** - Testing strategies and procedures
+- **[SECURITY_SUMMARY.md](./SECURITY_SUMMARY.md)** - Security architecture overview
+- **[DEPENDENCIES.md](./DEPENDENCIES.md)** - Dependency management and audit
+
+### Additional Documentation
+All setup guides, security documentation, and historical implementation reports are organized in the [docs/](./docs/) directory:
+- **[docs/setup/](./docs/setup/)** - Setup and configuration guides
+- **[docs/security/](./docs/security/)** - Security implementation details
+- **[docs/archive/](./docs/archive/)** - Historical implementation and fix reports
+
+See [docs/README.md](./docs/README.md) for a complete documentation index.
 
 ---
 
