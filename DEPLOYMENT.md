@@ -309,27 +309,65 @@ If something goes wrong:
 3. **SSL**: Automatically provisioned
 4. **Update Firebase**: Update authorized domains in Firebase Console
 
-## CI/CD with GitHub Actions (Optional)
+## CI/CD with GitHub Actions
 
-The project includes `.github/workflows` for additional CI checks before Vercel deployment:
+The project includes comprehensive `.github/workflows/ci.yml` for automated testing and deployment:
 
-```yaml
-# .github/workflows/ci.yml
-name: CI
-on: [push, pull_request]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run test
-      - run: npm run build
-```
+### Workflow Jobs
+
+1. **Test & Build**: Runs on all pushes and PRs
+   - Linting
+   - Type checking
+   - Unit tests
+   - Build verification
+
+2. **E2E Tests**: Runs Playwright tests after build passes
+
+3. **Deploy Preview**: Automatic preview deployments for pull requests
+
+4. **Deploy to Production**: Automatic production deployments when code is merged to `master` branch
+
+### Required GitHub Secrets
+
+For automated deployments to work, configure these secrets in your GitHub repository settings:
+
+1. Navigate to: `Repository Settings > Secrets and variables > Actions`
+2. Add the following secrets:
+
+| Secret Name | Purpose | Where to Get It |
+|------------|---------|-----------------|
+| `VERCEL` | Vercel authentication token | [Vercel Account Tokens](https://vercel.com/account/tokens) |
+| `VERCEL_ORG_ID` | Your Vercel organization ID | Run `vercel link` and check `.vercel/project.json` |
+| `VERCEL_PROJECT_ID` | Your Vercel project ID | Run `vercel link` and check `.vercel/project.json` |
+
+**Important**: The `VERCEL` secret is used for production deployments. Preview deployments use `VERCEL_TOKEN`.
+
+### Production Deployment Workflow
+
+When code is pushed to the `master` branch:
+
+1. Tests and build jobs run automatically
+2. E2E tests verify functionality
+3. If all checks pass, deployment to Vercel production is triggered
+4. The workflow uses `${{ secrets.VERCEL }}` to securely reference the authentication token
+5. Deployment URL is available in the GitHub Actions logs
+
+**Security Notes**:
+- Secrets are never exposed in logs or code
+- The workflow has minimal permissions (`contents: read`)
+- Setup is not considered complete until verified working in CI/CD pipeline
+
+### Manual Verification Steps
+
+After configuring secrets, verify the setup:
+
+- [ ] Push a commit to `master` branch (or merge a PR)
+- [ ] Check the "Actions" tab in GitHub
+- [ ] Verify "Deploy to Production" job completes successfully
+- [ ] Confirm deployment in Vercel dashboard
+- [ ] Test the production URL
+
+For more details on secret configuration, see [VERCEL_TOKEN_SETUP.md](VERCEL_TOKEN_SETUP.md).
 
 ## Security Considerations
 
