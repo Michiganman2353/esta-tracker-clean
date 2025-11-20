@@ -336,11 +336,13 @@ For automated deployments to work, configure these secrets in your GitHub reposi
 
 | Secret Name | Purpose | Where to Get It |
 |------------|---------|-----------------|
-| `VERCEL` | Vercel authentication token | [Vercel Account Tokens](https://vercel.com/account/tokens) |
+| `VERCEL_TOKEN` | Vercel authentication token | [Vercel Account Tokens](https://vercel.com/account/tokens) |
 | `VERCEL_ORG_ID` | Your Vercel organization ID | Run `vercel link` and check `.vercel/project.json` |
 | `VERCEL_PROJECT_ID` | Your Vercel project ID | Run `vercel link` and check `.vercel/project.json` |
 
-**Important**: The `VERCEL` secret is used for production deployments. Preview deployments use `VERCEL_TOKEN`.
+**Important Notes**: 
+- The CI/CD workflow automatically sanitizes the `VERCEL_TOKEN` to remove any invalid characters (newlines, spaces, hyphens, periods, slashes) that might cause deployment failures.
+- For detailed token setup instructions and troubleshooting, see [VERCEL_TOKEN_SETUP.md](VERCEL_TOKEN_SETUP.md).
 
 ### Production Deployment Workflow
 
@@ -349,8 +351,9 @@ When code is pushed to the `master` branch:
 1. Tests and build jobs run automatically
 2. E2E tests verify functionality
 3. If all checks pass, deployment to Vercel production is triggered
-4. The workflow uses `${{ secrets.VERCEL }}` to securely reference the authentication token
-5. Deployment URL is available in the GitHub Actions logs
+4. The workflow sanitizes the `VERCEL_TOKEN` to ensure it's in the correct format
+5. The workflow uses `${{ secrets.VERCEL_TOKEN }}` to securely reference the authentication token
+6. Deployment URL is available in the GitHub Actions logs
 
 **Security Notes**:
 - Secrets are never exposed in logs or code
