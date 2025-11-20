@@ -83,10 +83,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Sanitize Vercel Token
+        id: sanitize-token
+        run: |
+          # Remove newlines, spaces, and invalid characters (-, ., /) from the token
+          CLEAN_TOKEN=$(echo "${{ secrets.VERCEL_TOKEN }}" | tr -d '\n\r\t -./' | xargs)
+          echo "::add-mask::$CLEAN_TOKEN"
+          echo "token=$CLEAN_TOKEN" >> $GITHUB_OUTPUT
+
       - name: Deploy to Vercel Preview
         uses: amondnet/vercel-action@v25
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-token: ${{ steps.sanitize-token.outputs.token }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           github-comment: true
@@ -117,12 +125,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Sanitize Vercel Token
+        id: sanitize-token
+        run: |
+          # Remove newlines, spaces, and invalid characters (-, ., /) from the token
+          CLEAN_TOKEN=$(echo "${{ secrets.VERCEL_TOKEN }}" | tr -d '\n\r\t -./' | xargs)
+          echo "::add-mask::$CLEAN_TOKEN"
+          echo "token=$CLEAN_TOKEN" >> $GITHUB_OUTPUT
+
       - name: Deploy to Vercel Production
         uses: amondnet/vercel-action@v25
         with:
           # SECURITY: Using GitHub Secrets to securely reference the Vercel token
           # This secret must be configured in repository settings before deployment will work
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-token: ${{ steps.sanitize-token.outputs.token }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod'
