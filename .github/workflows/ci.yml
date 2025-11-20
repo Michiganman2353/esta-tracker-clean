@@ -26,6 +26,12 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Setup Turborepo Remote Cache
+        run: |
+          echo "TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}" >> $GITHUB_ENV
+          echo "TURBO_TEAM=${{ secrets.TURBO_TEAM }}" >> $GITHUB_ENV
+        continue-on-error: true
+
       - name: Lint
         run: npm run lint
 

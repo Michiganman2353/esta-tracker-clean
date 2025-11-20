@@ -22,6 +22,9 @@ out/
 coverage/
 *.tsbuildinfo
 
+# Turborepo
+.turbo/
+
 # Vite
 .vite/
 vite.config.*.timestamp-*

@@ -6,22 +6,22 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "dev:frontend": "npm run dev --workspace=packages/frontend",
-    "dev:backend": "npm run dev --workspace=packages/backend",
-    "build": "npm run build --workspaces --if-present",
-    "build:frontend": "npm run build --workspace=packages/frontend",
-    "build:backend": "npm run build --workspace=packages/backend",
-    "test": "npm run test --workspaces --if-present",
-    "test:frontend": "npm run test --workspace=packages/frontend",
-    "test:backend": "npm run test --workspace=packages/backend",
+    "dev": "turbo run dev",
+    "dev:frontend": "turbo run dev --filter=@esta-tracker/frontend",
+    "dev:backend": "turbo run dev --filter=@esta-tracker/backend",
+    "build": "turbo run build",
+    "build:frontend": "turbo run build --filter=@esta-tracker/frontend",
+    "build:backend": "turbo run build --filter=@esta-tracker/backend",
+    "test": "turbo run test",
+    "test:frontend": "turbo run test --filter=@esta-tracker/frontend",
+    "test:backend": "turbo run test --filter=@esta-tracker/backend",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
-    "lint": "npm run lint --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "clean": "rm -rf node_modules packages/*/node_modules packages/*/dist packages/*/build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules packages/*/node_modules .turbo",
     "postinstall": "npm run postinstall --workspaces --if-present",
     "setup:kms": "node scripts/setup-kms.js"
   },
@@ -32,10 +32,12 @@
     "@playwright/test": "^1.56.1",
     "concurrently": "^8.2.2",
     "playwright": "^1.56.1",
+    "turbo": "^2.6.1",
     "typescript": "^5.3.3"
   },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
-  }
+  },
+  "packageManager": "npm@10.2.3"
 }
