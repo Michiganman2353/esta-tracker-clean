@@ -1,10 +1,33 @@
+/**
+ * App Component
+ * 
+ * This is the root component for the ESTA Tracker web application.
+ * It manages authentication state, routes, and global error handling.
+ * 
+ * Features:
+ * - Checks for authenticated user on mount, handles loading and network errors
+ * - Displays skeleton dashboard and retry logic on connection issues
+ * - Provides public routes for login, registration, and pricing
+ * - Provides protected routes for authenticated users:
+ *   Dashboard, EmployeeDashboard, EmployerDashboard, AuditLog, Settings, etc.
+ * - Implements conditional navigation based on user authentication
+ * - Integrates maintenance mode notification
+ * 
+ * Uses:
+ * - React Router for client-side navigation
+ * - API client for user authentication
+ * - Design system components for consistent UI feedback
+ * 
+ * All application pages and layout are controlled from here.
+ */
+
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { apiClient } from './lib/api';
 import { User } from './types';
 import { MaintenanceMode } from './components/MaintenanceMode';
 
-// Pages (we'll create these)
+// Pages
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -13,6 +36,8 @@ import RegisterManager from './pages/RegisterManager';
 import EmployeeDashboard from './pages/EmployeeDashboard';
 import EmployerDashboard from './pages/EmployerDashboard';
 import AuditLog from './pages/AuditLog';
+import Settings from './pages/Settings';
+import Pricing from './pages/Pricing';
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -103,17 +128,21 @@ function App() {
     <BrowserRouter>
       <MaintenanceMode />
       <Routes>
+        {/* Public routes */}
         <Route path="/login" element={!user ? <Login onLogin={setUser} /> : <Navigate to="/" />} />
         <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
         <Route path="/register/employee" element={!user ? <RegisterEmployee onRegister={setUser} /> : <Navigate to="/" />} />
         <Route path="/register/manager" element={!user ? <RegisterManager /> : <Navigate to="/" />} />
+        <Route path="/pricing" element={<Pricing />} />
         
+        {/* Protected routes */}
         {user ? (
           <>
             <Route path="/" element={<Dashboard user={user} />} />
             <Route path="/employee" element={<EmployeeDashboard user={user} />} />
             <Route path="/employer" element={<EmployerDashboard user={user} />} />
             <Route path="/audit" element={<AuditLog user={user} />} />
+            <Route path="/settings" element={<Settings user={user} />} />
           </>
         ) : (
           <Route path="*" element={<Navigate to="/login" />} />
