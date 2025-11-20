@@ -92,7 +92,7 @@ Created comprehensive documentation:
 - **KMS_SETUP_GUIDE.md**: Complete setup walkthrough
 - **KMS_IAM_SETUP.md**: IAM roles and permissions
 - **README.md**: Updated with KMS overview
-- **HYBRID_ENCRYPTION_IMPLEMENTATION.md**: Updated architecture
+- **hybrid-encryption-design.md**: Updated architecture (moved to docs/design/)
 
 ## Security Analysis
 
@@ -350,9 +350,9 @@ No security vulnerabilities were detected in the KMS integration code.
 - [Google Cloud KMS Documentation](https://cloud.google.com/kms/docs)
 - [NIST Cryptographic Standards](https://csrc.nist.gov/)
 - [OWASP Cryptographic Storage](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)
-- [KMS Setup Guide](./KMS_SETUP_GUIDE.md)
-- [KMS IAM Setup](./KMS_IAM_SETUP.md)
-- [Hybrid Encryption Implementation](./HYBRID_ENCRYPTION_IMPLEMENTATION.md)
+- [KMS Setup Guide](../setup/KMS_SETUP_GUIDE.md)
+- [KMS IAM Setup](../setup/KMS_IAM_SETUP.md)
+- [Hybrid Encryption Design](../design/hybrid-encryption-design.md)
 
 ## Approval
 

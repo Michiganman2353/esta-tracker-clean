@@ -374,7 +374,7 @@ The "placeholder" backend routes with TODOs are **intentional** and serve as API
 **Questions or Need Help?**
 
 Refer to:
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - Deployment instructions
-- [docs/setup/FIREBASE_SETUP.md](./docs/setup/FIREBASE_SETUP.md) - Firebase configuration
-- [TESTING.md](./TESTING.md) - Testing guidelines
-- [AUDIT_FINDINGS.md](./AUDIT_FINDINGS.md) - Full audit report
+- [Deployment Guide](../deployment/deployment.md) - Deployment instructions
+- [Firebase Setup](../setup/FIREBASE_SETUP.md) - Firebase configuration
+- [Testing Guide](./testing.md) - Testing guidelines
+- [Audit Findings](../archive/audit-findings.md) - Full audit report

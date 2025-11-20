@@ -552,8 +552,8 @@ async function migrateLegacyEncryption() {
 - [KMS Best Practices](https://cloud.google.com/kms/docs/best-practices)
 - [KMS Pricing](https://cloud.google.com/kms/pricing)
 - [KMS Quotas and Limits](https://cloud.google.com/kms/quotas)
-- [ESTA Tracker Security Summary](./SECURITY_SUMMARY.md)
-- [Hybrid Encryption Implementation](./HYBRID_ENCRYPTION_IMPLEMENTATION.md)
+- [ESTA Tracker Security Summary](../security/security-summary.md)
+- [Hybrid Encryption Design](../design/hybrid-encryption-design.md)
 
 ## Support
 

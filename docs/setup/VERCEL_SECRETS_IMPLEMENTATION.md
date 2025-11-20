@@ -168,7 +168,7 @@ All relevant documentation is now available in:
 - `.env.example` - Environment variable template
 - `.vercel/README.md` - Vercel setup guide
 - `VERCEL_TOKEN_SETUP.md` - Complete secrets configuration guide
-- `DEPLOYMENT.md` - Deployment procedures (already existed)
+- [Deployment Guide](../deployment/deployment.md) - Deployment procedures
 
 ## Conclusion
 

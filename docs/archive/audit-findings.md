@@ -1,5 +1,7 @@
 # ESTA Tracker - Full Repository Audit Findings
 
+> **Note:** This is an archived historical document. Some file references may refer to old locations. For current documentation structure, see [docs/README.md](../README.md).
+
 **Date:** November 20, 2025  
 **Auditor:** GitHub Copilot AI  
 **Branch:** copilot/full-repo-audit-and-cleanup  
