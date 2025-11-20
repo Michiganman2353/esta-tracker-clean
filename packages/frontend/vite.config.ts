@@ -22,5 +22,20 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    // Performance optimizations
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split vendor code for better caching
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'utils': ['clsx', 'date-fns', 'zustand'],
+        },
+      },
+    },
+    // Increase chunk size warning limit (we have manual chunks now)
+    chunkSizeWarningLimit: 1000,
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom'],
   },
 })

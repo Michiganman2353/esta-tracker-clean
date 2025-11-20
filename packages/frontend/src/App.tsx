@@ -4,7 +4,7 @@ import { apiClient } from './lib/api';
 import { User } from './types';
 import { MaintenanceMode } from './components/MaintenanceMode';
 
-// Pages (we'll create these)
+// Pages
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -13,6 +13,8 @@ import RegisterManager from './pages/RegisterManager';
 import EmployeeDashboard from './pages/EmployeeDashboard';
 import EmployerDashboard from './pages/EmployerDashboard';
 import AuditLog from './pages/AuditLog';
+import Settings from './pages/Settings';
+import Pricing from './pages/Pricing';
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -107,6 +109,7 @@ function App() {
         <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
         <Route path="/register/employee" element={!user ? <RegisterEmployee onRegister={setUser} /> : <Navigate to="/" />} />
         <Route path="/register/manager" element={!user ? <RegisterManager /> : <Navigate to="/" />} />
+        <Route path="/pricing" element={<Pricing />} />
         
         {user ? (
           <>
@@ -114,6 +117,7 @@ function App() {
             <Route path="/employee" element={<EmployeeDashboard user={user} />} />
             <Route path="/employer" element={<EmployerDashboard user={user} />} />
             <Route path="/audit" element={<AuditLog user={user} />} />
+            <Route path="/settings" element={<Settings user={user} />} />
           </>
         ) : (
           <Route path="*" element={<Navigate to="/login" />} />
