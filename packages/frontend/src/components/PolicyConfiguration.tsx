@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { rulesEngine, type AccrualPolicy } from '../lib/rules/rulesEngine';
 import type { EmployerSize } from '../lib/rules/types';
+import { TooltipIcon } from './Tooltip';
 
 interface PolicyConfigProps {
   tenantId: string;
@@ -149,7 +150,10 @@ export default function PolicyConfiguration({
   return (
     <div className="policy-configuration">
       <div className="policy-header">
-        <h2>Accrual Policy Configuration</h2>
+        <h2 className="flex items-center">
+          Accrual Policy Configuration
+          <TooltipIcon content="Configure how sick time is accrued and managed for your employees according to Michigan ESTA law" />
+        </h2>
         <p className="text-gray-600">
           Configure how sick time accrues for your employees
         </p>
@@ -178,19 +182,28 @@ export default function PolicyConfiguration({
                   {policy.type === 'accrual' && (
                     <>
                       <div className="detail-item">
-                        <span className="label">Accrual Rate:</span>
+                        <span className="label flex items-center">
+                          Accrual Rate:
+                          <TooltipIcon content="How quickly employees earn sick time. Michigan ESTA requires 1 hour per 30 hours worked for large employers." />
+                        </span>
                         <span className="value">
                           1 hour per {1 / (policy.rules.accrualRate || 1)} hours worked
                         </span>
                       </div>
                       <div className="detail-item">
-                        <span className="label">Annual Cap:</span>
+                        <span className="label flex items-center">
+                          Annual Cap:
+                          <TooltipIcon content="Maximum hours an employee can accrue in one year. Michigan ESTA caps at 72 hours for accrual-based policies." />
+                        </span>
                         <span className="value">
                           {policy.rules.maxPaidHoursPerYear} hours
                         </span>
                       </div>
                       <div className="detail-item">
-                        <span className="label">Carryover:</span>
+                        <span className="label flex items-center">
+                          Carryover:
+                          <TooltipIcon content="Maximum hours that can roll over to the next year. Michigan ESTA allows up to 72 hours of carryover." />
+                        </span>
                         <span className="value">
                           {policy.rules.maxCarryover} hours
                         </span>
@@ -255,7 +268,10 @@ export default function PolicyConfiguration({
           </p>
 
           <div className="form-group">
-            <label>Policy Name</label>
+            <label className="flex items-center">
+              Policy Name
+              <TooltipIcon content="Give your custom policy a descriptive name to identify it easily" />
+            </label>
             <input
               type="text"
               value={customPolicy.name || ''}
@@ -267,7 +283,10 @@ export default function PolicyConfiguration({
           {selectedPolicy?.type === 'accrual' && (
             <>
               <div className="form-group">
-                <label>Hours Worked per Hour Accrued</label>
+                <label className="flex items-center">
+                  Hours Worked per Hour Accrued
+                  <TooltipIcon content="For Michigan ESTA large employers, this is typically 30 (1 hour accrued per 30 worked). Small employers provide a fixed 40 hours." />
+                </label>
                 <input
                   type="number"
                   value={
@@ -286,7 +305,10 @@ export default function PolicyConfiguration({
               </div>
 
               <div className="form-group">
-                <label>Maximum Paid Hours Per Year</label>
+                <label className="flex items-center">
+                  Maximum Paid Hours Per Year
+                  <TooltipIcon content="The cap on how many sick time hours can be used in a year. Michigan ESTA sets this at 72 hours for accrual-based policies." />
+                </label>
                 <input
                   type="number"
                   value={customPolicy.rules?.maxPaidHoursPerYear || 72}
@@ -300,7 +322,10 @@ export default function PolicyConfiguration({
               </div>
 
               <div className="form-group">
-                <label>Maximum Carryover Hours</label>
+                <label className="flex items-center">
+                  Maximum Carryover Hours
+                  <TooltipIcon content="Unused hours that can carry over to the next year. Michigan ESTA requires at least 40 hours of carryover." />
+                </label>
                 <input
                   type="number"
                   value={customPolicy.rules?.maxCarryover || 72}
@@ -316,7 +341,10 @@ export default function PolicyConfiguration({
           {selectedPolicy?.type === 'frontload' && (
             <>
               <div className="form-group">
-                <label>Frontload Amount (Hours)</label>
+                <label className="flex items-center">
+                  Frontload Amount (Hours)
+                  <TooltipIcon content="Hours granted at the start of the year. For small employers (<10 employees), this is typically 40 hours per Michigan ESTA." />
+                </label>
                 <input
                   type="number"
                   value={customPolicy.rules?.frontloadAmount || 72}
@@ -330,7 +358,10 @@ export default function PolicyConfiguration({
               </div>
 
               <div className="form-group">
-                <label>Maximum Paid Hours Per Year</label>
+                <label className="flex items-center">
+                  Maximum Paid Hours Per Year
+                  <TooltipIcon content="The maximum hours that can be used in a year. Small employers under Michigan ESTA typically set this to 40 hours." />
+                </label>
                 <input
                   type="number"
                   value={customPolicy.rules?.maxPaidHoursPerYear || 72}
