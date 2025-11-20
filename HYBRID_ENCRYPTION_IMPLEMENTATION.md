@@ -88,12 +88,110 @@ Encrypted Data → AES-256-GCM Decryption ← ────┘
 
 ### API Endpoints
 
-#### Edge Function: POST /api/edge/encrypt
+#### KMS Encryption: POST /api/secure/encrypt (NEW - Recommended)
+
+**Runtime:** Node.js Serverless  
+**File:** `api/secure/encrypt.ts`
+
+**Purpose:** Server-side encryption using Google Cloud KMS
+
+**Authentication:** Required (Firebase JWT)
+
+**Request:**
+```json
+{
+  "data": "sensitive information",
+  "keyVersion": "1",
+  "metadata": {
+    "resourceType": "employee_ssn",
+    "resourceId": "emp_123",
+    "tenantId": "tenant_456"
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "encrypted": {
+    "encryptedData": "base64...",
+    "encryptedAESKey": "base64...",
+    "iv": "base64...",
+    "authTag": "base64...",
+    "keyPath": "projects/.../cryptoKeys/.../cryptoKeyVersions/1",
+    "keyVersion": "1"
+  }
+}
+```
+
+**Security:**
+- Rate limited to 100 requests/minute per user
+- Audit logged with metadata
+- KMS-backed key management
+- No private keys in application
+
+#### KMS Decryption: POST /api/secure/decrypt (Updated)
+
+**Runtime:** Node.js Serverless  
+**File:** `api/secure/decrypt.ts`
+
+**Purpose:** Server-side decryption using KMS or legacy RSA
+
+**Authentication:** Required (Firebase JWT)
+
+**Request (KMS mode):**
+```json
+{
+  "payload": {
+    "encryptedData": "base64...",
+    "encryptedAESKey": "base64...",
+    "iv": "base64...",
+    "authTag": "base64...",
+    "keyVersion": "1"
+  },
+  "useKMS": true,
+  "tenantId": "tenant_456",
+  "resourceOwnerId": "user_123"
+}
+```
+
+**Request (Legacy mode - deprecated):**
+```json
+{
+  "payload": {
+    "encryptedData": "base64...",
+    "encryptedAESKey": "base64...",
+    "iv": "base64...",
+    "authTag": "base64..."
+  },
+  "privateKey": "-----BEGIN PRIVATE KEY-----\n...",
+  "useKMS": false
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "decrypted": "sensitive information"
+}
+```
+
+**Security:**
+- Rate limited to 10 requests/minute per user
+- Audit logged with access details
+- Authorization checks for resource access
+- Tenant isolation enforced
+
+#### Edge Function: POST /api/edge/encrypt (Legacy)
 
 **Runtime:** Vercel Edge Functions  
 **File:** `api/edge/encrypt.ts`
 
-**Purpose:** Fast, globally-distributed encryption endpoint
+**Purpose:** Fast, globally-distributed encryption endpoint (client-side key)
+
+**Note:** For backward compatibility. Use `/api/secure/encrypt` with KMS for new implementations.
 
 **Request:**
 ```json
@@ -123,11 +221,7 @@ Encrypted Data → AES-256-GCM Decryption ← ────┘
   "service": "encryption",
   "timestamp": "2025-01-01T00:00:00.000Z"
 }
-```
-
-#### Node.js Function: POST /api/secure/decrypt
-
-**Runtime:** Node.js Serverless  
+```  
 **File:** `api/secure/decrypt.ts`
 
 **Purpose:** Server-side decryption with private key
@@ -250,13 +344,59 @@ const { decrypted } = await decryptResponse.json();
 
 ## Security Considerations
 
-## Security Considerations
-
 ### Key Management
 
 **CRITICAL: Production Requirements**
 
-#### RSA Key Pair Storage
+#### Google Cloud KMS Integration (RECOMMENDED)
+
+**ESTA Tracker now uses Google Cloud KMS for production-grade key management:**
+
+1. **Why KMS?**
+   - ✅ Hardware-backed key storage (HSM)
+   - ✅ Automatic key rotation
+   - ✅ Complete audit trail
+   - ✅ IAM-based access control
+   - ✅ FIPS 140-2 Level 3 compliance
+   - ✅ Private keys NEVER leave Google infrastructure
+
+2. **KMS Architecture**
+   ```
+   Data → AES-256-GCM → Encrypted Data
+            ↓
+      Random AES Key
+            ↓
+   KMS Public Key → Encrypted AES Key (stored in Firestore)
+   ```
+
+3. **Setup**
+   - See [KMS_SETUP_GUIDE.md](./KMS_SETUP_GUIDE.md) for complete setup
+   - See [KMS_IAM_SETUP.md](./KMS_IAM_SETUP.md) for IAM configuration
+   - Use `npm run setup:kms` for automated setup
+
+4. **Environment Variables**
+   ```bash
+   GCP_PROJECT_ID=esta-tracker
+   KMS_LOCATION=us-central1
+   KMS_KEYRING_NAME=esta-tracker-keyring
+   KMS_ENCRYPTION_KEY_NAME=esta-encryption-key
+   GOOGLE_APPLICATION_CREDENTIALS=/path/to/serviceAccountKey.json
+   ```
+
+5. **Usage**
+   ```typescript
+   import { encryptWithKMS, decryptWithKMS } from './services/kmsHybridEncryption';
+   
+   // Encrypt
+   const encrypted = await encryptWithKMS('sensitive data');
+   
+   // Decrypt
+   const decrypted = await decryptWithKMS(encrypted);
+   ```
+
+#### Legacy RSA Key Pair Storage (Deprecated)
+
+**For backward compatibility only. Migrate to KMS.**
 
 1. **Private Key Storage** (MUST be secure)
    - Store in AWS KMS, Azure Key Vault, or Google Cloud KMS
