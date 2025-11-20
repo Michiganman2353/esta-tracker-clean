@@ -35,6 +35,12 @@ jobs:
       - name: Run Unit Tests
         run: npm run test
 
+      - name: Run Smoke Tests
+        run: |
+          echo "Running smoke tests..."
+          npm run test -- --run --reporter=verbose 2>&1 | tee smoke-test-results.txt
+          echo "Smoke tests completed"
+
       - name: Build
         run: npm run build
 
