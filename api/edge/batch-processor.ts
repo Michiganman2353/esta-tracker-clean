@@ -59,7 +59,8 @@ async function processBatch(
       chunk.map(async (op) => {
         try {
           // Simulate operation (in production, this would be actual Firebase operation)
-          await new Promise(resolve => setTimeout(resolve, Math.random() * 100));
+          // Use fixed delay for deterministic testing
+          await new Promise(resolve => setTimeout(resolve, 50));
           
           // In production, perform actual operation:
           // await performOperation(op);

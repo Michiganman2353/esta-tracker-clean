@@ -141,7 +141,7 @@ export class ReactiveDataService {
     return new Observable<BatchOperation>(subscriber => {
       let completed = 0;
 
-      const processOperation = async (op: () => Promise<unknown>) => {
+      const processOperation = async (op: () => Promise<unknown>, index: number) => {
         try {
           await op();
           completed++;
@@ -149,13 +149,19 @@ export class ReactiveDataService {
           const progress = (completed / totalOps) * 100;
           const status = completed === totalOps ? 'complete' : 'processing';
           
-          this.updateBatchOperation(batchId, {
+          const operation = {
             id: batchId,
             status,
             progress,
-          });
+          } as BatchOperation;
+          
+          this.updateBatchOperation(batchId, operation);
 
-          subscriber.next(this.batchOperations$.value.get(batchId)!);
+          subscriber.next(operation);
+          
+          if (completed === totalOps) {
+            subscriber.complete();
+          }
         } catch (error) {
           this.updateBatchOperation(batchId, {
             id: batchId,
@@ -168,9 +174,17 @@ export class ReactiveDataService {
         }
       };
 
-      Promise.all(operations.map(processOperation)).then(() => {
-        subscriber.complete();
-      });
+      // Process operations sequentially in chunks to avoid race conditions
+      const processChunk = async (startIndex: number, chunkSize: number = 5) => {
+        const chunk = operations.slice(startIndex, startIndex + chunkSize);
+        await Promise.all(chunk.map((op, idx) => processOperation(op, startIndex + idx)));
+        
+        if (startIndex + chunkSize < operations.length) {
+          await processChunk(startIndex + chunkSize, chunkSize);
+        }
+      };
+
+      processChunk(0).catch(error => subscriber.error(error));
     });
   }
 
@@ -222,37 +236,44 @@ export class ReactiveDataService {
   ): Observable<T> {
     let retryCount = 0;
     const maxRetries = 5;
+    let refreshTimer: NodeJS.Timeout | null = null;
 
-    const refresh = (): Observable<T> => {
-      return new Observable<T>(subscriber => {
-        refreshFn()
-          .then(data => {
-            retryCount = 0; // Reset on success
-            subscriber.next(data);
-          })
-          .catch(error => {
-            retryCount++;
-            if (retryCount >= maxRetries) {
-              subscriber.error(error);
-            } else {
-              // Exponential backoff
-              const delay = Math.min(1000 * Math.pow(2, retryCount), 30000);
-              setTimeout(() => {
-                refresh().subscribe(subscriber);
-              }, delay);
-            }
-          });
+    return new Observable<T>(subscriber => {
+      const refresh = async () => {
+        try {
+          const data = await refreshFn();
+          retryCount = 0; // Reset on success
+          subscriber.next(data);
+          
+          // Schedule next refresh
+          refreshTimer = setTimeout(() => {
+            refresh();
+          }, intervalMs);
+        } catch (error) {
+          retryCount++;
+          if (retryCount >= maxRetries) {
+            subscriber.error(error);
+          } else {
+            // Exponential backoff
+            const delay = Math.min(1000 * Math.pow(2, retryCount), 30000);
+            refreshTimer = setTimeout(() => {
+              refresh();
+            }, delay);
+          }
+        }
+      };
 
-        // Set up next refresh
-        const timer = setTimeout(() => {
-          refresh().subscribe(subscriber);
-        }, intervalMs);
+      // Start first refresh
+      refresh();
 
-        return () => clearTimeout(timer);
-      });
-    };
-
-    return refresh().pipe(shareReplay(1));
+      // Cleanup function
+      return () => {
+        if (refreshTimer) {
+          clearTimeout(refreshTimer);
+          refreshTimer = null;
+        }
+      };
+    }).pipe(shareReplay(1));
   }
 
   /**
