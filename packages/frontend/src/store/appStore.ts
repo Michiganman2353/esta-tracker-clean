@@ -100,13 +100,12 @@ export const useAppStore = create<AppState>()(
         
         // Auto-remove after duration (default 5 seconds)
         if (notification.duration !== 0) {
-          const timeoutId = setTimeout(() => {
+          setTimeout(() => {
             set((state) => ({
               notifications: state.notifications.filter((n) => n.id !== id),
             }));
           }, notification.duration || 5000);
           
-          // Store timeout ID for potential cleanup
           // Note: In a real implementation, we'd want to track timeouts
           // to allow manual clearing before auto-removal
         }

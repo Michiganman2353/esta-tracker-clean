@@ -4,7 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ReactiveDataService } from './reactiveDataService';
-import { firstValueFrom, take, toArray } from 'rxjs';
+import { firstValueFrom, take } from 'rxjs';
 
 describe('ReactiveDataService', () => {
   let service: ReactiveDataService;

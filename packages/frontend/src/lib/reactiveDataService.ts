@@ -31,7 +31,6 @@ import {
   shareReplay,
   map,
   filter,
-  tap,
 } from 'rxjs/operators';
 
 // Real-time update types
@@ -141,7 +140,7 @@ export class ReactiveDataService {
     return new Observable<BatchOperation>(subscriber => {
       let completed = 0;
 
-      const processOperation = async (op: () => Promise<unknown>, index: number) => {
+      const processOperation = async (op: () => Promise<unknown>, _index: number) => {
         try {
           await op();
           completed++;
