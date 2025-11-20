@@ -276,3 +276,73 @@ ESTA Tracker the HR department small businesses don’t have.
 	•  Advanced reports
 	•  Payroll integrations
 	•  White labeling
+---
+
+## 🔐 Security: Google Cloud KMS Integration
+
+ESTA Tracker uses **Google Cloud Key Management Service (KMS)** for enterprise-grade encryption:
+
+### Why KMS?
+
+- ✅ **Hardware-backed security** - Keys stored in Google's HSMs
+- ✅ **Automatic key rotation** - Configurable rotation schedules
+- ✅ **Audit logging** - Complete access history
+- ✅ **Compliance ready** - FIPS 140-2, HIPAA, SOC 2
+- ✅ **Never exposed** - Private keys never leave Google infrastructure
+
+### Encryption Architecture
+
+```
+Data → AES-256-GCM Encryption → Encrypted Data
+          ↓
+    Random AES Key
+          ↓
+   KMS Public Key → Encrypted AES Key
+```
+
+### Quick Setup
+
+```bash
+# 1. Enable KMS API
+gcloud services enable cloudkms.googleapis.com
+
+# 2. Run setup script
+npm run setup:kms
+
+# 3. Configure environment
+export GCP_PROJECT_ID="esta-tracker"
+export KMS_LOCATION="us-central1"
+export GOOGLE_APPLICATION_CREDENTIALS="path/to/key.json"
+```
+
+### Usage
+
+```typescript
+import { encryptWithKMS, decryptWithKMS } from './services/kmsHybridEncryption';
+
+// Encrypt sensitive data
+const encrypted = await encryptWithKMS('SSN: 123-45-6789');
+
+// Decrypt when needed
+const decrypted = await decryptWithKMS(encrypted);
+```
+
+### What Gets Encrypted
+
+✅ **Always encrypted:**
+- Social Security Numbers (SSN)
+- Tax IDs (EIN)
+- Bank account numbers
+- Medical information
+- Salary data
+
+❌ **Not encrypted:**
+- Employee names (for search)
+- Email addresses (for auth)
+- Company names (for display)
+- Timestamps
+
+📚 **Full Documentation:** See [KMS_SETUP_GUIDE.md](./KMS_SETUP_GUIDE.md)
+
+---
+
