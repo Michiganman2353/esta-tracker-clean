@@ -9,8 +9,9 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@vercel/node": "^3.0.0",
-    "firebase-admin": "^12.0.0"
+    "@vercel/node": "^3.2.29",
+    "firebase-admin": "^12.0.0",
+    "next": "^16.0.3"
   },
   "devDependencies": {
     "@types/node": "^20.11.10",

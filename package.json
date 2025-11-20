@@ -22,7 +22,8 @@
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "clean": "rm -rf node_modules packages/*/node_modules packages/*/dist packages/*/build",
-    "postinstall": "npm run postinstall --workspaces --if-present"
+    "postinstall": "npm run postinstall --workspaces --if-present",
+    "setup:kms": "node scripts/setup-kms.js"
   },
   "dependencies": {
     "firebase-admin": "^12.0.0"
