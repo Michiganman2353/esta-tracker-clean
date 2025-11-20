@@ -1,10 +1,26 @@
 import { useNavigate } from 'react-router-dom';
 import { useRegistrationStatus } from '../hooks/useEdgeConfig';
 import { OnboardingWizard } from '../components/OnboardingWizard';
+import { User } from '../types';
 
-export default function RegisterManager() {
+interface RegisterManagerProps {
+  onRegister?: (user: User) => void;
+}
+
+export default function RegisterManager({ onRegister }: RegisterManagerProps) {
   const navigate = useNavigate();
   const { isOpen: registrationOpen, message: closedMessage, loading: checkingStatus } = useRegistrationStatus('employer');
+
+  const handleRegisterSuccess = (user: { id: string; email: string; name: string; role: string; [key: string]: unknown }) => {
+    if (onRegister) {
+      // Call the parent callback to update App state and navigate to dashboard
+      // Type assertion is safe here because we're getting this from the backend API
+      onRegister(user as unknown as User);
+    } else {
+      // Fallback: navigate to login
+      navigate('/login');
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
@@ -35,7 +51,7 @@ export default function RegisterManager() {
           </div>
         </div>
       ) : (
-        <OnboardingWizard />
+        <OnboardingWizard onRegisterSuccess={handleRegisterSuccess} />
       )}
     </div>
   );

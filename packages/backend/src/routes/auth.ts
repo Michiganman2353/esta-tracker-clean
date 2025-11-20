@@ -93,9 +93,11 @@ authRouter.post('/register/manager', (req, res) => {
   // 4. Create employer settings record after approval
   
   // Manager registration requires approval before access is granted
+  // Return token so user can be logged in immediately after registration
   res.json({ 
     success: true,
     message: 'Registration submitted successfully. Your account is pending approval.',
+    token: 'mock-token-manager-' + Date.now(),
     user: { 
       id: 'mgr-' + Date.now(), 
       email, 
@@ -130,6 +132,47 @@ authRouter.get('/me', (req, res) => {
     return res.status(401).json({ message: 'Unauthorized' });
   }
   
-  // For mock purposes, return a user
-  res.json({ user: { id: '1', email: 'test@example.com', name: 'Test User', role: 'employee' } });
+  // Extract user info from token (in a real app, you would decode JWT)
+  // For mock purposes, check if it's a manager or employee token
+  if (token.startsWith('mock-token-manager')) {
+    res.json({ 
+      user: { 
+        id: 'mgr-' + Date.now(), 
+        email: 'manager@example.com', 
+        name: 'Test Manager', 
+        role: 'employer',
+        status: 'pending',
+        employerSize: 'small',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      } 
+    });
+  } else if (token.startsWith('mock-token-employee')) {
+    res.json({ 
+      user: { 
+        id: 'emp-' + Date.now(), 
+        email: 'employee@example.com', 
+        name: 'Test Employee', 
+        role: 'employee',
+        status: 'approved',
+        employerSize: 'small',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      } 
+    });
+  } else {
+    // Default fallback
+    res.json({ 
+      user: { 
+        id: '1', 
+        email: 'test@example.com', 
+        name: 'Test User', 
+        role: 'employee',
+        status: 'approved',
+        employerSize: 'small',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      } 
+    });
+  }
 });

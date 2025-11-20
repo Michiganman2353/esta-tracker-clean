@@ -22,6 +22,10 @@ interface OnboardingData {
   policyNotes?: string;
 }
 
+interface OnboardingWizardProps {
+  onRegisterSuccess?: (user: { id: string; email: string; name: string; role: string; [key: string]: unknown }) => void;
+}
+
 interface OnboardingContextType {
   data: OnboardingData;
   updateData: (updates: Partial<OnboardingData>) => void;
@@ -37,7 +41,7 @@ function useOnboarding() {
 
 const STEPS = ['Account', 'Company', 'Policy', 'Complete'];
 
-export function OnboardingWizard() {
+export function OnboardingWizard({ onRegisterSuccess }: OnboardingWizardProps = {}) {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [error, setError] = useState('');
@@ -141,14 +145,28 @@ export function OnboardingWizard() {
         });
         setShowVerification(true);
       } else {
-        await apiClient.registerManager({
+        const response = await apiClient.registerManager({
           name: data.name,
           email: data.email,
           password: data.password,
           companyName: data.companyName,
           employeeCount: empCount,
         });
-        setSuccess(true);
+        
+        // Auto-login after successful registration
+        if (response.token && response.user) {
+          apiClient.setToken(response.token);
+          
+          // Call the callback to update App state with the logged-in user
+          if (onRegisterSuccess) {
+            onRegisterSuccess(response.user as { id: string; email: string; name: string; role: string; [key: string]: unknown });
+          } else {
+            // Fallback: show success screen
+            setSuccess(true);
+          }
+        } else {
+          setSuccess(true);
+        }
       }
     } catch (err) {
       console.error('Registration error:', err);
