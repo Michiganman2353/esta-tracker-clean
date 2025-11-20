@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { apiClient } from './lib/api';
 import { User } from './types';
 import { MaintenanceMode } from './components/MaintenanceMode';
+import { SkeletonDashboard } from './components/DesignSystem';
 
 // Pages
 import Dashboard from './pages/Dashboard';
@@ -55,14 +56,7 @@ function App() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="text-xl mb-4">Loading...</div>
-          <div className="text-sm text-gray-500">Connecting to ESTA Tracker</div>
-        </div>
-      </div>
-    );
+    return <SkeletonDashboard />;
   }
 
   if (error) {
