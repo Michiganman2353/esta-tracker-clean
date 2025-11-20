@@ -86,7 +86,7 @@ export function OnboardingWizard() {
         }
         return true;
         
-      case 1: // Company Info
+      case 1: { // Company Info - wrap in block for variable declarations
         if (!data.companyName.trim()) {
           setError('Company name is required');
           return false;
@@ -97,6 +97,7 @@ export function OnboardingWizard() {
           return false;
         }
         return true;
+      }
         
       case 2: // Policy Setup (optional for now)
         return true;
@@ -498,7 +499,7 @@ interface CompleteStepProps {
   loading: boolean;
 }
 
-function CompleteStep({ onSubmit, loading }: CompleteStepProps) {
+function CompleteStep({ onSubmit: _onSubmit, loading: _loading }: CompleteStepProps) {
   const { data } = useOnboarding();
 
   return (
