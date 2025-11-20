@@ -4,23 +4,30 @@ export default function Register() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+    <div className="min-h-screen flex items-center justify-center gradient-bg py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-10 left-10 w-72 h-72 bg-primary-400/20 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent-400/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-purple-400/20 rounded-full blur-3xl animate-pulse-slow"></div>
+      </div>
+      
+      <div className="max-w-2xl w-full space-y-8 relative z-10 animate-fade-in-up">
+        <div className="text-center">
+          <h2 className="mt-6 text-5xl font-extrabold gradient-header animate-fade-in-down">
             Create Your ESTA Tracker Account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-4 text-lg text-gray-700 dark:text-gray-300 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             Choose your account type to get started
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Manager Registration Card */}
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg border-2 border-transparent hover:border-primary-500 transition-colors">
+          <div className="glass-card-hover p-8 group animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <div className="text-center space-y-4">
               <div className="flex justify-center">
-                <div className="bg-primary-100 dark:bg-primary-900 p-4 rounded-full">
+                <div className="bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900 dark:to-primary-800 p-5 rounded-full group-hover:scale-110 transition-transform duration-300 shadow-lg">
                   <svg
                     className="w-12 h-12 text-primary-600 dark:text-primary-400"
                     fill="none"
@@ -36,12 +43,14 @@ export default function Register() {
                   </svg>
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Manager / Employer</h3>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                Manager / Employer
+              </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Register your company and manage your employees' ESTA compliance
               </p>
               <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 text-left">
-                <li className="flex items-start">
+                <li className="flex items-start transform transition-transform duration-200 hover:translate-x-1">
                   <svg className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
@@ -51,7 +60,7 @@ export default function Register() {
                   </svg>
                   Track employee sick time
                 </li>
-                <li className="flex items-start">
+                <li className="flex items-start transform transition-transform duration-200 hover:translate-x-1">
                   <svg className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
@@ -61,7 +70,7 @@ export default function Register() {
                   </svg>
                   Automated compliance reports
                 </li>
-                <li className="flex items-start">
+                <li className="flex items-start transform transition-transform duration-200 hover:translate-x-1">
                   <svg className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
@@ -74,18 +83,19 @@ export default function Register() {
               </ul>
               <button
                 onClick={() => navigate('/register/manager')}
-                className="btn btn-primary w-full mt-4"
+                className="btn btn-primary w-full mt-4 relative overflow-hidden group/btn"
               >
-                Register as Manager
+                <span className="relative z-10">Register as Manager</span>
+                <span className="absolute inset-0 shimmer-bg opacity-0 group-hover/btn:opacity-100 transition-opacity"></span>
               </button>
             </div>
           </div>
 
           {/* Employee Registration Card */}
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg border-2 border-transparent hover:border-primary-500 transition-colors">
+          <div className="glass-card-hover p-8 group animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
             <div className="text-center space-y-4">
               <div className="flex justify-center">
-                <div className="bg-primary-100 dark:bg-primary-900 p-4 rounded-full">
+                <div className="bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900 dark:to-primary-800 p-5 rounded-full group-hover:scale-110 transition-transform duration-300 shadow-lg">
                   <svg
                     className="w-12 h-12 text-primary-600 dark:text-primary-400"
                     fill="none"
@@ -101,12 +111,14 @@ export default function Register() {
                   </svg>
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Employee</h3>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                Employee
+              </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Access your sick time balance and request time off
               </p>
               <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 text-left">
-                <li className="flex items-start">
+                <li className="flex items-start transform transition-transform duration-200 hover:translate-x-1">
                   <svg className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
@@ -116,7 +128,7 @@ export default function Register() {
                   </svg>
                   View sick time balance
                 </li>
-                <li className="flex items-start">
+                <li className="flex items-start transform transition-transform duration-200 hover:translate-x-1">
                   <svg className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
@@ -126,7 +138,7 @@ export default function Register() {
                   </svg>
                   Submit time-off requests
                 </li>
-                <li className="flex items-start">
+                <li className="flex items-start transform transition-transform duration-200 hover:translate-x-1">
                   <svg className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
@@ -139,18 +151,19 @@ export default function Register() {
               </ul>
               <button
                 onClick={() => navigate('/register/employee')}
-                className="btn btn-primary w-full mt-4"
+                className="btn btn-primary w-full mt-4 relative overflow-hidden group/btn"
               >
-                Register as Employee
+                <span className="relative z-10">Register as Employee</span>
+                <span className="absolute inset-0 shimmer-bg opacity-0 group-hover/btn:opacity-100 transition-opacity"></span>
               </button>
             </div>
           </div>
         </div>
 
-        <div className="text-center">
+        <div className="text-center animate-fade-in" style={{ animationDelay: '0.5s' }}>
           <a
             href="/login"
-            className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
+            className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 hover:underline transition-all"
           >
             Already have an account? Sign in
           </a>
