@@ -1,26 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { useRegistrationStatus } from '../hooks/useEdgeConfig';
 import { OnboardingWizard } from '../components/OnboardingWizard';
-import { User } from '../types';
 
-interface RegisterManagerProps {
-  onRegister?: (user: User) => void;
-}
-
-export default function RegisterManager({ onRegister }: RegisterManagerProps) {
+export default function RegisterManager() {
   const navigate = useNavigate();
   const { isOpen: registrationOpen, message: closedMessage, loading: checkingStatus } = useRegistrationStatus('employer');
 
-  const handleRegisterSuccess = (user: { id: string; email: string; name: string; role: string; [key: string]: unknown }) => {
-    if (onRegister) {
-      // Call the parent callback to update App state and navigate to dashboard
-      // Double assertion is needed because backend response includes additional fields
-      // that aren't in the strict User type definition, but are compatible
-      onRegister(user as unknown as User);
-    } else {
-      // Fallback: navigate to login
-      navigate('/login');
-    }
+  const handleRegisterSuccess = () => {
+    // Navigate to verification or dashboard - AuthContext will handle state
+    navigate('/');
   };
 
   return (

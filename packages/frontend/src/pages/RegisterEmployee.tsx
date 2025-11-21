@@ -3,15 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { registerEmployee } from '../lib/authService';
 import { isFirebaseConfigured } from '../lib/firebase';
 import { apiClient } from '../lib/api';
-import { User } from '../types';
 import EmailVerification from '../components/EmailVerification';
 import { useRegistrationStatus } from '../hooks/useEdgeConfig';
 
-interface RegisterEmployeeProps {
-  onRegister: (user: User) => void;
-}
-
-export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) {
+export default function RegisterEmployee() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,7 +37,7 @@ export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) 
     try {
       if (isFirebaseConfigured) {
         // Use Firebase authentication
-        const { user, needsVerification } = await registerEmployee({
+        const { needsVerification } = await registerEmployee({
           name,
           email,
           password,
@@ -52,14 +47,14 @@ export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) 
         if (needsVerification) {
           setShowVerification(true);
         } else {
-          // Auto-login for employees if no verification needed (shouldn't happen)
-          onRegister(user);
+          // Auto-login successful, navigate to home
+          navigate('/');
         }
       } else {
         // Fallback to existing API for local development
         const response = await apiClient.registerEmployee({ name, email, password });
         apiClient.setToken(response.token);
-        onRegister(response.user as User);
+        navigate('/');
       }
     } catch (err) {
       console.error('Registration error:', err);

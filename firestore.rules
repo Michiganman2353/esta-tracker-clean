@@ -7,20 +7,21 @@ service cloud.firestore {
       return request.auth != null;
     }
     
-    function isVerified() {
-      return request.auth.token.emailVerified == true;
-    }
-    
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
     
     function isRole(role) {
-      return isAuthenticated() && request.auth.token.role == role;
+      return isAuthenticated() && 
+        (request.auth.token.role == role || 
+         (request.auth.token.role == null && resource != null && resource.data.role == role));
     }
     
     function belongsToTenant(tenantId) {
-      return isAuthenticated() && request.auth.token.tenantId == tenantId;
+      return isAuthenticated() && 
+        (request.auth.token.tenantId == tenantId ||
+         request.auth.token.employerId == tenantId ||
+         (request.auth.token.tenantId == null && resource != null && resource.data.tenantId == tenantId));
     }
     
     function isEmployer() {
@@ -45,8 +46,15 @@ service cloud.firestore {
       allow read: if isEmployer() && 
         belongsToTenant(resource.data.tenantId);
       
-      // Only system (via Cloud Functions) can create users
-      allow create: if false;
+      // Allow authenticated users to create their own user document on first registration
+      // Validates: correct UID, required fields, email matches auth email, document doesn't exist
+      allow create: if isAuthenticated() 
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasAll(['email', 'name', 'role'])
+        && request.resource.data.email == request.auth.token.email
+        && !exists(/databases/$(database)/documents/users/$(userId))
+        && request.resource.data.role in ['employer', 'employee'];
+      
       allow delete: if false;
     }
     
@@ -59,8 +67,14 @@ service cloud.firestore {
       // Employees can read their tenant
       allow read: if belongsToTenant(tenantId);
       
-      // Only system can create/delete tenants
-      allow create, delete: if false;
+      // Allow authenticated users to create tenant during employer registration
+      // Validates: correct ownerId, required fields
+      allow create: if isAuthenticated()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.keys().hasAll(['companyName', 'tenantCode', 'size', 'ownerId'])
+        && !exists(/databases/$(database)/documents/tenants/$(tenantId));
+      
+      allow delete: if false;
     }
     
     // Work logs

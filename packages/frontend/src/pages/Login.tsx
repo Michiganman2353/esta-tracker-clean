@@ -1,20 +1,18 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { signIn } from '../lib/authService';
 import { isFirebaseConfigured } from '../lib/firebase';
 import { apiClient } from '../lib/api';
-import { User } from '../types';
+import { useAuth } from '../contexts/useAuth';
 
-interface LoginProps {
-  onLogin: (user: User) => void;
-}
-
-export default function Login({ onLogin }: LoginProps) {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { refreshUserData } = useAuth();
   
   const verified = searchParams.get('verified') === 'true';
 
@@ -26,13 +24,18 @@ export default function Login({ onLogin }: LoginProps) {
     try {
       if (isFirebaseConfigured) {
         // Use Firebase authentication
-        const user = await signIn(email, password);
-        onLogin(user);
+        await signIn(email, password);
+        // Refresh user data in AuthContext
+        await refreshUserData();
+        // Navigation will happen automatically via AuthContext
+        navigate('/');
       } else {
         // Fallback to existing API for local development
         const response = await apiClient.login(email, password);
         apiClient.setToken(response.token);
-        onLogin(response.user as User);
+        // Refresh user data in AuthContext
+        await refreshUserData();
+        navigate('/');
       }
     } catch (err) {
       console.error('Login error:', err);

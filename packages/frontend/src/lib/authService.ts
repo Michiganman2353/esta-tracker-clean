@@ -507,11 +507,6 @@ export async function signIn(email: string, password: string): Promise<User> {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const { user: firebaseUser } = userCredential;
 
-    // Check if email is verified
-    if (!firebaseUser.emailVerified) {
-      throw new Error('Please verify your email before signing in. Check your inbox for the verification link.');
-    }
-
     // Get user data from Firestore
     const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
     
@@ -520,6 +515,28 @@ export async function signIn(email: string, password: string): Promise<User> {
     }
 
     const userData = userDoc.data() as User;
+
+    // Check if custom claims need to be set or refreshed
+    // This handles cases where the onCreate trigger didn't fire or failed
+    const idTokenResult = await firebaseUser.getIdTokenResult();
+    const needsClaimsUpdate = !idTokenResult.claims.role || !idTokenResult.claims.tenantId;
+    
+    if (needsClaimsUpdate && functions) {
+      console.log('Custom claims missing or incomplete, attempting to set via Cloud Function');
+      try {
+        // Call the Cloud Function to set claims
+        const { httpsCallable } = await import('firebase/functions');
+        const setClaimsFunction = httpsCallable(functions, 'approveUserAfterVerification');
+        await setClaimsFunction({});
+        console.log('Custom claims set successfully');
+        
+        // Force token refresh to get new claims
+        await firebaseUser.getIdToken(true);
+      } catch (claimsError) {
+        console.error('Error setting custom claims (will continue):', claimsError);
+        // Continue even if claims setting fails - user can still access basic functionality
+      }
+    }
 
     // Auto-activate user if email is verified but status is still pending
     // This handles cases where the Cloud Function wasn't called or failed
