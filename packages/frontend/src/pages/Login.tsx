@@ -25,19 +25,32 @@ export default function Login({ onLogin }: LoginProps) {
     setError('');
     setLoading(true);
 
+    // Log login attempt for debugging
+    console.log('=== Login Attempt ===');
+    console.log('Email:', email);
+    console.log('Firebase Configured:', isFirebaseConfigured);
+    console.log('Timestamp:', new Date().toISOString());
+    console.log('====================');
+
     try {
       if (isFirebaseConfigured) {
         // Use Firebase authentication
+        console.log('Attempting Firebase login...');
         const user = await signIn(email, password);
+        console.log('Firebase login successful:', user);
         onLogin(user);
       } else {
         // Fallback to existing API for local development
+        console.log('Attempting API login (Firebase not configured)...');
         const response = await apiClient.login(email, password);
+        console.log('API login successful:', response.user);
         apiClient.setToken(response.token);
         onLogin(response.user as User);
       }
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('=== Login Error ===');
+      console.error('Error:', err);
+      console.error('==================');
       
       if (err instanceof Error) {
         setError(err.message);
@@ -46,15 +59,17 @@ export default function Login({ onLogin }: LoginProps) {
         const error = err as { status?: number; message?: string; isNetworkError?: boolean };
         
         if (error.isNetworkError) {
-          setError('Unable to connect to server. Please check your internet connection and try again.');
+          setError('Unable to connect to server. Please check your internet connection and try again. If the problem persists, the server may be down.');
         } else if (error.status === 401) {
           setError('Invalid email or password. Please try again.');
         } else if (error.status === 403) {
-          setError('Your account is pending approval. Please wait for an administrator to activate your account.');
+          setError('Your account is pending approval. Please wait for an administrator to activate your account, or contact support if you believe this is an error.');
         } else if (error.status && error.status >= 400 && error.status < 500) {
-          setError(error.message || 'Login failed. Please check your credentials.');
+          setError(error.message || 'Login failed. Please check your credentials and try again.');
+        } else if (error.status && error.status >= 500) {
+          setError('Server error. Please try again later or contact support if the problem persists.');
         } else {
-          setError('Login failed. Please try again later.');
+          setError(error.message || 'Login failed. Please try again. If the problem persists, contact support.');
         }
       }
     } finally {
@@ -90,7 +105,28 @@ export default function Login({ onLogin }: LoginProps) {
             )}
             {error && (
               <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4 border-l-4 border-red-500 animate-shake">
-                <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3 flex-1">
+                    <p className="text-sm text-red-800 dark:text-red-200 font-medium">Login Failed</p>
+                    <p className="mt-1 text-sm text-red-700 dark:text-red-300">{error}</p>
+                    {error.includes('network') || error.includes('connect') ? (
+                      <div className="mt-2 text-xs text-red-600 dark:text-red-400">
+                        <p className="font-semibold mb-1">Troubleshooting tips:</p>
+                        <ul className="list-disc list-inside space-y-0.5">
+                          <li>Check your internet connection</li>
+                          <li>Make sure you're not behind a restrictive firewall</li>
+                          <li>Try refreshing the page</li>
+                          {!isFirebaseConfigured && <li>Ensure the backend server is running</li>}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
               </div>
             )}
             <div className="space-y-4">

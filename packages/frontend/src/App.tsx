@@ -5,17 +5,21 @@
  * It manages authentication state, routes, and global error handling.
  * 
  * Features:
- * - Checks for authenticated user on mount, handles loading and network errors
+ * - Integrates with Firebase AuthContext for centralized auth state
+ * - Handles loading states with better UX
+ * - Provides detailed error messages with recovery options
+ * - Supports both Firebase and API-based authentication
  * - Displays skeleton dashboard and retry logic on connection issues
  * - Provides public routes for login, registration, and pricing
- * - Provides protected routes for authenticated users:
- *   Dashboard, EmployeeDashboard, EmployerDashboard, AuditLog, Settings, etc.
+ * - Provides protected routes for authenticated users
  * - Implements conditional navigation based on user authentication
  * - Integrates maintenance mode notification
+ * - Includes debug panel for development
  * 
  * Uses:
  * - React Router for client-side navigation
- * - API client for user authentication
+ * - AuthContext for Firebase authentication state
+ * - API client for backend authentication fallback
  * - Design system components for consistent UI feedback
  * 
  * All application pages and layout are controlled from here.
@@ -24,8 +28,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { apiClient } from './lib/api';
+import { isFirebaseConfigured } from './lib/firebase';
+import { useAuth } from './contexts/useAuth';
 import { User } from './types';
 import { MaintenanceMode } from './components/MaintenanceMode';
+import { DebugPanel } from './components/DebugPanel';
 
 // Pages
 import Dashboard from './pages/Dashboard';
@@ -40,17 +47,60 @@ import Settings from './pages/Settings';
 import Pricing from './pages/Pricing';
 
 function App() {
+  const { userData, currentUser, loading: authLoading } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  // Log authentication state changes for debugging
+  useEffect(() => {
+    console.log('=== Auth State Change ===');
+    console.log('Firebase Configured:', isFirebaseConfigured);
+    console.log('Firebase User:', currentUser?.email);
+    console.log('User Data:', userData?.email, userData?.role, userData?.status);
+    console.log('Auth Loading:', authLoading);
+    console.log('========================');
+  }, [currentUser, userData, authLoading]);
 
   useEffect(() => {
-    checkAuth();
-  }, []);
+    // Wait for Firebase auth to initialize
+    if (authLoading) {
+      return;
+    }
+
+    // If Firebase is configured and we have user data, use it
+    if (isFirebaseConfigured && userData) {
+      console.log('Using Firebase user data:', userData);
+      setUser(userData);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    // If Firebase is configured but no user, clear state and stop loading
+    if (isFirebaseConfigured && !userData && !currentUser) {
+      console.log('No Firebase user, showing login');
+      setUser(null);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    // Fallback to API-based auth check if Firebase is not configured
+    if (!isFirebaseConfigured) {
+      console.log('Firebase not configured, checking API auth');
+      checkAuth();
+    } else {
+      setLoading(false);
+    }
+  }, [currentUser, userData, authLoading]);
 
   async function checkAuth() {
     try {
+      console.log('Checking auth via API...');
       const response = await apiClient.getCurrentUser();
+      console.log('API auth check successful:', response.user);
       setUser(response.user as User);
       setError(null);
     } catch (error) {
@@ -66,6 +116,10 @@ function App() {
         } else {
           setError(`Error loading application: ${apiError.message || 'Unknown error'}`);
         }
+      } else {
+        // Not authenticated - this is normal, just clear the user
+        console.log('User not authenticated via API');
+        setUser(null);
       }
       
       // Clear any invalid token
@@ -77,44 +131,97 @@ function App() {
     }
   }
 
+  // Enhanced loading screen with progress indicator
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="text-xl mb-4">Loading...</div>
-          <div className="text-sm text-gray-500">Connecting to ESTA Tracker</div>
+        <div className="text-center space-y-4">
+          <div className="relative">
+            {/* Animated spinner */}
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-200 border-t-primary-600 mx-auto"></div>
+          </div>
+          <div>
+            <div className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              Loading ESTA Tracker
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              {authLoading ? 'Checking authentication...' : 'Connecting to server...'}
+            </div>
+          </div>
+          {/* Show helpful info if loading takes too long */}
+          {retryCount > 0 && (
+            <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg max-w-md mx-auto">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                This is taking longer than expected. Please check your internet connection.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     );
   }
 
+  // Enhanced error screen with actionable steps
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-md w-full p-6">
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+        <div className="max-w-md w-full">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
             <div className="flex items-start">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="h-6 w-6 text-red-400" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
               </div>
               <div className="ml-3 flex-1">
-                <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+                <h3 className="text-base font-semibold text-red-800 dark:text-red-200 mb-2">
                   Connection Error
                 </h3>
-                <p className="mt-2 text-sm text-red-700 dark:text-red-300">{error}</p>
-                <div className="mt-4">
+                <p className="text-sm text-red-700 dark:text-red-300 mb-4">{error}</p>
+                
+                <div className="mb-4">
+                  <h4 className="text-sm font-semibold text-red-800 dark:text-red-200 mb-2">
+                    What you can try:
+                  </h4>
+                  <ul className="list-disc list-inside text-sm text-red-700 dark:text-red-300 space-y-1">
+                    <li>Check your internet connection</li>
+                    <li>Refresh your browser</li>
+                    <li>Clear your browser cache</li>
+                    <li>Try a different browser</li>
+                    {!isFirebaseConfigured && (
+                      <li>Ensure the backend server is running</li>
+                    )}
+                  </ul>
+                </div>
+
+                <div className="flex gap-3">
                   <button
                     onClick={() => {
                       setError(null);
                       setLoading(true);
-                      checkAuth();
+                      setRetryCount(retryCount + 1);
+                      if (isFirebaseConfigured) {
+                        // Retry will happen via useEffect
+                        setLoading(false);
+                      } else {
+                        checkAuth();
+                      }
                     }}
                     className="btn btn-primary text-sm"
                   >
                     Retry Connection
                   </button>
+                  <a
+                    href="/login"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setError(null);
+                      setUser(null);
+                    }}
+                    className="btn btn-secondary text-sm"
+                  >
+                    Go to Login
+                  </a>
                 </div>
               </div>
             </div>
@@ -127,6 +234,7 @@ function App() {
   return (
     <BrowserRouter>
       <MaintenanceMode />
+      <DebugPanel />
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={!user ? <Login onLogin={setUser} /> : <Navigate to="/" />} />
