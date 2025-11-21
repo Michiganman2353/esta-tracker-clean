@@ -15,5 +15,9 @@ module.exports = {
       { allowConstantExport: true },
     ],
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/explicit-function-return-type': 'off', // TypeScript infers most return types correctly
+    '@typescript-eslint/no-non-null-assertion': 'warn',
+    '@typescript-eslint/strict-boolean-expressions': 'off',
   },
 }

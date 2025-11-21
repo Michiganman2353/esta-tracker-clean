@@ -345,11 +345,12 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
 
     if (data.tenantCode) {
       console.log('Looking up tenant by code:', data.tenantCode);
+      const tenantCode = data.tenantCode.toUpperCase();
       // Find tenant by code with retry
       const tenantSnapshot = await retryWithBackoff(async () => {
         const tenantsQuery = query(
           collection(firebaseDb, 'tenants'),
-          where('tenantCode', '==', data.tenantCode!.toUpperCase())
+          where('tenantCode', '==', tenantCode)
         );
         return await getDocs(tenantsQuery);
       });

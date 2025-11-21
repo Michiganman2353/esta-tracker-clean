@@ -13,5 +13,9 @@ module.exports = {
   },
   rules: {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/explicit-function-return-type': 'off', // Too noisy for backend routes
+    '@typescript-eslint/no-non-null-assertion': 'warn',
+    'no-console': 'off', // Allow console in backend
   },
 };
