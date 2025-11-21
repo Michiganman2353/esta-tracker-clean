@@ -17,12 +17,12 @@
       ]
     },
     "test": {
-      "dependsOn": ["build"],
+      "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
       "cache": true
     },
     "test:coverage": {
-      "dependsOn": ["build"],
+      "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
       "cache": true
     },
