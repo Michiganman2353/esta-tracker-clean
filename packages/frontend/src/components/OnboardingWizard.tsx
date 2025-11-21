@@ -5,6 +5,7 @@ import { Stepper } from './Stepper';
 import { TooltipIcon } from './Tooltip';
 import { PasswordField } from './PasswordField';
 import { LoadingButton } from './LoadingButton';
+import type { User } from '../types';
 
 interface OnboardingData {
   // Step 1: Account Info
@@ -22,7 +23,7 @@ interface OnboardingData {
 }
 
 interface OnboardingWizardProps {
-  onRegisterSuccess?: (user: { id: string; email: string; name: string; role: string; [key: string]: unknown }) => void;
+  onRegisterSuccess?: (user: User & Record<string, unknown>) => void;
 }
 
 interface OnboardingContextType {
@@ -147,9 +148,8 @@ export function OnboardingWizard({ onRegisterSuccess }: OnboardingWizardProps = 
         apiClient.setToken(response.token);
         
         // Call the callback to update App state with the logged-in user
-        // Type assertion is needed because backend response may include extra fields
         if (onRegisterSuccess) {
-          onRegisterSuccess(response.user as { id: string; email: string; name: string; role: string; [key: string]: unknown });
+          onRegisterSuccess(response.user as User & Record<string, unknown>);
         } else {
           // Fallback: show success screen
           setSuccess(true);
