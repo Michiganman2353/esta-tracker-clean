@@ -28,6 +28,21 @@ docs/
 3. [Vercel Deployment](./setup/VERCEL_QUICK_START.md) - Deploy to Vercel
 4. [Edge Config Setup](./setup/EDGE_CONFIG_SETUP.md) - Configure Vercel Edge Config
 
+## 🔧 CI/CD & Deployment (New!)
+
+### Critical Deployment Resources
+- **[GitHub Secrets Setup](./GITHUB-SECRETS-SETUP.md)** - Step-by-step guide to configure GitHub secrets for CI/CD
+- **[Pre-Deployment Checklist](./PRE-DEPLOYMENT-CHECKLIST.md)** - Complete checklist before deploying
+- **[CI/CD Troubleshooting](./CI-CD-TROUBLESHOOTING.md)** - Common issues and solutions for GitHub Actions and Vercel
+- **[Dependency Upgrade Plan](./DEPENDENCY-UPGRADE-PLAN.md)** - Strategy for upgrading deprecated packages
+
+### Quick CI/CD Setup
+If you're experiencing deployment failures:
+1. Read [GitHub Secrets Setup](./GITHUB-SECRETS-SETUP.md) to configure secrets
+2. Run `npm run validate:deployment` to check your build
+3. Consult [CI/CD Troubleshooting](./CI-CD-TROUBLESHOOTING.md) for specific errors
+4. Use [Pre-Deployment Checklist](./PRE-DEPLOYMENT-CHECKLIST.md) before pushing changes
+
 ## 🏗️ Architecture Documentation
 
 ### System Architecture
