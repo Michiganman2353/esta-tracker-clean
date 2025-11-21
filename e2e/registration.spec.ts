@@ -38,14 +38,14 @@ test.describe('Manager Registration Flow', () => {
     await page.getByTestId('complete-registration-button').click();
     
     // Wait for the UI to respond to the submission
-    // Either: button becomes disabled/loading, error appears, or navigation occurs
+    // Either: button shows loading text, error appears, or navigation occurs
     const submitButton = page.getByTestId('complete-registration-button');
     
     // Wait for one of these conditions to be true
     await Promise.race([
-      submitButton.waitFor({ state: 'disabled', timeout: 5000 }).catch(() => {}),
-      page.locator('text=/Creating Account|error|failed|unable/i').waitFor({ state: 'visible', timeout: 5000 }).catch(() => {}),
-      page.waitForURL(url => !url.includes('/register/manager'), { timeout: 5000 }).catch(() => {}),
+      page.locator('text=/creating account|error|failed|unable/i').waitFor({ state: 'visible', timeout: 5000 }).catch((e) => { console.log('No error/loading message:', e.message); }),
+      page.waitForURL('/', { timeout: 5000 }).catch((e) => { console.log('No navigation occurred:', e.message); }),
+      page.waitForTimeout(5000), // Fallback timeout
     ]);
     
     // Verify submission was attempted (button should be disabled or show loading state)
@@ -109,14 +109,14 @@ test.describe('Employee Registration Flow', () => {
     await page.getByTestId('register-employee-submit').click();
     
     // Wait for the UI to respond to the submission
-    // Either: button becomes disabled/loading, error appears, or navigation occurs
+    // Either: button shows loading text, error appears, or navigation occurs
     const submitButton = page.getByTestId('register-employee-submit');
     
     // Wait for one of these conditions to be true
     await Promise.race([
-      submitButton.waitFor({ state: 'disabled', timeout: 5000 }).catch(() => {}),
-      page.locator('text=/Creating account|error|failed|unable/i').waitFor({ state: 'visible', timeout: 5000 }).catch(() => {}),
-      page.waitForURL(url => !url.includes('/register/employee'), { timeout: 5000 }).catch(() => {}),
+      page.locator('text=/creating account|error|failed|unable/i').waitFor({ state: 'visible', timeout: 5000 }).catch((e) => { console.log('No error/loading message:', e.message); }),
+      page.waitForURL('/', { timeout: 5000 }).catch((e) => { console.log('No navigation occurred:', e.message); }),
+      page.waitForTimeout(5000), // Fallback timeout
     ]);
     
     // Verify submission was attempted (button should be disabled or show loading state)
