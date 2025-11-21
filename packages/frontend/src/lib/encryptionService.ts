@@ -13,75 +13,20 @@ import * as Twofish from 'twofish-ts';
  * This provides defense-in-depth encryption for sensitive data.
  */
 
-export async function encryptFile(file: File): Promise<{
-  encryptedBlob: Blob;
-  keys: EncryptionResult;
-}> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      try {
-        const arrayBuffer = reader.result as ArrayBuffer;
-        const bytes = new Uint8Array(arrayBuffer);
-
-        const base64 = btoa(String.fromCharCode(...bytes));
-
-        const encryptionResult = encryptHybrid(base64);
-
-        const encryptedBlob = new Blob([encryptionResult.encryptedData], {
-          type: 'application/octet-stream'
-        });
-
-        resolve({
-          encryptedBlob,
-          keys: encryptionResult
-        });
-      } catch (error) {
-        reject(error);
-      }
-    };
-
-    reader.onerror = () => reject(reader.error);
-    reader.readAsArrayBuffer(file);
-  });
+interface EncryptionResult {
+  encryptedData: string;
+  serpentKey: string;
+  twofishKey: string;
+  aesKey: string;
+  iv: string;
 }
 
 interface DecryptionInput {
-  export async function decryptBlob(
-  blob: Blob,
-  keys: Omit<DecryptionInput, 'encryptedData'>,
-  originalType: string
-): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      try {
-        const encryptedData = reader.result as string;
-
-        const decryptedBase64 = decryptHybrid({
-          encryptedData,
-          ...keys
-        });
-
-        const binaryString = atob(decryptedBase64);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-
-        const decryptedBlob = new Blob([bytes], { type: originalType });
-        resolve(decryptedBlob);
-      } catch (error) {
-        reject(error);
-      }
-    };
-
-    reader.onerror = () => reject(reader.error);
-    reader.readAsText(blob);
-  });
-}
+  encryptedData: string;
+  serpentKey: string;
+  twofishKey: string;
+  aesKey: string;
+  iv: string;
 }
 
 /**
