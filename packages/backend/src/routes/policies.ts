@@ -1,6 +1,6 @@
 import { Response, Router } from 'express';
 import { getFirestore } from '../services/firebase';
-import { authenticate } from '../middleware/auth';
+import { authenticate, rateLimit } from '../middleware/auth';
 import { AuthenticatedRequest } from '../middleware/auth';
 
 const router = Router();
@@ -39,7 +39,7 @@ interface TenantPolicyConfig {
  * GET /api/v1/policies
  * Get all available policies for tenant
  */
-router.get('/', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.get('/', authenticate, rateLimit(100, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { tenantId } = req.user || {};
     const { employerSize } = req.query;
@@ -74,7 +74,7 @@ router.get('/', authenticate, async (req: AuthenticatedRequest, res: Response): 
  * GET /api/v1/policies/:id
  * Get a specific policy by ID
  */
-router.get('/:id', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.get('/:id', authenticate, rateLimit(100, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     if (!id) {
@@ -104,7 +104,7 @@ router.get('/:id', authenticate, async (req: AuthenticatedRequest, res: Response
  * POST /api/v1/policies
  * Create a new custom policy
  */
-router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.post('/', authenticate, rateLimit(10, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { tenantId, uid: userId } = req.user || {};
     const { basePolicyId, customizations } = req.body;
@@ -168,7 +168,7 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
  * PUT /api/v1/policies/active
  * Set active policy for tenant
  */
-router.put('/active', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.put('/active', authenticate, rateLimit(20, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { tenantId, uid: userId } = req.user || {};
     const { policyId, customizations } = req.body;
@@ -258,7 +258,7 @@ router.put('/active', authenticate, async (req: AuthenticatedRequest, res: Respo
  * GET /api/v1/policies/active
  * Get active policy for tenant
  */
-router.get('/active/current', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.get('/active/current', authenticate, rateLimit(100, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { tenantId } = req.user || {};
 

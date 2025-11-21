@@ -1,6 +1,6 @@
 import { Response, Router } from 'express';
 import { getFirestore } from '../services/firebase';
-import { authenticate } from '../middleware/auth';
+import { authenticate, rateLimit } from '../middleware/auth';
 import { AuthenticatedRequest } from '../middleware/auth';
 
 const router = Router();
@@ -22,7 +22,7 @@ interface CSVImportData {
  * POST /api/v1/import/validate
  * Validate CSV data before import
  */
-router.post('/validate', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.post('/validate', authenticate, rateLimit(10, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { type, data, metadata } = req.body as CSVImportData;
     const { tenantId } = req.user || {};
@@ -91,7 +91,7 @@ router.post('/validate', authenticate, async (req: AuthenticatedRequest, res: Re
  * POST /api/v1/import/employees
  * Import employee data
  */
-router.post('/employees', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.post('/employees', authenticate, rateLimit(5, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { data, metadata } = req.body as CSVImportData;
     const { tenantId, uid: userId } = req.user || {};
@@ -195,7 +195,7 @@ router.post('/employees', authenticate, async (req: AuthenticatedRequest, res: R
  * POST /api/v1/import/hours
  * Import hours data
  */
-router.post('/hours', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.post('/hours', authenticate, rateLimit(10, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { data, metadata } = req.body as CSVImportData;
     const { tenantId, uid: userId } = req.user || {};
@@ -297,7 +297,7 @@ router.post('/hours', authenticate, async (req: AuthenticatedRequest, res: Respo
  * GET /api/v1/import/history
  * Get import history for tenant
  */
-router.get('/history', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.get('/history', authenticate, rateLimit(50, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { tenantId } = req.user || {};
     const { limit = 50 } = req.query;

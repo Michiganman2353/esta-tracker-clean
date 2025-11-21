@@ -10,8 +10,15 @@
 export function sanitizeHtml(input: string): string {
   if (!input) return '';
   
-  // Remove HTML tags
-  let sanitized = input.replace(/<[^>]*>/g, '');
+  // Remove HTML tags - repeated to handle nested tags
+  let sanitized = input;
+  let previousLength = 0;
+  
+  // Repeat removal until no more tags are found
+  while (sanitized.length !== previousLength) {
+    previousLength = sanitized.length;
+    sanitized = sanitized.replace(/<[^>]*>/g, '');
+  }
   
   // Escape dangerous characters
   sanitized = sanitized
