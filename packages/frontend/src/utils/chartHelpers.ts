@@ -116,7 +116,10 @@ export function generateColorPalette(
   const colors: string[] = [];
 
   for (let i = 0; i < count; i++) {
-    colors.push(palette[i % palette.length]);
+    const color = palette[i % palette.length];
+    if (color) {
+      colors.push(color);
+    }
   }
 
   return colors;
@@ -158,11 +161,14 @@ export function calculateMovingAverage(data: number[], windowSize: number): numb
   const result: number[] = [];
 
   for (let i = 0; i < data.length; i++) {
+    const currentValue = data[i];
+    if (currentValue === undefined) continue;
+    
     if (i < windowSize - 1) {
-      result.push(data[i]); // Not enough data for average yet
+      result.push(currentValue); // Not enough data for average yet
     } else {
       const window = data.slice(i - windowSize + 1, i + 1);
-      const average = window.reduce((sum, val) => sum + val, 0) / windowSize;
+      const average = window.reduce((sum, val) => sum + (val ?? 0), 0) / windowSize;
       result.push(average);
     }
   }

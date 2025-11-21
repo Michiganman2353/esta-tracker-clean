@@ -148,7 +148,7 @@ export function isValidUsageCategory(category: UsageCategory): boolean {
  * @returns True if documentation may be required
  */
 export function mayRequireDocumentation(
-  category: UsageCategory,
+  _category: UsageCategory, // Unused but kept for API consistency
   consecutiveDays: number
 ): boolean {
   // Employers can require documentation for absences > 3 consecutive days

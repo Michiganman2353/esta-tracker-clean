@@ -302,7 +302,28 @@ export function importEmployeeCSV(csvText: string): CSVImportResult {
     };
   }
 
-  const headers = rows[0].map((h) => h.trim());
+  const firstRow = rows[0];
+  if (!firstRow) {
+    return {
+      valid: false,
+      totalRows: 0,
+      validRows: 0,
+      errors: [
+        {
+          row: 0,
+          field: 'file',
+          value: '',
+          error: 'CSV file has no header row',
+          severity: 'error',
+        },
+      ],
+      warnings: [],
+      data: [],
+      preview: [],
+    };
+  }
+
+  const headers = firstRow.map((h) => h.trim());
   const dataRows = rows.slice(1);
 
   return validateCSVData(headers, dataRows, EMPLOYEE_SCHEMA);
@@ -333,7 +354,28 @@ export function importHoursCSV(csvText: string): CSVImportResult {
     };
   }
 
-  const headers = rows[0].map((h) => h.trim());
+  const firstRow = rows[0];
+  if (!firstRow) {
+    return {
+      valid: false,
+      totalRows: 0,
+      validRows: 0,
+      errors: [
+        {
+          row: 0,
+          field: 'file',
+          value: '',
+          error: 'CSV file has no header row',
+          severity: 'error',
+        },
+      ],
+      warnings: [],
+      data: [],
+      preview: [],
+    };
+  }
+
+  const headers = firstRow.map((h) => h.trim());
   const dataRows = rows.slice(1);
 
   return validateCSVData(headers, dataRows, HOURS_SCHEMA);

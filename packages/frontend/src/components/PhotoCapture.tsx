@@ -201,7 +201,12 @@ export const PhotoCapture: React.FC<PhotoCaptureProps> = ({
 
     // Sample every 10th pixel for performance
     for (let i = 0; i < data.length; i += 40) {
-      brightness += (data[i] + data[i + 1] + data[i + 2]) / 3;
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      if (r !== undefined && g !== undefined && b !== undefined) {
+        brightness += (r + g + b) / 3;
+      }
     }
 
     brightness = brightness / (data.length / 40);

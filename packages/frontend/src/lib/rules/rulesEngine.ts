@@ -232,7 +232,10 @@ export class RulesEngine {
     if (existingConfig && existingConfig.activePolicyId !== policyId) {
       const lastHistoryIndex = config.policyHistory.length - 1;
       if (lastHistoryIndex >= 0) {
-        config.policyHistory[lastHistoryIndex].deactivatedAt = now;
+        const lastPolicy = config.policyHistory[lastHistoryIndex];
+        if (lastPolicy) {
+          lastPolicy.deactivatedAt = now;
+        }
       }
     }
 

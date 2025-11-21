@@ -202,6 +202,9 @@ function twofishDecrypt(encryptedData: string, key: string): string {
   
   // Remove PKCS7 padding
   const paddingLength = decrypted[decrypted.length - 1];
+  if (paddingLength === undefined || paddingLength < 1 || paddingLength > 16) {
+    throw new Error('Invalid padding length');
+  }
   const unpaddedData = decrypted.slice(0, decrypted.length - paddingLength);
   
   return new TextDecoder().decode(unpaddedData);

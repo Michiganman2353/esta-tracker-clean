@@ -246,7 +246,7 @@ export default function CSVImporter({
               <table className="data-table">
                 <thead>
                   <tr>
-                    {importResult.preview.length > 0 &&
+                    {importResult.preview.length > 0 && importResult.preview[0] &&
                       Object.keys(importResult.preview[0]).map((key) => (
                         <th key={key}>{key}</th>
                       ))}

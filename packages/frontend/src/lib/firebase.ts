@@ -40,6 +40,9 @@ try {
     }
     
     // Initialize Firebase services
+    if (!app) {
+      throw new Error('Firebase app initialization failed');
+    }
     auth = getAuth(app);
     db = getFirestore(app);
     storage = getStorage(app);

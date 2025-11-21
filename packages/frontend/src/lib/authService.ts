@@ -359,6 +359,9 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       }
 
       const tenantDoc = tenantSnapshot.docs[0];
+      if (!tenantDoc) {
+        throw new Error('Unable to retrieve company information.');
+      }
       tenantId = tenantDoc.id;
       const tenantData = tenantDoc.data();
       employerSize = tenantData.size;
@@ -385,6 +388,9 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       }
 
       const tenantDoc = tenantSnapshot.docs[0];
+      if (!tenantDoc) {
+        throw new Error('Unable to retrieve company information.');
+      }
       tenantId = tenantDoc.id;
       const tenantData = tenantDoc.data();
       employerSize = tenantData.size;
