@@ -1,8 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run build:frontend",
+  "buildCommand": "npx turbo run build --filter=@esta-tracker/frontend --force",
   "outputDirectory": "packages/frontend/dist",
-  "installCommand": "npm ci && cd api && npm ci && cd ..",
+  "installCommand": "npm ci",
   "devCommand": "npm run dev:frontend",
   "framework": null,
   "functions": {

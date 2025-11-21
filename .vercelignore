@@ -1,0 +1,71 @@
+# ==================== #
+# Development & Testing
+# ==================== #
+# Source files (only need built output)
+packages/*/src
+
+# Test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+e2e/
+test-results/
+playwright-report/
+coverage/
+.vitest/
+
+# ==================== #
+# Documentation
+# ==================== #
+*.md
+!README.md
+docs/
+.github/
+
+# ==================== #
+# Configuration Files
+# ==================== #
+# Keep only essential config
+.eslintrc.*
+.prettierrc
+tsconfig.*.json
+vitest.config.ts
+playwright.config.ts
+
+# ==================== #
+# Build artifacts (non-frontend)
+# ==================== #
+packages/backend/dist
+packages/backend/build
+packages/shared-*/dist
+packages/shared-*/build
+packages/accrual-engine/dist
+packages/csv-processor/dist
+.turbo/
+*.tsbuildinfo
+
+# ==================== #
+# Scripts & Tools
+# ==================== #
+scripts/
+
+# ==================== #
+# Environment files
+# ==================== #
+.env.example
+.env.*.local
+
+# ==================== #
+# IDE & Editor
+# ==================== #
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ==================== #
+# Git
+# ==================== #
+.git/
+.gitignore
