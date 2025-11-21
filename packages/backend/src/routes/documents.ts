@@ -19,7 +19,7 @@ documentsRouter.get('/request/:requestId', async (req: Request, res: Response) =
       documents: [],
       message: 'Document retrieval endpoint - requires Firebase integration',
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve documents',
@@ -45,7 +45,7 @@ documentsRouter.get('/:documentId', async (req: Request, res: Response) => {
       document: null,
       message: 'Document detail endpoint - requires Firebase integration',
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve document',
@@ -80,7 +80,7 @@ documentsRouter.post('/upload-url', async (req: Request, res: Response): Promise
       expiresIn: 900,
       message: 'Upload URL generation endpoint - requires Firebase Cloud Function integration',
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({
       success: false,
       error: 'Failed to generate upload URL',
@@ -104,7 +104,7 @@ documentsRouter.post('/:documentId/confirm', async (req: Request, res: Response)
       documentId,
       message: 'Document confirmation endpoint - requires Firebase Cloud Function integration',
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({
       success: false,
       error: 'Failed to confirm document upload',
@@ -130,7 +130,7 @@ documentsRouter.delete('/:documentId', async (req: Request, res: Response) => {
       documentId,
       message: 'Document deletion endpoint - requires Firebase integration',
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({
       success: false,
       error: 'Failed to delete document',
@@ -155,7 +155,7 @@ documentsRouter.get('/:documentId/access-logs', async (req: Request, res: Respon
       accessLogs: [],
       message: 'Access logs endpoint - requires Firebase integration',
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve access logs',
