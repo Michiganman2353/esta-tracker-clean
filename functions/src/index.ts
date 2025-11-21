@@ -132,17 +132,24 @@ export const approveUserAfterVerification = functions.https.onCall(
       const emailVerified = userRecord.emailVerified;
       
       // Update user status based on email verification
-      const updates: { [key: string]: any } = {
-        emailVerified: emailVerified,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      };
-      
-      if (emailVerified && userData?.status === 'pending') {
-        updates.status = 'approved';
-        updates.verifiedAt = admin.firestore.FieldValue.serverTimestamp();
-      }
-      
-      await userDocRef.update(updates);
+      interface UserUpdatePayload {
+  emailVerified?: boolean;
+  updatedAt?: FirebaseFirestore.FieldValue;
+  status?: string;
+  verifiedAt?: FirebaseFirestore.FieldValue;
+}
+
+const updates: UserUpdatePayload = {
+  emailVerified,
+  updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+};
+
+if (emailVerified && userData?.status === 'pending') {
+  updates.status = 'approved';
+  updates.verifiedAt = admin.firestore.FieldValue.serverTimestamp();
+}
+
+await userDocRef.update(updates);
 
       // Set custom claims based on role (whether verified or not)
       const claims: { [key: string]: any } = {
