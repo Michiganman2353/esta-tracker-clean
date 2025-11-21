@@ -1,22 +1,39 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { sendEmailVerification, reload } from 'firebase/auth';
-import { httpsCallable } from 'firebase/functions';
-import { auth, functions, isFirebaseConfigured } from '../lib/firebase';
 
 interface EmailVerificationProps {
   email: string;
   onVerified?: () => void;
 }
 
-export default function EmailVerification({ email, onVerified }: EmailVerificationProps) {
+export default function EmailVerification({ email, onVerified: _onVerified }: EmailVerificationProps) {
+  const navigate = useNavigate();
+
+  // DEVELOPMENT MODE: Email verification is bypassed
+  // Auto-redirect after 3 seconds or allow manual skip
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      console.log('[DEV MODE] Auto-skipping email verification');
+      navigate('/login');
+    }, 3000);
+    
+    return () => clearTimeout(timer);
+  }, [navigate]);
+
+  // The following code is kept for reference but disabled in development mode
+  // When re-enabling email verification, uncomment everything below and restore imports
+  /* 
+  // Restore these imports when re-enabling:
+  // import { useState } from 'react';
+  // import { sendEmailVerification, reload } from 'firebase/auth';
+  // import { httpsCallable } from 'firebase/functions';
+  // import { auth, functions, isFirebaseConfigured } from '../lib/firebase';
+
   const [checking, setChecking] = useState(false);
   const [resending, setResending] = useState(false);
   const [resendMessage, setResendMessage] = useState('');
   const [autoCheckCount, setAutoCheckCount] = useState(0);
-  const navigate = useNavigate();
-
-  // Auto-check verification status every 5 seconds (max 24 times = 2 minutes)
+  
   useEffect(() => {
     if (!auth?.currentUser || !isFirebaseConfigured || autoCheckCount >= 24) {
       return;
@@ -201,10 +218,30 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
       setTimeout(() => setResendMessage(''), 8000); // Longer display time for error messages
     }
   }
+  */
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
+        {/* DEVELOPMENT MODE BANNER */}
+        <div className="rounded-md bg-yellow-50 dark:bg-yellow-900/20 p-4 border-2 border-yellow-400 dark:border-yellow-600">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                Development Mode - Email Verification Bypassed
+              </h3>
+              <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                <p>Email verification is temporarily disabled. You will be redirected to login in 3 seconds, or click the button below to continue immediately.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-primary-100 dark:bg-primary-900">
             <svg
@@ -222,10 +259,10 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
             </svg>
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            Verify Your Email
+            Email Verification Skipped
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            We've sent a verification link to:
+            Registration completed for:
           </p>
           <p className="mt-1 text-center text-base font-medium text-gray-900 dark:text-white">
             {email}
@@ -234,118 +271,19 @@ export default function EmailVerification({ email, onVerified }: EmailVerificati
 
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 space-y-4">
           <div className="space-y-3">
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <p className="ml-3 text-sm text-gray-700 dark:text-gray-300">
-                Check your email inbox for the verification link
-              </p>
-            </div>
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <p className="ml-3 text-sm text-gray-700 dark:text-gray-300">
-                Click the verification link in the email
-              </p>
-            </div>
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <p className="ml-3 text-sm text-gray-700 dark:text-gray-300">
-                Return here and click "I've Verified" or wait for automatic detection
-              </p>
-            </div>
-          </div>
-
-          {resendMessage && (
-            <div
-              className={`rounded-md p-3 ${
-                resendMessage.includes('sent') || resendMessage.includes('Sent')
-                  ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200'
-                  : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200'
-              }`}
-            >
-              <p className="text-sm">{resendMessage}</p>
-            </div>
-          )}
-
-          <div className="space-y-3">
-            <button
-              onClick={() => checkVerification(false)}
-              disabled={checking}
-              className="btn btn-primary w-full flex justify-center items-center"
-            >
-              {checking ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Checking...
-                </>
-              ) : (
-                "I've Verified My Email"
-              )}
-            </button>
-
-            <button
-              onClick={resendVerificationEmail}
-              disabled={resending}
-              className="btn btn-secondary w-full"
-            >
-              {resending ? 'Sending...' : 'Resend Verification Email'}
-            </button>
-            
             <button
               onClick={() => navigate('/login')}
-              className="btn btn-secondary w-full"
+              className="btn btn-primary w-full"
             >
               Continue to Login
             </button>
           </div>
 
           <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-              Didn't receive the email? Check your spam folder or click resend.
-            </p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              You can verify your email later by clicking the link in the email.
+              Note: In production, you would need to verify your email before logging in.
             </p>
           </div>
-        </div>
-
-        <div className="text-center">
-          <button
-            onClick={() => navigate('/login')}
-            className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
-          >
-            Back to Login
-          </button>
         </div>
       </div>
     </div>

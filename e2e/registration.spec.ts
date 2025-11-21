@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
 
+// NOTE: Email verification is bypassed in development mode
+// Tests expect users to be auto-logged in immediately after registration
+// without requiring email verification
+
 test.describe('Manager Registration Flow', () => {
   test('should complete manager registration and auto-login to dashboard', async ({ page }) => {
     // Navigate to registration page
@@ -33,6 +37,7 @@ test.describe('Manager Registration Flow', () => {
     // Step 4: Review & Complete - Click "Complete Registration"
     await page.getByRole('button', { name: /complete registration/i }).click();
     
+    // Email verification is bypassed - user should be auto-logged in
     // Wait for navigation to dashboard
     // The user should be auto-logged in and redirected to the main dashboard
     await page.waitForURL('/', { timeout: 10000 });
@@ -93,6 +98,7 @@ test.describe('Employee Registration Flow', () => {
     // Submit the form
     await page.getByRole('button', { name: /register|sign up|create account/i }).click();
     
+    // Email verification is bypassed - user should be auto-logged in
     // Wait for navigation to dashboard
     await page.waitForURL('/', { timeout: 10000 });
     
