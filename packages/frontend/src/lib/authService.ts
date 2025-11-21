@@ -359,9 +359,7 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       }
 
       const tenantDoc = tenantSnapshot.docs[0];
-      if (!tenantDoc) {
-        throw new Error('Invalid company code. Please check with your employer and try again.');
-      }
+      
       tenantId = tenantDoc.id;
       const tenantData = tenantDoc.data();
       employerSize = tenantData.size;
