@@ -12,11 +12,26 @@
       "inputs": ["src/**", "package.json", "tsconfig.json", "tsconfig.*.json", "vite.config.ts", "index.html"],
       "env": [
         "NODE_ENV",
-        "VITE_*",
-        "FIREBASE_*",
-        "VERCEL_*",
-        "GCP_*",
-        "KMS_*"
+        "VITE_API_URL",
+        "VITE_FIREBASE_API_KEY",
+        "VITE_FIREBASE_AUTH_DOMAIN",
+        "VITE_FIREBASE_PROJECT_ID",
+        "VITE_FIREBASE_STORAGE_BUCKET",
+        "VITE_FIREBASE_MESSAGING_SENDER_ID",
+        "VITE_FIREBASE_APP_ID",
+        "VITE_FIREBASE_MEASUREMENT_ID",
+        "FIREBASE_PROJECT_ID",
+        "FIREBASE_SERVICE_ACCOUNT",
+        "VERCEL_ENV",
+        "VERCEL_URL",
+        "VERCEL_REGION",
+        "GCP_PROJECT_ID",
+        "KMS_KEYRING_NAME",
+        "KMS_LOCATION",
+        "KMS_ENCRYPTION_KEY_NAME",
+        "KMS_KEY_VERSION",
+        "EDGE_CONFIG",
+        "ALLOWED_ORIGIN"
       ],
       "cache": true
     },
@@ -49,7 +64,19 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "env": ["PORT", "VITE_*", "FIREBASE_*"]
+      "env": [
+        "PORT",
+        "VITE_API_URL",
+        "VITE_FIREBASE_API_KEY",
+        "VITE_FIREBASE_AUTH_DOMAIN",
+        "VITE_FIREBASE_PROJECT_ID",
+        "VITE_FIREBASE_STORAGE_BUCKET",
+        "VITE_FIREBASE_MESSAGING_SENDER_ID",
+        "VITE_FIREBASE_APP_ID",
+        "VITE_FIREBASE_MEASUREMENT_ID",
+        "FIREBASE_PROJECT_ID",
+        "FIREBASE_SERVICE_ACCOUNT"
+      ]
     },
     "clean": {
       "cache": false
