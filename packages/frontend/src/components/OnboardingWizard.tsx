@@ -1,13 +1,11 @@
 import { useState, createContext, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerManager } from '../lib/authService';
-import { isFirebaseConfigured } from '../lib/firebase';
 import { apiClient } from '../lib/api';
 import { Stepper } from './Stepper';
 import { TooltipIcon } from './Tooltip';
-import EmailVerification from './EmailVerification';
 import { PasswordField } from './PasswordField';
 import { LoadingButton } from './LoadingButton';
+import type { User } from '../types';
 
 interface OnboardingData {
   // Step 1: Account Info
@@ -25,7 +23,7 @@ interface OnboardingData {
 }
 
 interface OnboardingWizardProps {
-  onRegisterSuccess?: (user: { id: string; email: string; name: string; role: string; [key: string]: unknown }) => void;
+  onRegisterSuccess?: (user: User & Record<string, unknown>) => void;
 }
 
 interface OnboardingContextType {
@@ -48,7 +46,6 @@ export function OnboardingWizard({ onRegisterSuccess }: OnboardingWizardProps = 
   const [currentStep, setCurrentStep] = useState(0);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showVerification, setShowVerification] = useState(false);
   const [success, setSuccess] = useState(false);
   
   const [data, setData] = useState<OnboardingData>({
@@ -137,39 +134,28 @@ export function OnboardingWizard({ onRegisterSuccess }: OnboardingWizardProps = 
     try {
       const empCount = parseInt(data.employeeCount);
       
-      if (isFirebaseConfigured) {
-        await registerManager({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-          companyName: data.companyName,
-          employeeCount: empCount,
-        });
-        setShowVerification(true);
-      } else {
-        const response = await apiClient.registerManager({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-          companyName: data.companyName,
-          employeeCount: empCount,
-        });
+      // Always use backend API for registration
+      const response = await apiClient.registerManager({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        companyName: data.companyName,
+        employeeCount: empCount,
+      });
+      
+      // Auto-login after successful registration
+      if (response.token && response.user) {
+        apiClient.setToken(response.token);
         
-        // Auto-login after successful registration
-        if (response.token && response.user) {
-          apiClient.setToken(response.token);
-          
-          // Call the callback to update App state with the logged-in user
-          // Type assertion is needed because backend response may include extra fields
-          if (onRegisterSuccess) {
-            onRegisterSuccess(response.user as { id: string; email: string; name: string; role: string; [key: string]: unknown });
-          } else {
-            // Fallback: show success screen
-            setSuccess(true);
-          }
+        // Call the callback to update App state with the logged-in user
+        if (onRegisterSuccess) {
+          onRegisterSuccess(response.user as User & Record<string, unknown>);
         } else {
+          // Fallback: show success screen
           setSuccess(true);
         }
+      } else {
+        setSuccess(true);
       }
     } catch (err) {
       console.error('Registration error:', err);
@@ -193,17 +179,6 @@ export function OnboardingWizard({ onRegisterSuccess }: OnboardingWizardProps = 
       setLoading(false);
     }
   };
-
-  if (showVerification) {
-    return (
-      <EmailVerification
-        email={data.email}
-        onVerified={() => {
-          navigate('/login?verified=true');
-        }}
-      />
-    );
-  }
 
   if (success) {
     return (
@@ -306,7 +281,7 @@ export function OnboardingWizard({ onRegisterSuccess }: OnboardingWizardProps = 
               {currentStep === 0 && <AccountInfoStep />}
               {currentStep === 1 && <CompanyInfoStep />}
               {currentStep === 2 && <PolicySetupStep />}
-              {currentStep === 3 && <CompleteStep onSubmit={handleSubmit} loading={loading} />}
+              {currentStep === 3 && <CompleteStep />}
             </div>
 
             <div className="mt-6 flex justify-between animate-fade-in" style={{ animationDelay: '0.5s' }}>
@@ -595,12 +570,7 @@ function PolicySetupStep() {
   );
 }
 
-interface CompleteStepProps {
-  onSubmit: () => void;
-  loading: boolean;
-}
-
-function CompleteStep({ onSubmit: _onSubmit, loading: _loading }: CompleteStepProps) {
+function CompleteStep() {
   const { data } = useOnboarding();
 
   return (
