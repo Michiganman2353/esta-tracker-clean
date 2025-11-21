@@ -270,7 +270,7 @@ describe('Login Page', () => {
       fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
       
       await waitFor(() => {
-        expect(screen.getByText(/login failed.*try again later/i)).toBeInTheDocument();
+        expect(screen.getByText(/server error.*try again later/i)).toBeInTheDocument();
       });
     });
 

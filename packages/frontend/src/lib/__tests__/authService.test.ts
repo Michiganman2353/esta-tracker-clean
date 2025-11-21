@@ -29,6 +29,8 @@ vi.mock('../firebase', () => ({
 describe('authService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Clear localStorage to reset rate limiting between tests
+    localStorage.clear();
   });
 
   describe('registerManager', () => {

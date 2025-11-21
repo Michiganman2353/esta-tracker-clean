@@ -291,7 +291,7 @@ describe('Decrypt Endpoint', () => {
       expect(mockRes.json).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
-          error: 'Invalid privateKey parameter'
+          error: 'Legacy mode requires privateKey parameter. Consider migrating to KMS.'
         })
       );
     });
@@ -383,12 +383,13 @@ describe('Decrypt Endpoint', () => {
       await handler(mockReq as AuthenticatedVercelRequest, mockRes as VercelResponse);
 
       expect(authMiddleware.logSecurityEvent).toHaveBeenCalledWith(
-        'decrypt_success',
+        'decrypt_success_legacy',
         mockReq,
         expect.objectContaining({
           resourceOwnerId: 'user123',
           tenantId: 'tenant123',
-          dataSize: expect.any(Number)
+          dataSize: expect.any(Number),
+          warning: 'using_legacy_decryption'
         })
       );
     });
