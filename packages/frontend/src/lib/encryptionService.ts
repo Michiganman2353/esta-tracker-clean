@@ -204,6 +204,9 @@ function twofishDecrypt(encryptedData: string, key: string): string {
   const paddingLength = decrypted[decrypted.length - 1];
   if (paddingLength === undefined) {
     throw new Error('Invalid encrypted data: missing padding');
+  }}
+  if (paddingLength < 1 || paddingLength > 16) {
+    throw new Error('Invalid encrypted data: invalid padding length');
   }
   if (paddingLength < 1 || paddingLength > 16) {
     throw new Error('Invalid encrypted data: invalid padding length');
