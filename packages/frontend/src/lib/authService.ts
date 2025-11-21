@@ -1,7 +1,6 @@
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  sendEmailVerification,
   UserCredential,
 } from 'firebase/auth';
 import {
@@ -234,9 +233,14 @@ export async function registerManager(data: RegisterManagerData): Promise<{ user
       });
     });
 
+    // DISABLED FOR DEVELOPMENT: Email verification temporarily bypassed
     // Send email verification with action code settings and retry
     // Don't fail registration if email sending fails - user can resend later
-    console.log('Sending email verification to:', data.email);
+    console.log('[DEV MODE] Email verification bypassed for:', data.email);
+    console.log('[DEV MODE] In production, verification email would be sent to:', data.email);
+    
+    // Temporarily disabled for development - uncomment to re-enable
+    /*
     const actionCodeSettings = {
       url: window.location.origin + '/login?verified=true',
       handleCodeInApp: false,
@@ -254,6 +258,7 @@ export async function registerManager(data: RegisterManagerData): Promise<{ user
       console.error('Failed to send verification email (non-fatal):', emailError);
       // User can resend from verification page
     }
+    */
 
     return { user: userData, needsVerification: false }; // FIXED: Email verification is optional, not required
   } catch (error: unknown) {
@@ -455,9 +460,14 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       });
     });
 
+    // DISABLED FOR DEVELOPMENT: Email verification temporarily bypassed
     // Send email verification with action code settings and retry
     // Don't fail registration if email sending fails - user can resend later
-    console.log('Sending email verification to:', data.email);
+    console.log('[DEV MODE] Email verification bypassed for:', data.email);
+    console.log('[DEV MODE] In production, verification email would be sent to:', data.email);
+    
+    // Temporarily disabled for development - uncomment to re-enable
+    /*
     const actionCodeSettings = {
       url: window.location.origin + '/login?verified=true',
       handleCodeInApp: false,
@@ -475,6 +485,7 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       console.error('Failed to send verification email (non-fatal):', emailError);
       // User can resend from verification page
     }
+    */
 
     return { user: userData, needsVerification: false }; // FIXED: Email verification is optional, not required
   } catch (error: unknown) {

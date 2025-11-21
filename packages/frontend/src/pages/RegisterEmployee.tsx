@@ -4,7 +4,6 @@ import { registerEmployee } from '../lib/authService';
 import { isFirebaseConfigured } from '../lib/firebase';
 import { apiClient } from '../lib/api';
 import { User } from '../types';
-import EmailVerification from '../components/EmailVerification';
 import { useRegistrationStatus } from '../hooks/useEdgeConfig';
 import { PasswordField } from '../components/PasswordField';
 import { LoadingButton } from '../components/LoadingButton';
@@ -21,7 +20,6 @@ export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) 
   const [tenantCode, setTenantCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showVerification, setShowVerification] = useState(false);
   const navigate = useNavigate();
   const { isOpen: registrationOpen, message: closedMessage, loading: checkingStatus } = useRegistrationStatus('employee');
 
@@ -44,19 +42,16 @@ export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) 
     try {
       if (isFirebaseConfigured) {
         // Use Firebase authentication
-        const { user, needsVerification } = await registerEmployee({
+        const { user } = await registerEmployee({
           name,
           email,
           password,
           tenantCode: tenantCode.trim() || undefined,
         });
         
-        if (needsVerification) {
-          setShowVerification(true);
-        } else {
-          // Auto-login for employees if no verification needed (shouldn't happen)
-          onRegister(user);
-        }
+        // Email verification is disabled for development - auto-login immediately
+        console.log('[DEV MODE] Auto-login after registration, skipping email verification');
+        onRegister(user);
       } else {
         // Fallback to existing API for local development
         const response = await apiClient.registerEmployee({ name, email, password });
@@ -115,15 +110,8 @@ export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) 
             </div>
           </div>
         </div>
-      ) : showVerification ? (
-        <EmailVerification
-          email={email}
-          onVerified={() => {
-            navigate('/login?verified=true');
-          }}
-        />
       ) : (
-        <div className="max-w-md w-full space-y-8">
+        <div className="max-w-md w-full space-y-8">{/* Email verification bypassed - users auto-login after registration */}
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
             Employee Registration
