@@ -8,8 +8,8 @@ This guide covers deploying the ESTA Tracker application to Vercel. The project 
 
 - [Vercel Account](https://vercel.com/signup)
 - [Vercel CLI](https://vercel.com/docs/cli) (optional, for local testing)
-- Node.js ≥18.0.0
-- npm ≥9.0.0
+- Node.js 20.x (see `.nvmrc`)
+- npm ≥10.0.0
 
 ## Project Structure
 
@@ -340,8 +340,59 @@ For automated deployments to work, configure these secrets in your GitHub reposi
 | `VERCEL_ORG_ID` | Your Vercel organization ID | Run `vercel link` and check `.vercel/project.json` |
 | `VERCEL_PROJECT_ID` | Your Vercel project ID | Run `vercel link` and check `.vercel/project.json` |
 
+#### How to Obtain Vercel Organization and Project IDs
+
+**Prerequisites:**
+- Install Vercel CLI: `npm install -g vercel`
+- Have a Vercel account with access to the project
+
+**Step-by-Step Instructions:**
+
+1. **Login to Vercel**
+   ```bash
+   vercel login
+   ```
+   Follow the prompts to authenticate.
+
+2. **Link Your Project**
+   ```bash
+   cd /path/to/esta-tracker-clean
+   vercel link
+   ```
+   
+   You'll be prompted:
+   - **Set up and deploy?** → Yes
+   - **Which scope?** → Select your team/account
+   - **Link to existing project?** → Yes (if exists) or No (to create)
+   - **What's your project's name?** → esta-tracker-clean
+
+3. **Extract the IDs**
+   After linking, a `.vercel/project.json` file is created:
+   
+   ```bash
+   cat .vercel/project.json
+   ```
+   
+   Example output:
+   ```json
+   {
+     "orgId": "team_abc123xyz789",
+     "projectId": "prj_def456uvw012"
+   }
+   ```
+
+4. **Add to GitHub Secrets**
+   Go to your repository and add these values:
+   
+   - Navigate to: `https://github.com/Michiganman2353/esta-tracker-clean/settings/secrets/actions`
+   - Click "New repository secret" for each:
+     - Name: `VERCEL_ORG_ID`, Value: the orgId from project.json
+     - Name: `VERCEL_PROJECT_ID`, Value: the projectId from project.json
+     - Name: `VERCEL_TOKEN`, Value: your Vercel authentication token
+
 **Important Notes**: 
 - The CI/CD workflow automatically sanitizes the `VERCEL_TOKEN` to remove any invalid characters (newlines, spaces, hyphens, periods, slashes) that might cause deployment failures.
+- The `.vercel/` directory is gitignored and should never be committed
 - For detailed token setup instructions and troubleshooting, see [VERCEL_TOKEN_SETUP.md](VERCEL_TOKEN_SETUP.md).
 
 ### Production Deployment Workflow

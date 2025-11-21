@@ -1,5 +1,7 @@
 # Vercel Configuration Directory
 
+> **For complete deployment instructions, see [Vercel Deployment Guide](../docs/deployment/deployment.md)**
+
 This directory is automatically created when you run `vercel link` to connect your local project to a Vercel project.
 
 ## ⚠️ Important: This directory is gitignored
@@ -26,7 +28,7 @@ Contains your Vercel project configuration:
 - Vercel CLI deployments
 - Project-specific configuration
 
-## How to obtain these IDs
+## Quick Setup Guide
 
 ### Step 1: Install Vercel CLI
 
@@ -78,7 +80,7 @@ Go to your repository settings and add these as secrets:
 3. Add each secret:
    - Name: `VERCEL_ORG_ID`, Value: `team_1234567890abcdef`
    - Name: `VERCEL_PROJECT_ID`, Value: `prj_abcdef1234567890`
-   - Name: `VERCEL`, Value: Your Vercel API token
+   - Name: `VERCEL_TOKEN`, Value: Your Vercel API token from [Account Tokens](https://vercel.com/account/tokens)
 
 ## Verification
 
@@ -115,3 +117,9 @@ Ensure you ran `vercel link` in the project root directory and completed all pro
 - Never share `project.json` publicly
 - Treat orgId and projectId as sensitive (though less critical than tokens)
 - Rotate Vercel tokens if compromised
+
+## For More Information
+
+- **[Complete Deployment Guide](../docs/deployment/deployment.md)** - Comprehensive setup and deployment instructions
+- **[Vercel Token Setup](../docs/deployment/VERCEL_TOKEN_SETUP.md)** - Detailed token configuration and troubleshooting
+- **[Quick Start](../docs/setup/VERCEL_QUICK_START.md)** - Quick reference for setup

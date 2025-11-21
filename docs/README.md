@@ -78,8 +78,9 @@ If you're experiencing deployment failures:
 - **[Firebase Setup](./setup/FIREBASE_SETUP.md)** - Firebase project configuration
 - **[KMS Setup Guide](./setup/KMS_SETUP_GUIDE.md)** - Google Cloud KMS configuration
 - **[KMS IAM Setup](./setup/KMS_IAM_SETUP.md)** - IAM roles and permissions
-- **[Vercel Quick Start](./setup/VERCEL_QUICK_START.md)** - Vercel deployment
-- **[Vercel Secrets](./setup/VERCEL_SECRETS_IMPLEMENTATION.md)** - Environment variable management
+- **[Vercel Deployment](./deployment/deployment.md)** - Complete Vercel deployment and CI/CD setup
+- **[Vercel Quick Start](./setup/VERCEL_QUICK_START.md)** - Quick reference for Vercel setup
+- **[Vercel Secrets Reference](./setup/VERCEL_SECRETS_IMPLEMENTATION.md)** - Implementation reference for Vercel secrets
 - **[Edge Config Setup](./setup/EDGE_CONFIG_SETUP.md)** - Vercel Edge Config
 - **[Quick Start Deployment](./setup/QUICK_START_DEPLOYMENT.md)** - Rapid deployment guide
 

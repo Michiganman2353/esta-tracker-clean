@@ -1,101 +1,65 @@
-# Quick Start: Vercel Secrets Setup
+# Quick Start: Vercel Deployment Setup
 
-This is a quick reference for setting up Vercel secrets. For detailed information, see `VERCEL_TOKEN_SETUP.md`.
+> **Note:** This is a quick reference guide. For comprehensive instructions, see [Vercel Deployment Guide](../deployment/deployment.md).
 
-## Current Status
+## Prerequisites
 
-✅ **GitHub Secrets (Repository Owner Action)**
-The repository owner has added to GitHub repository settings:
-- `VERCEL_TOKEN`: (Vercel authentication token - stored securely)
+- Node.js 20.x (see `.nvmrc`)
+- npm ≥10.0.0
+- [Vercel Account](https://vercel.com/signup)
 
-⚠️ **Still Needed**:
-- `VERCEL_ORG_ID`: Must be obtained from `.vercel/project.json`
-- `VERCEL_PROJECT_ID`: Must be obtained from `.vercel/project.json`
+## Quick Setup Steps
 
-## How to Get ORG_ID and PROJECT_ID
-
-### Step 1: Install Vercel CLI
+### 1. Install Vercel CLI
 ```bash
 npm install -g vercel
 ```
 
-### Step 2: Login to Vercel
+### 2. Login to Vercel
 ```bash
 vercel login
 ```
 
-### Step 3: Link the Project
+### 3. Link Your Project
 ```bash
 cd /path/to/esta-tracker-clean
 vercel link
 ```
 
-When prompted:
-- **Set up and deploy?** → Yes
-- **Which scope?** → Select your team/account
-- **Link to existing project?** → Yes (if exists) or No (to create)
-- **Project name** → esta-tracker-clean
+Follow the prompts to connect to your Vercel project.
 
-### Step 4: Get the IDs
+### 4. Configure GitHub Secrets
+
+Get your organization and project IDs:
 ```bash
 cat .vercel/project.json
 ```
 
-You'll see something like:
-```json
-{
-  "orgId": "team_abc123xyz789",
-  "projectId": "prj_def456uvw012"
-}
-```
+Add these three secrets to your GitHub repository:
+1. `VERCEL_TOKEN` - Your Vercel authentication token from [Account Tokens](https://vercel.com/account/tokens)
+2. `VERCEL_ORG_ID` - The `orgId` from `.vercel/project.json`
+3. `VERCEL_PROJECT_ID` - The `projectId` from `.vercel/project.json`
 
-### Step 5: Add to GitHub Secrets
+Navigate to: `Repository Settings > Secrets and variables > Actions`
 
-1. Go to: https://github.com/Michiganman2353/esta-tracker-clean/settings/secrets/actions
-2. Click "New repository secret"
-3. Add:
-   - Name: `VERCEL_ORG_ID`, Value: (the orgId from project.json)
-   - Name: `VERCEL_PROJECT_ID`, Value: (the projectId from project.json)
+### 5. Deploy
 
-## Verify Setup
-
-After adding the secrets, test by:
-1. Creating a pull request
-2. Check the "Deploy Preview" job in GitHub Actions
-3. Verify the deployment succeeds
-
-## For Local Development
-
-Create `.env.local` (gitignored) with:
 ```bash
-VERCEL_TOKEN=your-vercel-token-here
-VERCEL_ORG_ID=your-org-id
-VERCEL_PROJECT_ID=your-project-id
+# Deploy to preview
+vercel
+
+# Deploy to production
+vercel --prod
 ```
 
-Then you can deploy locally:
-```bash
-vercel           # Deploy to preview
-vercel --prod    # Deploy to production
-```
+## For More Information
 
-## Need More Help?
+- **[Complete Deployment Guide](../deployment/deployment.md)** - Comprehensive deployment instructions
+- **[Vercel Token Setup](../deployment/VERCEL_TOKEN_SETUP.md)** - Detailed token configuration and troubleshooting
+- **[Environment Variables](.env.example)** - All available environment variables
 
-- Detailed guide: `VERCEL_TOKEN_SETUP.md`
-- Setup instructions: `.vercel/README.md`
-- Environment template: `.env.example`
-- Full implementation details: `VERCEL_SECRETS_IMPLEMENTATION.md`
+## Need Help?
 
-## Troubleshooting
-
-**"Project not found"**
-- Run `vercel link` first
-- Make sure project exists in Vercel dashboard
-
-**"Authentication failed"**
-- Verify token is correct
-- Try `vercel logout` then `vercel login`
-
-**"Permission denied"**
-- Check your Vercel account has access to the project
-- Verify you're in the correct organization
+For troubleshooting common issues, see:
+- [Deployment Guide - Common Issues](../deployment/deployment.md#common-issues)
+- [CI/CD Troubleshooting](../CI-CD-TROUBLESHOOTING.md)
