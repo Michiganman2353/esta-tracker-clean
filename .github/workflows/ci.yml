@@ -40,8 +40,6 @@ jobs:
 
       - name: Run Unit Tests
         run: npm run test
-        continue-on-error: true
-
       - name: Build
         run: npm run build
         env:
