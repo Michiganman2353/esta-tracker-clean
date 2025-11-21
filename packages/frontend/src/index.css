@@ -32,27 +32,27 @@ body {
 
 @layer components {
   .btn {
-    @apply px-4 py-2 rounded-lg font-medium transition-all duration-300 transform;
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-300 transform focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500;
   }
 
   .btn-primary {
-    @apply bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100;
+    @apply bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:opacity-60 focus:ring-primary-500;
   }
 
   .btn-secondary {
-    @apply bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600 hover:shadow-md hover:scale-105 active:scale-95;
+    @apply bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600 hover:shadow-md hover:scale-105 active:scale-95 focus:ring-gray-500;
   }
 
   .btn-danger {
-    @apply bg-red-600 text-white hover:bg-red-700 hover:shadow-lg hover:scale-105 active:scale-95;
+    @apply bg-red-600 text-white hover:bg-red-700 hover:shadow-lg hover:scale-105 active:scale-95 focus:ring-red-500;
   }
 
   .btn-success {
-    @apply bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 hover:shadow-lg;
+    @apply bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 hover:shadow-lg focus:ring-green-500;
   }
 
   .input {
-    @apply px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all duration-300;
+    @apply px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all duration-300 placeholder:text-gray-400 dark:placeholder:text-gray-500;
   }
 
   .input-floating {
