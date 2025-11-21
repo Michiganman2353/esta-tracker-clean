@@ -1,0 +1,35 @@
+# Turborepo ignore file
+# Files and directories listed here will not trigger a cache miss
+
+# Documentation
+*.md
+docs/
+LICENSE
+
+# CI/CD configuration files (unless they affect build output)
+.github/
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Test reports and coverage (not affecting build output)
+coverage/
+test-results/
+playwright-report/
+*.log
+
+# Environment examples (actual .env files are already in globalDependencies)
+.env.example
+.env.sample
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# Vercel files (deployment config is monitored separately)
+.vercel/

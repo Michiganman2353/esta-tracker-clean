@@ -26,6 +26,14 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Validate Frontend Entry Point
+        run: |
+          if [ ! -f "packages/frontend/src/main.tsx" ]; then
+            echo "Error: Frontend entry point packages/frontend/src/main.tsx not found"
+            exit 1
+          fi
+          echo "✓ Frontend entry point validated successfully"
+
       - name: Setup Turborepo Remote Cache
         run: |
           echo "TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}" >> $GITHUB_ENV
@@ -99,6 +107,14 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
+
+      - name: Validate Frontend Entry Point
+        run: |
+          if [ ! -f "packages/frontend/src/main.tsx" ]; then
+            echo "Error: Frontend entry point packages/frontend/src/main.tsx not found"
+            exit 1
+          fi
+          echo "✓ Frontend entry point validated successfully"
 
       - name: Build for Production
         run: npm run build
@@ -191,6 +207,14 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
+
+      - name: Validate Frontend Entry Point
+        run: |
+          if [ ! -f "packages/frontend/src/main.tsx" ]; then
+            echo "Error: Frontend entry point packages/frontend/src/main.tsx not found"
+            exit 1
+          fi
+          echo "✓ Frontend entry point validated successfully"
 
       - name: Build for Production
         run: npm run build
