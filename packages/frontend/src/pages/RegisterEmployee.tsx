@@ -7,6 +7,7 @@ import { User } from '../types';
 import EmailVerification from '../components/EmailVerification';
 import { useRegistrationStatus } from '../hooks/useEdgeConfig';
 import { PasswordField } from '../components/PasswordField';
+import { LoadingButton } from '../components/LoadingButton';
 
 interface RegisterEmployeeProps {
   onRegister: (user: User) => void;
@@ -209,13 +210,15 @@ export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) 
           </div>
 
           <div>
-            <button
+            <LoadingButton
               type="submit"
-              disabled={loading}
-              className="btn btn-primary group relative w-full flex justify-center py-2"
+              loading={loading}
+              loadingText="Creating account..."
+              variant="primary"
+              className="w-full flex justify-center py-2"
             >
-              {loading ? 'Creating account...' : 'Register as Employee'}
-            </button>
+              Register as Employee
+            </LoadingButton>
           </div>
 
           <div className="text-center space-y-2">
