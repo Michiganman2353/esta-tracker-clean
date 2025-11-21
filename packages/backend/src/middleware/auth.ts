@@ -74,7 +74,7 @@ export async function authenticate(
  */
 export async function optionalAuthenticate(
   req: AuthenticatedRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> {
   try {

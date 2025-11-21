@@ -47,7 +47,7 @@ authRouter.post('/register/employee', (req, res) => {
   // 2. Save to database
   // 3. Generate real JWT token
   
-  res.json({ 
+  return res.json({ 
     token: 'mock-token-employee', 
     user: { 
       id: 'emp-' + Date.now(), 
@@ -95,7 +95,7 @@ authRouter.post('/register/manager', (req, res) => {
   // Manager registration requires approval before access is granted
   // Return token so user can be logged in immediately after registration
   // NOTE: In production, use cryptographically secure JWT tokens instead of mock tokens
-  res.json({ 
+  return res.json({ 
     success: true,
     message: 'Registration submitted successfully. Your account is pending approval.',
     token: 'mock-token-manager-' + Date.now(), // Mock token for development only
@@ -137,7 +137,7 @@ authRouter.get('/me', (req, res) => {
   // NOTE: This is mock token parsing for development only
   // In production, use proper JWT decoding and validation
   if (token.startsWith('mock-token-manager')) {
-    res.json({ 
+    return res.json({ 
       user: { 
         id: 'mgr-' + Date.now(), 
         email: 'manager@example.com', 
@@ -150,7 +150,7 @@ authRouter.get('/me', (req, res) => {
       } 
     });
   } else if (token.startsWith('mock-token-employee')) {
-    res.json({ 
+    return res.json({ 
       user: { 
         id: 'emp-' + Date.now(), 
         email: 'employee@example.com', 
@@ -164,7 +164,7 @@ authRouter.get('/me', (req, res) => {
     });
   } else {
     // Default fallback
-    res.json({ 
+    return res.json({ 
       user: { 
         id: '1', 
         email: 'test@example.com', 

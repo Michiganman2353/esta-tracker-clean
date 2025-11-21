@@ -72,7 +72,7 @@ router.post('/validate', authenticate, async (req: AuthenticatedRequest, res: Re
       });
     }
 
-    res.json({
+    return res.json({
       valid: errors.length === 0,
       errors,
       warnings,
@@ -80,7 +80,7 @@ router.post('/validate', authenticate, async (req: AuthenticatedRequest, res: Re
     });
   } catch (error) {
     console.error('Error validating import:', error);
-    res.status(500).json({ error: 'Failed to validate import' });
+    return res.status(500).json({ error: 'Failed to validate import' });
   }
 });
 
@@ -169,7 +169,7 @@ router.post('/employees', authenticate, async (req: AuthenticatedRequest, res: R
       timestamp: new Date(),
     });
 
-    res.json({
+    return res.json({
       success: true,
       imported: imported.length,
       updated: updated.length,
@@ -178,7 +178,7 @@ router.post('/employees', authenticate, async (req: AuthenticatedRequest, res: R
     });
   } catch (error) {
     console.error('Error importing employees:', error);
-    res.status(500).json({ error: 'Failed to import employees' });
+    return res.status(500).json({ error: 'Failed to import employees' });
   }
 });
 
@@ -269,7 +269,7 @@ router.post('/hours', authenticate, async (req: AuthenticatedRequest, res: Respo
       timestamp: new Date(),
     });
 
-    res.json({
+    return res.json({
       success: true,
       imported: imported.length,
       failed: failed.length,
@@ -277,7 +277,7 @@ router.post('/hours', authenticate, async (req: AuthenticatedRequest, res: Respo
     });
   } catch (error) {
     console.error('Error importing hours:', error);
-    res.status(500).json({ error: 'Failed to import hours' });
+    return res.status(500).json({ error: 'Failed to import hours' });
   }
 });
 
@@ -307,10 +307,10 @@ router.get('/history', authenticate, async (req: AuthenticatedRequest, res: Resp
       ...doc.data(),
     }));
 
-    res.json({ imports });
+    return res.json({ imports });
   } catch (error) {
     console.error('Error fetching import history:', error);
-    res.status(500).json({ error: 'Failed to fetch import history' });
+    return res.status(500).json({ error: 'Failed to fetch import history' });
   }
 });
 

@@ -72,7 +72,7 @@ documentsRouter.post('/upload-url', async (req: Request, res: Response) => {
     // TODO: Add authentication middleware
     // TODO: Call Cloud Function to generate signed URL
     
-    res.json({
+    return res.json({
       success: true,
       uploadUrl: null,
       documentId: null,
@@ -80,7 +80,7 @@ documentsRouter.post('/upload-url', async (req: Request, res: Response) => {
       message: 'Upload URL generation endpoint - requires Firebase Cloud Function integration',
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to generate upload URL',
     });

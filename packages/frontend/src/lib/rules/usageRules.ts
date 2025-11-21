@@ -143,12 +143,12 @@ export function isValidUsageCategory(category: UsageCategory): boolean {
 /**
  * Check if category requires documentation
  * Michigan ESTA allows employers to require documentation for absences > 3 consecutive days
- * @param category Usage category
+ * @param _category Usage category (reserved for future use)
  * @param consecutiveDays Number of consecutive days
  * @returns True if documentation may be required
  */
 export function mayRequireDocumentation(
-  category: UsageCategory,
+  _category: UsageCategory,
   consecutiveDays: number
 ): boolean {
   // Employers can require documentation for absences > 3 consecutive days

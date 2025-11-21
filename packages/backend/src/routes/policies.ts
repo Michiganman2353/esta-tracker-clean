@@ -62,10 +62,10 @@ router.get('/', authenticate, async (req: AuthenticatedRequest, res: Response) =
       ...doc.data(),
     }));
 
-    res.json({ policies });
+    return res.json({ policies });
   } catch (error) {
     console.error('Error fetching policies:', error);
-    res.status(500).json({ error: 'Failed to fetch policies' });
+    return res.status(500).json({ error: 'Failed to fetch policies' });
   }
 });
 
@@ -82,7 +82,7 @@ router.get('/:id', authenticate, async (req: AuthenticatedRequest, res: Response
       return res.status(404).json({ error: 'Policy not found' });
     }
 
-    res.json({
+    return res.json({
       policy: {
         id: policyDoc.id,
         ...policyDoc.data(),
@@ -90,7 +90,7 @@ router.get('/:id', authenticate, async (req: AuthenticatedRequest, res: Response
     });
   } catch (error) {
     console.error('Error fetching policy:', error);
-    res.status(500).json({ error: 'Failed to fetch policy' });
+    return res.status(500).json({ error: 'Failed to fetch policy' });
   }
 });
 
@@ -148,10 +148,10 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response) 
       timestamp: new Date(),
     });
 
-    res.status(201).json({ policy: customPolicy });
+    return res.status(201).json({ policy: customPolicy });
   } catch (error) {
     console.error('Error creating policy:', error);
-    res.status(500).json({ error: 'Failed to create policy' });
+    return res.status(500).json({ error: 'Failed to create policy' });
   }
 });
 
@@ -231,10 +231,10 @@ router.put('/active', authenticate, async (req: AuthenticatedRequest, res: Respo
       timestamp: now,
     });
 
-    res.json({ success: true, config });
+    return res.json({ success: true, config });
   } catch (error) {
     console.error('Error setting active policy:', error);
-    res.status(500).json({ error: 'Failed to set active policy' });
+    return res.status(500).json({ error: 'Failed to set active policy' });
   }
 });
 
@@ -270,7 +270,7 @@ router.get('/active/current', authenticate, async (req: AuthenticatedRequest, re
       return res.status(404).json({ error: 'Active policy not found' });
     }
 
-    res.json({
+    return res.json({
       policy: {
         id: policyDoc.id,
         ...policyDoc.data(),
@@ -279,7 +279,7 @@ router.get('/active/current', authenticate, async (req: AuthenticatedRequest, re
     });
   } catch (error) {
     console.error('Error fetching active policy:', error);
-    res.status(500).json({ error: 'Failed to fetch active policy' });
+    return res.status(500).json({ error: 'Failed to fetch active policy' });
   }
 });
 
