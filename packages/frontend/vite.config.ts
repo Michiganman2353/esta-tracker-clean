@@ -4,6 +4,8 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // Root is implicitly set to the directory containing this config file (packages/frontend)
+  // This is correct for our monorepo structure
   plugins: [react()],
   resolve: {
     alias: {
@@ -20,6 +22,7 @@ export default defineConfig({
     },
   },
   build: {
+    // Output directory relative to the root (packages/frontend)
     outDir: 'dist',
     sourcemap: true,
     // Performance optimizations
