@@ -13,5 +13,13 @@ module.exports = {
   },
   rules: {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/no-non-null-assertion': 'warn',
+    'no-console': 'off', // Allow console for server logging
+    'eqeqeq': ['error', 'always'],
+    'no-var': 'error',
+    'prefer-const': 'error',
+    'prefer-arrow-callback': 'error',
   },
 };

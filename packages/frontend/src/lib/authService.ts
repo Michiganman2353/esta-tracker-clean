@@ -349,7 +349,7 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       const tenantSnapshot = await retryWithBackoff(async () => {
         const tenantsQuery = query(
           collection(firebaseDb, 'tenants'),
-          where('tenantCode', '==', data.tenantCode!.toUpperCase())
+          where('tenantCode', '==', data.tenantCode?.toUpperCase() || '')
         );
         return await getDocs(tenantsQuery);
       });
@@ -359,6 +359,9 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       }
 
       const tenantDoc = tenantSnapshot.docs[0];
+      if (!tenantDoc) {
+        throw new Error('Invalid company code. Please check with your employer and try again.');
+      }
       tenantId = tenantDoc.id;
       const tenantData = tenantDoc.data();
       employerSize = tenantData.size;
@@ -385,6 +388,9 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       }
 
       const tenantDoc = tenantSnapshot.docs[0];
+      if (!tenantDoc) {
+        throw new Error('No company found with this email domain. Please use a company code instead or contact your employer.');
+      }
       tenantId = tenantDoc.id;
       const tenantData = tenantDoc.data();
       employerSize = tenantData.size;

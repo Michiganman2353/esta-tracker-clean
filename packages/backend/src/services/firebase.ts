@@ -29,7 +29,7 @@ export function initializeFirebase(): admin.app.App {
       storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     });
 
-    console.log('✅ Firebase Admin SDK initialized');
+    console.info('✅ Firebase Admin SDK initialized');
     return firebaseApp;
   } catch (error) {
     console.error('❌ Failed to initialize Firebase Admin SDK:', error);

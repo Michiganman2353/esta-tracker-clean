@@ -39,6 +39,10 @@ try {
       app = initializeApp(firebaseConfig);
     }
     
+    if (!app) {
+      throw new Error('Failed to initialize Firebase app');
+    }
+    
     // Initialize Firebase services
     auth = getAuth(app);
     db = getFirestore(app);

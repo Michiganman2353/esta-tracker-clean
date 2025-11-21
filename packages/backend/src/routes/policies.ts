@@ -76,6 +76,11 @@ router.get('/', authenticate, async (req: AuthenticatedRequest, res: Response) =
 router.get('/:id', authenticate, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({ error: 'Policy ID is required' });
+    }
+    
     const policyDoc = await db.collection('policies').doc(id).get();
 
     if (!policyDoc.exists) {
@@ -190,7 +195,10 @@ router.put('/active', authenticate, async (req: AuthenticatedRequest, res: Respo
       // Deactivate previous policy
       if (existingConfig.policyHistory && existingConfig.policyHistory.length > 0) {
         const lastIndex = existingConfig.policyHistory.length - 1;
-        existingConfig.policyHistory[lastIndex].deactivatedAt = now;
+        const lastHistory = existingConfig.policyHistory[lastIndex];
+        if (lastHistory) {
+          lastHistory.deactivatedAt = now;
+        }
       }
       // Add new policy to history
       existingConfig.policyHistory.push({

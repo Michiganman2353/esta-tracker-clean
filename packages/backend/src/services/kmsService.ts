@@ -227,12 +227,12 @@ class KMSService {
         keyRing: {}
       });
 
-      console.log(`Created key ring: ${keyRing.name}`);
+      console.info(`Created key ring: ${keyRing.name}`);
       return keyRing.name || '';
     } catch (error) {
       // Key ring might already exist
       if (error instanceof Error && error.message.includes('ALREADY_EXISTS')) {
-        console.log('Key ring already exists');
+        console.info('Key ring already exists');
         return `${parent}/keyRings/${keyRingId}`;
       }
       throw error;
@@ -266,11 +266,11 @@ class KMSService {
         }
       });
 
-      console.log(`Created crypto key: ${key.name}`);
+      console.info(`Created crypto key: ${key.name}`);
       return key.name || '';
     } catch (error) {
       if (error instanceof Error && error.message.includes('ALREADY_EXISTS')) {
-        console.log('Crypto key already exists');
+        console.info('Crypto key already exists');
         return `${parent}/cryptoKeys/${keyId}`;
       }
       throw error;
@@ -317,7 +317,7 @@ class KMSService {
         }
       });
 
-      console.log(`Enabled key rotation every ${rotationPeriodDays} days`);
+      console.info(`Enabled key rotation every ${rotationPeriodDays} days`);
     } catch (error) {
       console.error('Failed to enable key rotation:', error);
       throw error;

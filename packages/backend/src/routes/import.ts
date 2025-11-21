@@ -129,7 +129,7 @@ router.post('/employees', authenticate, async (req: AuthenticatedRequest, res: R
           .limit(1)
           .get();
 
-        if (!existingEmployees.empty) {
+        if (!existingEmployees.empty && existingEmployees.docs[0]) {
           // Update existing employee
           const existingDoc = existingEmployees.docs[0];
           batch.update(existingDoc.ref, employeeData);
