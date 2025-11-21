@@ -29,7 +29,6 @@ docs/
 # Keep only essential config
 .eslintrc.*
 .prettierrc
-tsconfig.*.json
 vitest.config.ts
 playwright.config.ts
 
