@@ -556,7 +556,7 @@ export async function signIn(email: string, password: string): Promise<User> {
     const idTokenResult = await firebaseUser.getIdTokenResult();
     const needsClaimsUpdate = !idTokenResult.claims.role || !idTokenResult.claims.tenantId;
     
-    if (needsClaimsUpdate && functions) {
+    if (needsClaimsUpdate && isfirebaseconfigured) {
       console.log('Custom claims missing or incomplete, attempting to set via Cloud Function');
       try {
         // Call the Cloud Function to set claims
