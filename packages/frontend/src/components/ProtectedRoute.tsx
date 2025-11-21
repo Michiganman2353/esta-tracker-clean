@@ -58,11 +58,16 @@ export function ProtectedRoute({
                   Please verify your email address to access this feature. Check your inbox for the verification link.
                 </p>
                 <div className="mt-4">
-                  <a
-                    href="/login"
-                    className="btn btn-primary text-sm"
-                  >
-                    Back to Login
+                import { useNavigate } from 'react-router-dom';
+
+const navigate = useNavigate();
+
+<button
+  className="btn btn-primary text-sm"
+  onClick={() => navigate('/login')}
+>
+  Back to Login
+</button>
                   </a>
                 </div>
               </div>
