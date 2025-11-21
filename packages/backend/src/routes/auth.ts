@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { randomUUID } from 'crypto';
 
 export const authRouter = Router();
 
@@ -69,7 +70,7 @@ authRouter.post('/login', (req, res) => {
 
 authRouter.post('/register', (req, res) => {
   const { email, name } = req.body;
-  const userId = 'user-' + Date.now();
+  const userId = 'user-' + randomUUID();
   const token = `mock-token-employee-${userId}`;
   
   const user: StoredUser = {
@@ -114,7 +115,7 @@ authRouter.post('/register/employee', (req, res) => {
   // 2. Save to database
   // 3. Generate real JWT token
   
-  const userId = 'emp-' + Date.now();
+  const userId = 'emp-' + randomUUID();
   const token = `mock-token-employee-${userId}`;
   
   const user: StoredUser = {
@@ -178,8 +179,8 @@ authRouter.post('/register/manager', (req, res) => {
   // Return token so user can be logged in immediately after registration
   // NOTE: In production, use cryptographically secure JWT tokens instead of mock tokens
   
-  const userId = 'mgr-' + Date.now();
-  const employerId = 'company-' + Date.now();
+  const userId = 'mgr-' + randomUUID();
+  const employerId = 'company-' + randomUUID();
   const token = `mock-token-manager-${userId}`;
   
   const user: StoredUser = {

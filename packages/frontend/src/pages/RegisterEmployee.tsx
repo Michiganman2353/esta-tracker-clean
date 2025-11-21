@@ -194,7 +194,7 @@ export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) 
               placeholder="Minimum 8 characters"
               required
               autoComplete="new-password"
-              className="mb-1"
+              className="mb-4"
             />
             <PasswordField
               id="confirmPassword"

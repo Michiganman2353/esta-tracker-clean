@@ -60,7 +60,7 @@ export function PasswordField({
           autoComplete={autoComplete}
           className={`input block w-full ${showIcon ? 'pl-10' : ''} pr-10 focus:ring-2 focus:ring-primary-500 ${
             error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
-          }`}
+          }`.trim()}
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
