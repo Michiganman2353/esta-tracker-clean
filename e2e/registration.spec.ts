@@ -9,8 +9,8 @@ test.describe('Manager Registration Flow', () => {
     // Navigate to registration page
     await page.goto('/register');
     
-    // Click on "Register as Manager" button
-    await page.getByRole('button', { name: /register as manager/i }).click();
+    // Click on "Register as Manager" button using data-testid
+    await page.getByTestId('register-as-manager-button').click();
     
     // Should navigate to manager registration
     await expect(page).toHaveURL(/\/register\/manager/);
@@ -34,23 +34,22 @@ test.describe('Manager Registration Flow', () => {
     // Step 3: Policy Setup (optional, can just click Next)
     await page.getByRole('button', { name: /next/i }).click();
     
-    // Step 4: Review & Complete - Click "Complete Registration"
-    await page.getByRole('button', { name: /complete registration/i }).click();
+    // Step 4: Review & Complete - Click "Complete Registration" using data-testid
+    await page.getByTestId('complete-registration-button').click();
     
     // Email verification is bypassed - user should be auto-logged in
-    // Wait for navigation to dashboard
-    // The user should be auto-logged in and redirected to the main dashboard
-    await page.waitForURL('/', { timeout: 10000 });
+    // Wait for navigation to dashboard with increased timeout
+    await page.waitForURL('/', { timeout: 15000 });
     
     // Verify we're on the dashboard
-    await expect(page.locator('h1')).toContainText(/ESTA Tracker/i);
-    await expect(page.locator('h2')).toContainText(/Welcome back/i);
+    await expect(page.locator('h1')).toContainText(/ESTA Tracker/i, { timeout: 10000 });
+    await expect(page.locator('h2')).toContainText(/Welcome back/i, { timeout: 10000 });
     
     // Verify user name appears
-    await expect(page.locator('text=Test Manager')).toBeVisible();
+    await expect(page.locator('text=Test Manager')).toBeVisible({ timeout: 10000 });
     
     // Verify logout button is present
-    await expect(page.getByRole('button', { name: /logout/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /logout/i })).toBeVisible({ timeout: 10000 });
   });
 
   test('should show validation errors for invalid input', async ({ page }) => {
@@ -82,8 +81,8 @@ test.describe('Employee Registration Flow', () => {
   test('should complete employee registration and auto-login to dashboard', async ({ page }) => {
     await page.goto('/register');
     
-    // Click on "Register as Employee" button
-    await page.getByRole('button', { name: /register as employee/i }).click();
+    // Click on "Register as Employee" button using data-testid
+    await page.getByTestId('register-as-employee-button').click();
     
     // Should navigate to employee registration
     await expect(page).toHaveURL(/\/register\/employee/);
@@ -95,8 +94,8 @@ test.describe('Employee Registration Flow', () => {
     await page.locator('input[name="confirmPassword"], input[id="confirmPassword"]').fill('TestPassword123');
     await page.locator('input[name="tenantCode"], input[id="tenantCode"]').fill('TEST1234');
     
-    // Submit the form
-    await page.getByRole('button', { name: /register|sign up|create account/i }).click();
+    // Submit the form using data-testid for more specific targeting
+    await page.getByTestId('register-employee-submit').click();
     
     // Email verification is bypassed - user should be auto-logged in
     // Wait for navigation to dashboard

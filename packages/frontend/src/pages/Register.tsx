@@ -84,6 +84,7 @@ export default function Register() {
               <button
                 onClick={() => navigate('/register/manager')}
                 className="btn btn-primary w-full mt-4 relative overflow-hidden group/btn"
+                data-testid="register-as-manager-button"
               >
                 <span className="relative z-10">Register as Manager</span>
                 <span className="absolute inset-0 shimmer-bg opacity-0 group-hover/btn:opacity-100 transition-opacity"></span>
@@ -152,6 +153,7 @@ export default function Register() {
               <button
                 onClick={() => navigate('/register/employee')}
                 className="btn btn-primary w-full mt-4 relative overflow-hidden group/btn"
+                data-testid="register-as-employee-button"
               >
                 <span className="relative z-10">Register as Employee</span>
                 <span className="absolute inset-0 shimmer-bg opacity-0 group-hover/btn:opacity-100 transition-opacity"></span>

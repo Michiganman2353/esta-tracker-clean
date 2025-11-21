@@ -310,6 +310,7 @@ export function OnboardingWizard({ onRegisterSuccess }: OnboardingWizardProps = 
                   loading={loading}
                   loadingText="Creating Account..."
                   variant="primary"
+                  data-testid="complete-registration-button"
                 >
                   Complete Registration
                 </LoadingButton>
