@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { getFirebaseAuth, getFirebaseDb, generateId } from '../../lib/firebase';
-import { setCorsHeaders, handlePreflight } from '../../lib/cors';
+import { getFirebaseAuth, getFirebaseDb, generateId } from '../../../lib/firebase';
+import { setCorsHeaders, handlePreflight } from '../../../lib/cors';
 
 /**
  * Manager Registration API Endpoint

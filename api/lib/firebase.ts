@@ -41,7 +41,11 @@ export function initializeFirebase(): void {
 export function getFirebaseAuth(): Auth {
   if (!auth) {
     initializeFirebase();
-    auth = getAuth();
+    if (app) {
+      auth = getAuth(app);
+    } else {
+      auth = getAuth();
+    }
   }
   return auth;
 }
@@ -52,7 +56,11 @@ export function getFirebaseAuth(): Auth {
 export function getFirebaseDb(): Firestore {
   if (!db) {
     initializeFirebase();
-    db = getFirestore();
+    if (app) {
+      db = getFirestore(app);
+    } else {
+      db = getFirestore();
+    }
   }
   return db;
 }

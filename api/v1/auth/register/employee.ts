@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { getFirebaseAuth, getFirebaseDb } from '../../lib/firebase';
-import { setCorsHeaders, handlePreflight } from '../../lib/cors';
+import { getFirebaseAuth, getFirebaseDb } from '../../../lib/firebase';
+import { setCorsHeaders, handlePreflight } from '../../../lib/cors';
 
 /**
  * Employee Registration API Endpoint
