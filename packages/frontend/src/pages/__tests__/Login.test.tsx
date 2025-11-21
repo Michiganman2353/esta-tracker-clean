@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import Login from '../Login';
 import * as authService from '../../lib/authService';
 import * as api from '../../lib/api';
@@ -21,17 +21,22 @@ vi.mock('../../lib/api', () => ({
 
 const mockOnLogin = vi.fn();
 
-const renderLogin = () => {
+const renderLogin = (initialEntries = ['/login']) => {
   return render(
-    <BrowserRouter>
+    <MemoryRouter initialEntries={initialEntries}>
       <Login onLogin={mockOnLogin} />
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 
 describe('Login Page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    // Clean up any window state modifications
+    window.history.replaceState({}, '', '/');
   });
 
   describe('Rendering', () => {
@@ -54,15 +59,13 @@ describe('Login Page', () => {
     });
 
     it('should show verified message when verified param is true', () => {
-      window.history.pushState({}, '', '/login?verified=true');
-      renderLogin();
+      renderLogin(['/login?verified=true']);
       
       expect(screen.getByText(/Email verified successfully/i)).toBeInTheDocument();
     });
 
     it('should not show verified message when verified param is false', () => {
-      window.history.pushState({}, '', '/login?verified=false');
-      renderLogin();
+      renderLogin(['/login?verified=false']);
       
       expect(screen.queryByText(/Email verified successfully/i)).not.toBeInTheDocument();
     });

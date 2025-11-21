@@ -157,13 +157,15 @@ describe('csv validator', () => {
       const headers = ['Name', 'Email'];
       const rows = [
         ['John Doe', 'john@example.com'],
-        ['Jane Smith', ''], // Error in row 2
+        ['Jane Smith', ''], // Error in data row 2 (row 3 when counting header as row 1)
         ['Bob Johnson', 'bob@example.com'],
       ];
       
       const result = validateCSVData(headers, rows, basicSchema);
       
-      expect(result.errors[0].row).toBe(3); // Row 3 (1-based, accounting for header)
+      // Row numbering: Header is row 1, data rows start at row 2
+      // So second data row with error should be row 3
+      expect(result.errors[0].row).toBe(3);
     });
 
     it('should handle empty rows', () => {

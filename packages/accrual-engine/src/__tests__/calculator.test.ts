@@ -40,10 +40,10 @@ describe('accrual calculator', () => {
 
     it('should cap partial accrual when approaching limit', () => {
       const result = calculateAccrual(60, 'large', 71);
-      // 60 hours would accrue 2 hours, but only 1 is available
+      // 60 hours would normally accrue 2 hours, but only 1 hour of capacity remains
       expect(result.accrued).toBe(1);
-      expect(result.remaining).toBe(1);
-      expect(result.capped).toBe(true);
+      expect(result.remaining).toBe(1); // 1 hour remaining before this accrual
+      expect(result.capped).toBe(true); // Capping occurred because we couldn't accrue full 2 hours
     });
 
     it('should return 0 accrual for small employers', () => {

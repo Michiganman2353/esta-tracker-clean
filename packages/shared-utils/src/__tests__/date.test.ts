@@ -207,10 +207,11 @@ describe('date utilities', () => {
       expect(calculateYearsOfService(hireDate, asOfDate)).toBe(4);
     });
 
-    it('should handle partial years', () => {
+    it('should calculate calendar years between dates', () => {
       const hireDate = new Date('2020-06-15');
       const asOfDate = new Date('2024-03-15');
-      // differenceInCalendarYears returns 4 because it counts 2020, 2021, 2022, 2023
+      // calculateYearsOfService uses differenceInCalendarYears from date-fns
+      // which returns 4 for dates spanning 2020, 2021, 2022, 2023, 2024
       expect(calculateYearsOfService(hireDate, asOfDate)).toBe(4);
     });
   });
