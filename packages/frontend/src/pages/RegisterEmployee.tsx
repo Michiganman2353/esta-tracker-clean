@@ -205,6 +205,7 @@ export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) 
               loadingText="Creating account..."
               variant="primary"
               className="w-full flex justify-center py-2"
+              data-testid="register-employee-submit"
             >
               Register as Employee
             </LoadingButton>
