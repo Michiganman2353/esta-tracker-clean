@@ -6,6 +6,7 @@ import { apiClient } from '../lib/api';
 import { User } from '../types';
 import EmailVerification from '../components/EmailVerification';
 import { useRegistrationStatus } from '../hooks/useEdgeConfig';
+import { PasswordField } from '../components/PasswordField';
 
 interface RegisterEmployeeProps {
   onRegister: (user: User) => void;
@@ -185,38 +186,26 @@ export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) 
                 Ask your employer for the company code to link your account
               </p>
             </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="input mt-1 block w-full"
-                placeholder="Minimum 8 characters"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="input mt-1 block w-full"
-                placeholder="Re-enter password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
+            <PasswordField
+              id="password"
+              label="Password"
+              value={password}
+              onChange={setPassword}
+              placeholder="Minimum 8 characters"
+              required
+              autoComplete="new-password"
+              className="mb-1"
+            />
+            <PasswordField
+              id="confirmPassword"
+              label="Confirm Password"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              placeholder="Re-enter password"
+              required
+              autoComplete="new-password"
+              showIcon={false}
+            />
           </div>
 
           <div>

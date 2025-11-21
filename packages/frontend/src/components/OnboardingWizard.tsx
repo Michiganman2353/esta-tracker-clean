@@ -6,6 +6,7 @@ import { apiClient } from '../lib/api';
 import { Stepper } from './Stepper';
 import { TooltipIcon } from './Tooltip';
 import EmailVerification from './EmailVerification';
+import { PasswordField } from './PasswordField';
 
 interface OnboardingData {
   // Step 1: Account Info
@@ -431,48 +432,33 @@ function AccountInfoStep() {
       </div>
 
       <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-        <label htmlFor="password" className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Password
+        <PasswordField
+          id="password"
+          label="Password"
+          value={data.password}
+          onChange={(value) => updateData({ password: value })}
+          placeholder="Minimum 8 characters"
+          required
+          autoComplete="new-password"
+          className="mb-4"
+        />
+        <div className="text-xs text-gray-500 dark:text-gray-400 -mt-3 mb-4 flex items-start">
           <TooltipIcon content="Must be at least 8 characters long. Use a strong, unique password" />
-        </label>
-        <div className="relative">
-          <input
-            id="password"
-            type="password"
-            required
-            className="input block w-full pl-10 focus:ring-2 focus:ring-primary-500"
-            placeholder="Minimum 8 characters"
-            value={data.password}
-            onChange={(e) => updateData({ password: e.target.value })}
-          />
-          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          </div>
+          <span className="ml-1">Must be at least 8 characters</span>
         </div>
       </div>
 
       <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-        <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-          Confirm Password
-        </label>
-        <div className="relative">
-          <input
-            id="confirmPassword"
-            type="password"
-            required
-            className="input block w-full pl-10 focus:ring-2 focus:ring-primary-500"
-            placeholder="Re-enter password"
-            value={data.confirmPassword}
-            onChange={(e) => updateData({ confirmPassword: e.target.value })}
-          />
-          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </div>
+        <PasswordField
+          id="confirmPassword"
+          label="Confirm Password"
+          value={data.confirmPassword}
+          onChange={(value) => updateData({ confirmPassword: value })}
+          placeholder="Re-enter password"
+          required
+          autoComplete="new-password"
+          showIcon={false}
+        />
       </div>
     </div>
   );
