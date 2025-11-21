@@ -34,7 +34,7 @@ let hasErrors = false;
 let hasWarnings = false;
 
 console.log('🔍 ESTA Tracker Environment Validation\n');
-console.log('=' .repeat(50));
+console.log('='.repeat(50));
 
 // Check Node version
 const nodeVersion = process.version;

@@ -257,7 +257,7 @@ If issues persist:
 
 3. **Contact Support:**
    - Create GitHub Issue with above info
-   - Email: support@estatracker.com
+   - Email: support@estatracker.com (verify this is a valid support contact)
    - Include relevant log excerpts
 
 ## Prevention
