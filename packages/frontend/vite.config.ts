@@ -20,8 +20,9 @@ export default defineConfig(({ mode }) => {
     
     const missingVars = requiredEnvVars.filter(key => !env[key])
     if (missingVars.length > 0) {
-      console.warn('⚠️  Warning: Missing environment variables:', missingVars.join(', '))
-      console.warn('   Firebase may not initialize correctly in production.')
+      console.error('⚠️  Error: Missing required environment variables:', missingVars.join(', '))
+      console.error('   Firebase will not initialize correctly in production.')
+      console.error('   Set these variables in your Vercel Dashboard or .env file.')
     }
   }
   
