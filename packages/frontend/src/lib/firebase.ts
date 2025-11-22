@@ -8,6 +8,30 @@ import { getAnalytics, Analytics } from 'firebase/analytics';
 // Firebase configuration
 // SECURITY: All Firebase credentials MUST come from environment variables
 // No hardcoded fallback values to prevent credential exposure
+
+// Strict validation: Check for required environment variables
+const requiredEnvVars = [
+  'VITE_FIREBASE_API_KEY',
+  'VITE_FIREBASE_AUTH_DOMAIN',
+  'VITE_FIREBASE_PROJECT_ID',
+  'VITE_FIREBASE_STORAGE_BUCKET',
+  'VITE_FIREBASE_MESSAGING_SENDER_ID',
+  'VITE_FIREBASE_APP_ID'
+] as const;
+
+const missingVars = requiredEnvVars.filter(key => !import.meta.env[key]);
+
+if (missingVars.length > 0) {
+  const errorMessage = `Missing required Firebase environment variables: ${missingVars.join(', ')}`;
+  console.error('❌ Firebase Configuration Error:', errorMessage);
+  console.error('   Please configure these variables in your Vercel Dashboard or .env file.');
+  
+  // In production, throw an error to fail the build
+  if (import.meta.env.PROD) {
+    throw new Error(errorMessage);
+  }
+}
+
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
@@ -57,6 +81,10 @@ try {
   }
 } catch (error) {
   console.error('Firebase initialization error:', error);
+  // Re-throw in production to ensure build fails with clear error
+  if (import.meta.env.PROD) {
+    throw error;
+  }
 }
 
 export { auth, db, storage, functions, analytics };

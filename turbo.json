@@ -57,7 +57,7 @@
     },
     "typecheck": {
       "dependsOn": ["^build"],
-      "outputs": ["*.tsbuildinfo"],
+      "outputs": [],
       "inputs": ["src/**", "tsconfig.json", "tsconfig.*.json"],
       "cache": true
     },

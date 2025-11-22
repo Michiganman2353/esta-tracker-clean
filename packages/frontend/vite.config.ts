@@ -36,6 +36,12 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, './src'),
       },
     },
+    // Force optimization of dependencies for monorepo
+    // This prevents workspace resolution issues
+    optimizeDeps: {
+      force: true,
+      include: ['react', 'react-dom', 'react-router-dom', 'firebase', 'date-fns', 'zustand'],
+    },
     server: {
       port: 5173,
       proxy: {
