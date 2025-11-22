@@ -3,7 +3,7 @@
  * Displays a full-page overlay when the application is in maintenance mode
  */
 
-import { useMaintenanceMode } from '../hooks/useEdgeConfig';
+import { useMaintenanceMode } from '@/hooks/useEdgeConfig';
 
 export function MaintenanceMode() {
   const { maintenanceMode, message, loading } = useMaintenanceMode();

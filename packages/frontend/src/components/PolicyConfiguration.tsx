@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { rulesEngine, type AccrualPolicy } from '../lib/rules/rulesEngine';
-import type { EmployerSize } from '../lib/rules/types';
+import { rulesEngine, type AccrualPolicy } from '@/lib/rules/rulesEngine';
+import type { EmployerSize } from '@/lib/rules/types';
 import { TooltipIcon } from './Tooltip';
 
 interface PolicyConfigProps {

@@ -18,7 +18,7 @@
  * - ARIA labels for accessibility
  */
 
-import { TooltipIcon } from '../DesignSystem/Tooltip';
+import { TooltipIcon } from '@/components/DesignSystem/Tooltip';
 
 export interface ComparisonFeature {
   name: string;

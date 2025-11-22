@@ -21,8 +21,8 @@
  */
 
 import { useState } from 'react';
-import { Card } from '../DesignSystem/Card';
-import { TooltipIcon } from '../DesignSystem/Tooltip';
+import { Card } from '@/components/DesignSystem/Card';
+import { TooltipIcon } from '@/components/DesignSystem/Tooltip';
 
 export function SecuritySection() {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);

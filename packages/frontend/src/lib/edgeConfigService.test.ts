@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
-import { EdgeConfigService } from '../lib/edgeConfigService';
-import { DEFAULT_EDGE_CONFIG } from '../types/edgeConfig';
+import { EdgeConfigService } from '@/lib/edgeConfigService';
+import { DEFAULT_EDGE_CONFIG } from '@/types/edgeConfig';
 
 // Mock fetch globally
 global.fetch = vi.fn() as Mock;

@@ -1,6 +1,6 @@
-import { User } from '../types';
-import { AccrualChart } from '../components/AccrualChart';
-import { InsightCard, DashboardCard } from '../components/DashboardWidgets';
+import { User } from '@/types';
+import { AccrualChart } from '@/components/AccrualChart';
+import { InsightCard, DashboardCard } from '@/components/DashboardWidgets';
 
 interface EmployerDashboardProps {
   user: User;

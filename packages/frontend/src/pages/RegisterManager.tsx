@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { useRegistrationStatus } from '../hooks/useEdgeConfig';
-import { OnboardingWizard } from '../components/OnboardingWizard';
-import { User } from '../types';
+import { useRegistrationStatus } from '@/hooks/useEdgeConfig';
+import { OnboardingWizard } from '@/components/OnboardingWizard';
+import { User } from '@/types';
 
 interface RegisterManagerProps {
   onRegister?: (user: User) => void;

@@ -19,7 +19,7 @@
  */
 
 import clsx from 'clsx';
-import { Button } from '../DesignSystem/Button';
+import { Button } from '@/components/DesignSystem/Button';
 
 export interface PricingFeature {
   text: string;

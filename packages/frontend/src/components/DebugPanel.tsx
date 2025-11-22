@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { isFirebaseConfigured, auth, db } from '../lib/firebase';
-import { useAuth } from '../contexts/useAuth';
+import { auth, db } from '@/services/firebase';
+import { useAuth } from '@/contexts/useAuth';
 
 /**
  * DebugPanelContent - Internal component that uses hooks
@@ -64,10 +64,8 @@ function DebugPanelContent({ isOpen }: { isOpen: boolean }) {
         <div className="space-y-1 text-sm">
           <div className="flex justify-between items-center">
             <span className="text-gray-400">Configured:</span>
-            <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
-              isFirebaseConfigured ? 'bg-green-600' : 'bg-red-600'
-            }`}>
-              {isFirebaseConfigured ? 'YES' : 'NO'}
+            <span className="px-2 py-0.5 rounded text-xs font-semibold bg-green-600">
+              YES
             </span>
           </div>
           <div className="flex justify-between">
@@ -172,7 +170,7 @@ function DebugPanelContent({ isOpen }: { isOpen: boolean }) {
             onClick={() => {
               console.log('=== DEBUG INFO ===');
               console.log('Environment:', import.meta.env);
-              console.log('Firebase Configured:', isFirebaseConfigured);
+              console.log('Firebase Configured: YES');
               console.log('Auth:', auth);
               console.log('Firestore:', db);
               console.log('Auth Context:', authContext);

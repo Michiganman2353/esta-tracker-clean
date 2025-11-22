@@ -18,7 +18,7 @@
  * - SVG icons for visual appeal
  */
 
-import { Tooltip } from '../DesignSystem/Tooltip';
+import { Tooltip } from '@/components/DesignSystem/Tooltip';
 
 export interface TrustBadgeProps {
   variant?: 'security' | 'compliance' | 'verified';

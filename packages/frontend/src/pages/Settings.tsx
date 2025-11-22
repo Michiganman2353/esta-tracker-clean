@@ -27,10 +27,10 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User } from '../types';
-import { SecuritySection, TrustBadgeGroup } from '../components/Settings';
-import { Button } from '../components/DesignSystem/Button';
-import { Card } from '../components/DesignSystem/Card';
+import { User } from '@/types';
+import { SecuritySection, TrustBadgeGroup } from '@/components/Settings';
+import { Button } from '@/components/DesignSystem/Button';
+import { Card } from '@/components/DesignSystem/Card';
 
 interface SettingsProps {
   user: User;

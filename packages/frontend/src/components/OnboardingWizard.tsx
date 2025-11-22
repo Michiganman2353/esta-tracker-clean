@@ -1,11 +1,11 @@
 import { useState, createContext, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiClient } from '../lib/api';
+import { apiClient } from '@/lib/api';
 import { Stepper } from './Stepper';
 import { TooltipIcon } from './Tooltip';
 import { PasswordField } from './PasswordField';
 import { LoadingButton } from './LoadingButton';
-import type { User } from '../types';
+import type { User } from '@/types';
 
 interface OnboardingData {
   // Step 1: Account Info

@@ -13,15 +13,15 @@ import {
   getDocs,
   serverTimestamp,
 } from 'firebase/firestore';
-import { auth, db, isFirebaseConfigured } from './firebase';
-import { User } from '../types';
+import { auth, db } from '@/services/firebase';
+import { User } from '@/types';
 import { 
   isValidEmail, 
   validatePassword, 
   sanitizeInput,
   checkRateLimit,
   sanitizeForLogging 
-} from '../utils/security';
+} from '@/utils/security';
 
 export interface RegisterManagerData {
   name: string;
@@ -104,11 +104,10 @@ export async function registerManager(data: RegisterManagerData): Promise<{ user
   }
 
   // Pre-flight validation checks
-  if (!auth || !db || !isFirebaseConfigured) {
+  if (!auth || !db) {
     console.error('Firebase configuration check failed:', sanitizeForLogging({
       auth: !!auth,
       db: !!db,
-      isFirebaseConfigured,
     }));
     throw new Error('Firebase not configured. Please check your environment variables or contact support.');
   }
@@ -151,7 +150,6 @@ export async function registerManager(data: RegisterManagerData): Promise<{ user
     console.log('Starting manager registration for:', sanitizedEmail);
     console.log('Registration environment:', sanitizeForLogging({
       origin: window.location.origin,
-      isFirebaseConfigured,
       timestamp: new Date().toISOString(),
     }));
     
@@ -301,11 +299,10 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
   }
 
   // Pre-flight validation checks
-  if (!auth || !db || !isFirebaseConfigured) {
+  if (!auth || !db) {
     console.error('Firebase configuration check failed:', sanitizeForLogging({
       auth: !!auth,
       db: !!db,
-      isFirebaseConfigured,
     }));
     throw new Error('Firebase not configured. Please check your environment variables or contact support.');
   }
@@ -343,7 +340,6 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
     console.log('Starting employee registration for:', sanitizedEmail);
     console.log('Registration environment:', sanitizeForLogging({
       origin: window.location.origin,
-      isFirebaseConfigured,
       timestamp: new Date().toISOString(),
     }));
     
@@ -527,7 +523,7 @@ export async function signIn(email: string, password: string): Promise<User> {
     throw new Error(`Too many login attempts. Please wait ${waitMinutes} minutes and try again.`);
   }
 
-  if (!auth || !db || !isFirebaseConfigured) {
+  if (!auth || !db) {
     throw new Error('Firebase not configured. Please check your environment variables.');
   }
 

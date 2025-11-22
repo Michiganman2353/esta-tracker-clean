@@ -3,6 +3,11 @@
   "version": "2.0.0",
   "private": true,
   "type": "module",
+  "files": [
+    "src",
+    "dist",
+    "scripts"
+  ],
   "scripts": {
     "dev": "vite",
     "prebuild": "node ./scripts/check-envs.js",

@@ -21,9 +21,9 @@
  * - User type for authentication
  */
 
-import { User } from '../types';
+import { User } from '@/types';
 import { Link } from 'react-router-dom';
-import { TrustBadgeGroup } from '../components/Settings';
+import { TrustBadgeGroup } from '@/components/Settings';
 
 interface DashboardProps {
   user: User;

@@ -26,8 +26,8 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { PricingCard, FeatureComparison, FeatureCategory } from '../components/Pricing';
-import { Button } from '../components/DesignSystem/Button';
+import { PricingCard, FeatureComparison, FeatureCategory } from '@/components/Pricing';
+import { Button } from '@/components/DesignSystem/Button';
 
 export default function Pricing() {
   const navigate = useNavigate();

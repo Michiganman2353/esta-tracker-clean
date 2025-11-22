@@ -22,7 +22,7 @@
  * - Pure functions for testability
  */
 
-import { ComplianceRules } from '../types';
+import { ComplianceRules } from '@/types';
 
 /**
  * Calculate sick time accrual based on hours worked

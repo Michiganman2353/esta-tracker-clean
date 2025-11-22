@@ -4,8 +4,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { edgeConfigService } from '../lib/edgeConfigService';
-import type { EdgeConfigSettings, FeatureFlags } from '../types/edgeConfig';
+import { edgeConfigService } from '@/lib/edgeConfigService';
+import type { EdgeConfigSettings, FeatureFlags } from '@/types/edgeConfig';
 
 /**
  * Hook to access complete Edge Config

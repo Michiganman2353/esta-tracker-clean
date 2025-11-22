@@ -5,8 +5,8 @@ import {
   signOut as firebaseSignOut,
 } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { auth, db, isFirebaseConfigured } from '../lib/firebase';
-import { User } from '../types';
+import { auth, db } from '@/services/firebase';
+import { User } from '@/types';
 
 interface AuthContextType {
   currentUser: FirebaseUser | null;
@@ -29,7 +29,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true);
 
   async function fetchUserData(firebaseUser: FirebaseUser) {
-    if (!db || !isFirebaseConfigured) {
+    if (!db) {
       console.warn('Firestore not configured, skipping user data fetch');
       return null;
     }
@@ -93,7 +93,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   useEffect(() => {
-    if (!auth || !isFirebaseConfigured) {
+    if (!auth) {
       console.warn('Firebase Auth not configured');
       setLoading(false);
       return;
@@ -125,7 +125,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   async function signOut() {
-    if (!auth || !isFirebaseConfigured) {
+    if (!auth) {
       throw new Error('Firebase Auth not configured');
     }
     await firebaseSignOut(auth);

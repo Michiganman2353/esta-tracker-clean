@@ -9,7 +9,7 @@ import {
   type CSVImportResult,
   type EmployeeCSVRow,
   type HoursCSVRow,
-} from '../lib/csvImport';
+} from '@/lib/csvImport';
 
 type ImportType = 'employees' | 'hours';
 

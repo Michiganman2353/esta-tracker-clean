@@ -18,7 +18,7 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", "build/**", ".next/**", "out/**", "lib/**"],
-      "inputs": ["src/**", "package.json", "tsconfig.json", "tsconfig.*.json", "vite.config.ts", "index.html"],
+      "inputs": ["src/**", "packages/frontend/scripts/**", "package.json", "tsconfig.json", "tsconfig.*.json", "vite.config.ts", "index.html"],
       "env": [
         "NODE_ENV",
         "VITE_API_URL",

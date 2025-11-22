@@ -3,7 +3,7 @@
  * Provides access to global application settings from Vercel Edge Config
  */
 
-import { EdgeConfigSettings, DEFAULT_EDGE_CONFIG } from '../types/edgeConfig';
+import { EdgeConfigSettings, DEFAULT_EDGE_CONFIG } from '@/types/edgeConfig';
 
 const EDGE_CONFIG_API_ENDPOINT = '/api/edge-config';
 const CACHE_DURATION_MS = 60000; // 1 minute cache

@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerEmployee } from '../lib/authService';
-import { isFirebaseConfigured } from '../lib/firebase';
-import { apiClient } from '../lib/api';
-import { User } from '../types';
-import { useRegistrationStatus } from '../hooks/useEdgeConfig';
-import { PasswordField } from '../components/PasswordField';
-import { LoadingButton } from '../components/LoadingButton';
+import { registerEmployee } from '@/lib/authService';
+import { User } from '@/types';
+import { useRegistrationStatus } from '@/hooks/useEdgeConfig';
+import { PasswordField } from '@/components/PasswordField';
+import { LoadingButton } from '@/components/LoadingButton';
 
 interface RegisterEmployeeProps {
   onRegister: (user: User) => void;
@@ -40,24 +38,17 @@ export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) 
     setLoading(true);
 
     try {
-      if (isFirebaseConfigured) {
-        // Use Firebase authentication
-        const { user } = await registerEmployee({
-          name,
-          email,
-          password,
-          tenantCode: tenantCode.trim() || undefined,
-        });
-        
-        // Email verification is disabled for development - auto-login immediately
-        console.log('[DEV MODE] Auto-login after registration, skipping email verification');
-        onRegister(user);
-      } else {
-        // Fallback to existing API for local development
-        const response = await apiClient.registerEmployee({ name, email, password });
-        apiClient.setToken(response.token);
-        onRegister(response.user as User);
-      }
+      // Use Firebase authentication
+      const { user } = await registerEmployee({
+        name,
+        email,
+        password,
+        tenantCode: tenantCode.trim() || undefined,
+      });
+      
+      // Email verification is disabled for development - auto-login immediately
+      console.log('[DEV MODE] Auto-login after registration, skipping email verification');
+      onRegister(user);
     } catch (err) {
       console.error('Registration error:', err);
       

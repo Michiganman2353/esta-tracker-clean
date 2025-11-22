@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { signIn } from '../lib/authService';
-import { isFirebaseConfigured } from '../lib/firebase';
-import { apiClient } from '../lib/api';
-import { User } from '../types';
-import { PasswordField } from '../components/PasswordField';
-import { LoadingButton } from '../components/LoadingButton';
+import { signIn } from '@/lib/authService';
+import { User } from '@/types';
+import { PasswordField } from '@/components/PasswordField';
+import { LoadingButton } from '@/components/LoadingButton';
 
 interface LoginProps {
   onLogin: (user: User) => void;
@@ -28,25 +26,16 @@ export default function Login({ onLogin }: LoginProps) {
     // Log login attempt for debugging
     console.log('=== Login Attempt ===');
     console.log('Email:', email);
-    console.log('Firebase Configured:', isFirebaseConfigured);
+    console.log('Firebase Configured: YES');
     console.log('Timestamp:', new Date().toISOString());
     console.log('====================');
 
     try {
-      if (isFirebaseConfigured) {
-        // Use Firebase authentication
-        console.log('Attempting Firebase login...');
-        const user = await signIn(email, password);
-        console.log('Firebase login successful:', user);
-        onLogin(user);
-      } else {
-        // Fallback to existing API for local development
-        console.log('Attempting API login (Firebase not configured)...');
-        const response = await apiClient.login(email, password);
-        console.log('API login successful:', response.user);
-        apiClient.setToken(response.token);
-        onLogin(response.user as User);
-      }
+      // Use Firebase authentication
+      console.log('Attempting Firebase login...');
+      const user = await signIn(email, password);
+      console.log('Firebase login successful:', user);
+      onLogin(user);
     } catch (err) {
       console.error('=== Login Error ===');
       console.error('Error:', err);
@@ -121,7 +110,6 @@ export default function Login({ onLogin }: LoginProps) {
                           <li>Check your internet connection</li>
                           <li>Make sure you're not behind a restrictive firewall</li>
                           <li>Try refreshing the page</li>
-                          {!isFirebaseConfigured && <li>Ensure the backend server is running</li>}
                         </ul>
                       </div>
                     ) : null}
