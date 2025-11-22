@@ -18,6 +18,11 @@
  * Strict list of required environment variables.
  * ALL of these MUST be set for the build to proceed.
  * There are NO optional environment variables.
+ * 
+ * Note: VITE_FIREBASE_MEASUREMENT_ID is intentionally NOT included.
+ * It is used for Firebase Analytics (Google Analytics) which is optional.
+ * The app functions correctly without it - analytics just won't be tracked.
+ * Per the requirements, ALL variables must be explicitly required with no optionals.
  */
 const REQUIRED_ENV_VARS = [
   'VITE_FIREBASE_API_KEY',
@@ -70,7 +75,7 @@ function exitWithError(missingVars) {
   console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
   
   console.error('For local development:');
-  console.error('  1. Copy .env.example to .env.local');
+  console.error('  1. Copy .env.example to .env.local in the repository root');
   console.error('  2. Fill in the missing Firebase configuration values');
   console.error('  3. Run the build again\n');
   
