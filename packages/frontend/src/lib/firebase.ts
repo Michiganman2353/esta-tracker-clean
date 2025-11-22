@@ -46,7 +46,7 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase only if configuration is present
+// Initialize Firebase only if all required configuration is present
 let app: FirebaseApp | undefined;
 let auth: Auth | undefined;
 let db: Firestore | undefined;
@@ -55,8 +55,10 @@ let functions: Functions | undefined;
 let analytics: Analytics | undefined;
 
 try {
-  // Check if we have minimum required config
-  if (firebaseConfig.apiKey && firebaseConfig.projectId) {
+  // Only initialize if we passed validation (no missing vars)
+  // In production, we would have thrown an error above if vars were missing
+  // In development, we only initialize if all required vars are present
+  if (missingVars.length === 0) {
     // Check if Firebase app is already initialized to prevent duplicate initialization errors
     const existingApps = getApps();
     if (existingApps.length > 0) {
@@ -77,11 +79,11 @@ try {
     functions = getFunctions(app);
     
     // Initialize Analytics only in browser environment (not in SSR)
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && firebaseConfig.measurementId) {
       analytics = getAnalytics(app);
     }
   } else {
-    console.warn('Firebase configuration incomplete. Running in mock mode.');
+    console.warn('Firebase configuration incomplete. Running in mock mode. Missing:', missingVars.join(', '));
   }
 } catch (error) {
   console.error('Firebase initialization error:', error);
