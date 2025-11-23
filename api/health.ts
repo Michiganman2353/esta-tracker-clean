@@ -22,7 +22,7 @@ export default async function handler(
       'VITE_FIREBASE_API_KEY',
       'VITE_FIREBASE_AUTH_DOMAIN',
       'VITE_FIREBASE_PROJECT_ID',
-      'FIREBASE_PROJECT_ID',
+      'FIREBASE_PROJECT_ID', // Backend/API server-side use only
     ];
 
     const missing = requiredEnvVars.filter(

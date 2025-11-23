@@ -7,32 +7,6 @@ export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
   const env = loadEnv(mode, process.cwd(), '')
   
-  // Map REACT_APP_* environment variables to VITE_* for compatibility
-  // This allows Vercel deployments with REACT_APP_* vars to work seamlessly
-  const firebaseKeys = [
-    'API_KEY',
-    'AUTH_DOMAIN',
-    'PROJECT_ID',
-    'STORAGE_BUCKET',
-    'MESSAGING_SENDER_ID',
-    'APP_ID',
-    'MEASUREMENT_ID'
-  ];
-  
-  const envWithMappedVars: Record<string, string> = { ...env };
-  
-  firebaseKeys.forEach(key => {
-    const reactAppVar = `REACT_APP_FIREBASE_${key}`;
-    const viteVar = `VITE_FIREBASE_${key}`;
-    
-    // If REACT_APP_* exists but VITE_* doesn't, map it
-    if (env[reactAppVar] && !env[viteVar]) {
-      envWithMappedVars[viteVar] = env[reactAppVar];
-      // Also set it in process.env for runtime access
-      process.env[viteVar] = env[reactAppVar];
-    }
-  });
-  
   // Validate required environment variables for production builds
   if (mode === 'production') {
     const requiredEnvVars = [
@@ -44,12 +18,11 @@ export default defineConfig(({ mode }) => {
       'VITE_FIREBASE_APP_ID'
     ]
     
-    const missingVars = requiredEnvVars.filter(key => !envWithMappedVars[key])
+    const missingVars = requiredEnvVars.filter(key => !env[key])
     if (missingVars.length > 0) {
       console.error('⚠️  Error: Missing required environment variables:', missingVars.join(', '))
       console.error('   Firebase will not initialize correctly in production.')
       console.error('   Set these variables in your Vercel Dashboard or .env file.')
-      console.error('   Note: REACT_APP_* prefixed variables are also supported.')
     }
   }
   
@@ -58,20 +31,6 @@ export default defineConfig(({ mode }) => {
     // Root must be the directory containing index.html and src/
     root: __dirname,
     plugins: [react()],
-    // Define additional env variables to expose to the client
-    // This allows REACT_APP_* variables to be accessible via import.meta.env
-    define: {
-      ...firebaseKeys.reduce((acc, key) => {
-        const reactAppVar = `REACT_APP_FIREBASE_${key}`;
-        const viteVar = `VITE_FIREBASE_${key}`;
-        
-        if (env[reactAppVar] && !env[viteVar]) {
-          acc[`import.meta.env.${viteVar}`] = JSON.stringify(env[reactAppVar]);
-        }
-        
-        return acc;
-      }, {} as Record<string, string>)
-    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
