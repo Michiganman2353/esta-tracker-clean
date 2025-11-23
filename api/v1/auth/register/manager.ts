@@ -1,6 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { getFirebaseAuth, getFirebaseDb, generateId } from '../../../lib/firebase';
 import { setCorsHeaders, handlePreflight } from '../../../lib/cors';
+import { validateRequiredFields } from '../../../lib/validation';
 
 /**
  * Manager Registration API Endpoint
@@ -27,20 +28,39 @@ export default async function handler(
   try {
     const { name, email, password, companyName, employeeCount } = req.body;
 
-    // Validation
-    if (!name || !email || !password || !companyName || !employeeCount) {
+    console.log('[DEBUG] Manager registration request received');
+    console.log('[DEBUG] Request body (sanitized):', {
+      name,
+      email,
+      companyName,
+      employeeCount,
+      hasPassword: !!password,
+      passwordLength: password?.length,
+    });
+
+    // Validation - use defensive check utility for consistency
+    const requestData = { name, email, password, companyName, employeeCount };
+    try {
+      validateRequiredFields(
+        requestData,
+        ['name', 'email', 'password', 'companyName', 'employeeCount'],
+        'request data'
+      );
+    } catch (error) {
       return res.status(400).json({
-        message: 'Name, email, password, company name, and employee count are required',
+        message: error instanceof Error ? error.message : 'Missing required fields',
       });
     }
 
     if (password.length < 8) {
+      console.error('[DEBUG] Validation failed: Password too short');
       return res.status(400).json({
         message: 'Password must be at least 8 characters',
       });
     }
 
     if (employeeCount < 1) {
+      console.error('[DEBUG] Validation failed: Invalid employee count');
       return res.status(400).json({
         message: 'Employee count must be at least 1',
       });
@@ -48,8 +68,10 @@ export default async function handler(
 
     // Determine employer size based on Michigan ESTA law
     const employerSize = employeeCount < 10 ? 'small' : 'large';
+    console.log('[DEBUG] Employer size determined:', employerSize);
 
     // Create Firebase Auth user
+    console.log('[DEBUG] Creating Firebase Auth user');
     const auth = getFirebaseAuth();
     const userRecord = await auth.createUser({
       email,
@@ -57,13 +79,17 @@ export default async function handler(
       displayName: name,
       emailVerified: false,
     });
+    console.log('[DEBUG] Firebase Auth user created:', userRecord.uid);
 
     // Generate custom token for immediate login
+    console.log('[DEBUG] Generating custom token');
     const customToken = await auth.createCustomToken(userRecord.uid);
+    console.log('[DEBUG] Custom token generated successfully');
 
     // Store user data in Firestore
     const db = getFirebaseDb();
     const employerId = generateId('company');
+    console.log('[DEBUG] Generated employer ID:', employerId);
     
     const userData = {
       id: userRecord.uid,
@@ -79,10 +105,15 @@ export default async function handler(
       updatedAt: new Date().toISOString(),
     };
 
+    // Defensive check: Ensure all required fields are present
+    validateRequiredFields(userData, ['id', 'email', 'name', 'role', 'employerId'], 'user data');
+
+    console.log('[DEBUG] Saving user data to Firestore');
     await db.collection('users').doc(userRecord.uid).set(userData);
+    console.log('[DEBUG] User data saved successfully');
 
     // Create employer record
-    await db.collection('employers').doc(employerId).set({
+    const employerData = {
       id: employerId,
       name: companyName,
       size: employerSize,
@@ -91,8 +122,16 @@ export default async function handler(
       status: 'active',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    });
+    };
 
+    // Defensive check: Ensure all required employer fields are present
+    validateRequiredFields(employerData, ['id', 'name', 'ownerId'], 'employer data');
+
+    console.log('[DEBUG] Creating employer record');
+    await db.collection('employers').doc(employerId).set(employerData);
+    console.log('[DEBUG] Employer record created successfully');
+
+    console.log('[DEBUG] Manager registration completed successfully');
     return res.status(200).json({
       success: true,
       message: 'Registration completed successfully.',
@@ -100,27 +139,36 @@ export default async function handler(
       user: userData,
     });
   } catch (error: any) {
-    console.error('Manager registration error:', error);
+    console.error('[DEBUG] Manager registration error:', error);
+    console.error('[DEBUG] Error details:', {
+      code: error.code,
+      message: error.message,
+      stack: error.stack,
+    });
 
     // Handle Firebase Auth errors
     if (error.code === 'auth/email-already-exists') {
+      console.error('[DEBUG] Error: Email already exists');
       return res.status(409).json({
         message: 'Email already registered',
       });
     }
 
     if (error.code === 'auth/invalid-email') {
+      console.error('[DEBUG] Error: Invalid email');
       return res.status(400).json({
         message: 'Invalid email address',
       });
     }
 
     if (error.code === 'auth/weak-password') {
+      console.error('[DEBUG] Error: Weak password');
       return res.status(400).json({
         message: 'Password is too weak',
       });
     }
 
+    console.error('[DEBUG] Unhandled error, returning 500');
     return res.status(500).json({
       message: 'Registration failed. Please try again later.',
       error: error.message,

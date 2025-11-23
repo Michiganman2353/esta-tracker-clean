@@ -68,6 +68,13 @@ class ApiClient {
 
     const url = `${this.baseUrl}${endpoint}`;
 
+    console.log('[DEBUG] API Client: Making request:', {
+      method: options.method || 'GET',
+      url,
+      hasAuth: !!this.token,
+      retryCount,
+    });
+
     try {
       const response = await this.requestWithTimeout(
         url,
@@ -79,6 +86,13 @@ class ApiClient {
         this.timeout
       );
 
+      console.log('[DEBUG] API Client: Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        url,
+      });
+
       if (!response.ok) {
         const error: ApiError = {
           message: 'An error occurred',
@@ -87,21 +101,34 @@ class ApiClient {
 
         try {
           const data = await response.json();
+          console.error('[DEBUG] API Client: Error response body:', data);
           error.message = data.message || error.message;
           error.errors = data.errors;
         } catch {
           // Response doesn't have JSON body
+          console.error('[DEBUG] API Client: Error response has no JSON body');
           error.message = `HTTP ${response.status}: ${response.statusText}`;
         }
 
         throw error;
       }
 
-      return response.json();
+      const responseData = await response.json();
+      console.log('[DEBUG] API Client: Success response parsed:', {
+        hasData: !!responseData,
+        keys: Object.keys(responseData || {}),
+      });
+      return responseData;
     } catch (error) {
       // Handle network errors, timeouts, and CORS issues
       if (error instanceof Error) {
+        console.error('[DEBUG] API Client: Error caught:', {
+          name: error.name,
+          message: error.message,
+        });
+        
         if (error.name === 'AbortError') {
+          console.error('[DEBUG] API Client: Request timed out');
           const timeoutError: ApiError = {
             message: 'Request timed out. Please check your connection and try again.',
             status: 0,
@@ -113,11 +140,12 @@ class ApiClient {
         if (error.message.includes('fetch') || error.message.includes('NetworkError')) {
           // Retry logic for network errors
           if (retryCount < this.maxRetries) {
-            console.warn(`Network error, retrying... (${retryCount + 1}/${this.maxRetries})`);
+            console.warn(`[DEBUG] API Client: Network error, retrying... (${retryCount + 1}/${this.maxRetries})`);
             await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
             return this.request<T>(endpoint, options, retryCount + 1);
           }
 
+          console.error('[DEBUG] API Client: Network error, max retries exceeded');
           const networkError: ApiError = {
             message: 'Unable to connect to the server. Please check your internet connection and try again.',
             status: 0,
@@ -128,6 +156,7 @@ class ApiClient {
       }
 
       // Re-throw API errors
+      console.error('[DEBUG] API Client: Re-throwing error');
       throw error;
     }
   }
@@ -148,10 +177,24 @@ class ApiClient {
   }
 
   async registerEmployee(data: { email: string; password: string; name: string }) {
-    return this.request<{ token: string; user: unknown }>('/api/v1/auth/register/employee', {
+    console.log('[DEBUG] API Client: Calling registerEmployee endpoint');
+    console.log('[DEBUG] API Client: Request data (sanitized):', {
+      email: data.email,
+      name: data.name,
+      hasPassword: !!data.password,
+    });
+    
+    const response = await this.request<{ token: string; user: unknown }>('/api/v1/auth/register/employee', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+    
+    console.log('[DEBUG] API Client: registerEmployee response received:', {
+      hasToken: !!response.token,
+      hasUser: !!response.user,
+    });
+    
+    return response;
   }
 
   async registerManager(data: { 
@@ -161,10 +204,26 @@ class ApiClient {
     companyName: string;
     employeeCount: number;
   }) {
-    return this.request<{ token: string; user: unknown }>('/api/v1/auth/register/manager', {
+    console.log('[DEBUG] API Client: Calling registerManager endpoint');
+    console.log('[DEBUG] API Client: Request data (sanitized):', {
+      email: data.email,
+      name: data.name,
+      companyName: data.companyName,
+      employeeCount: data.employeeCount,
+      hasPassword: !!data.password,
+    });
+    
+    const response = await this.request<{ token: string; user: unknown }>('/api/v1/auth/register/manager', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+    
+    console.log('[DEBUG] API Client: registerManager response received:', {
+      hasToken: !!response.token,
+      hasUser: !!response.user,
+    });
+    
+    return response;
   }
 
   async logout() {

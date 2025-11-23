@@ -38,6 +38,14 @@ export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) 
     setLoading(true);
 
     try {
+      console.log('[DEBUG] Starting employee registration');
+      console.log('[DEBUG] Registration data:', {
+        name,
+        email,
+        hasTenantCode: !!tenantCode.trim(),
+        // Don't log password for security
+      });
+      
       // Use Firebase authentication
       const { user } = await registerEmployee({
         name,
@@ -46,17 +54,35 @@ export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) 
         tenantCode: tenantCode.trim() || undefined,
       });
       
+      console.log('[DEBUG] Employee registration successful:', {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+      });
+      
       // Email verification is disabled for development - auto-login immediately
-      console.log('[DEV MODE] Auto-login after registration, skipping email verification');
+      console.log('[DEBUG] Auto-login after registration, skipping email verification');
+      console.log('[DEBUG] Calling onRegister callback');
       onRegister(user);
     } catch (err) {
-      console.error('Registration error:', err);
+      console.error('[DEBUG] Employee registration error:', err);
+      console.error('[DEBUG] Error details:', {
+        name: err instanceof Error ? err.name : 'Unknown',
+        message: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+      });
       
       if (err instanceof Error) {
         setError(err.message);
       } else {
         // Type guard for ApiError
         const error = err as { status?: number; message?: string; isNetworkError?: boolean };
+        
+        console.error('[DEBUG] API error details:', {
+          status: error.status,
+          message: error.message,
+          isNetworkError: error.isNetworkError,
+        });
         
         if (error.isNetworkError) {
           setError('Unable to connect to server. Please check your internet connection and try again.');
@@ -70,6 +96,7 @@ export default function RegisterEmployee({ onRegister }: RegisterEmployeeProps) 
       }
     } finally {
       setLoading(false);
+      console.log('[DEBUG] Employee registration flow completed');
     }
   }
 

@@ -134,6 +134,15 @@ export function OnboardingWizard({ onRegisterSuccess }: OnboardingWizardProps = 
     try {
       const empCount = parseInt(data.employeeCount);
       
+      console.log('[DEBUG] Starting manager registration completion');
+      console.log('[DEBUG] Registration data:', {
+        name: data.name,
+        email: data.email,
+        companyName: data.companyName,
+        employeeCount: empCount,
+        // Don't log password for security
+      });
+      
       // Always use backend API for registration
       const response = await apiClient.registerManager({
         name: data.name,
@@ -143,27 +152,49 @@ export function OnboardingWizard({ onRegisterSuccess }: OnboardingWizardProps = 
         employeeCount: empCount,
       });
       
+      console.log('[DEBUG] Manager registration API response:', {
+        hasToken: !!response.token,
+        hasUser: !!response.user,
+        userId: (response.user as { id?: string })?.id,
+        userRole: (response.user as { role?: string })?.role,
+      });
+      
       // Auto-login after successful registration
       if (response.token && response.user) {
+        console.log('[DEBUG] Setting authentication token');
         apiClient.setToken(response.token);
         
         // Call the callback to update App state with the logged-in user
         if (onRegisterSuccess) {
+          console.log('[DEBUG] Calling onRegisterSuccess callback');
           onRegisterSuccess(response.user as User & Record<string, unknown>);
         } else {
+          console.log('[DEBUG] No onRegisterSuccess callback, showing success screen');
           // Fallback: show success screen
           setSuccess(true);
         }
       } else {
+        console.log('[DEBUG] Response missing token or user, showing success screen');
         setSuccess(true);
       }
     } catch (err) {
-      console.error('Registration error:', err);
+      console.error('[DEBUG] Manager registration error:', err);
+      console.error('[DEBUG] Error details:', {
+        name: err instanceof Error ? err.name : 'Unknown',
+        message: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+      });
       
       if (err instanceof Error) {
         setError(err.message);
       } else {
         const error = err as { status?: number; message?: string; isNetworkError?: boolean };
+        
+        console.error('[DEBUG] API error details:', {
+          status: error.status,
+          message: error.message,
+          isNetworkError: error.isNetworkError,
+        });
         
         if (error.isNetworkError) {
           setError('Unable to connect to server. Please check your internet connection and try again.');
@@ -177,6 +208,7 @@ export function OnboardingWizard({ onRegisterSuccess }: OnboardingWizardProps = 
       }
     } finally {
       setLoading(false);
+      console.log('[DEBUG] Manager registration flow completed');
     }
   };
 
