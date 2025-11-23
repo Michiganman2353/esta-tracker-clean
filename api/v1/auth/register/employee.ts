@@ -1,31 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { getFirebaseAuth, getFirebaseDb } from '../../../lib/firebase';
 import { setCorsHeaders, handlePreflight } from '../../../lib/cors';
-
-/**
- * Validates that all required fields are present in an object
- * @param data The data object to validate
- * @param requiredFields Array of required field names
- * @param context Context string for logging (e.g., 'user data')
- * @throws Error if any required fields are missing
- */
-function validateRequiredFields(
-  data: Record<string, unknown>,
-  requiredFields: string[],
-  context: string
-): void {
-  const missingFields = requiredFields.filter(field => !data[field]);
-  
-  if (missingFields.length > 0) {
-    const fieldStatus = requiredFields.reduce((acc, field) => {
-      acc[`has${field.charAt(0).toUpperCase()}${field.slice(1)}`] = !!data[field];
-      return acc;
-    }, {} as Record<string, boolean>);
-    
-    console.error(`[DEBUG] Critical error: Missing required ${context} fields`, fieldStatus);
-    throw new Error(`Failed to construct ${context}: missing required fields (${missingFields.join(', ')})`);
-  }
-}
+import { validateRequiredFields } from '../../../lib/validation';
 
 /**
  * Employee Registration API Endpoint
