@@ -9,6 +9,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@esta/firebase": "file:../packages/esta-firebase",
     "@vercel/node": "^5.5.8",
     "firebase-admin": "^12.0.0",
     "next": "^16.0.3"

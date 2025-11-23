@@ -1,7 +1,7 @@
 {
-  "name": "@esta-tracker/firebase",
+  "name": "@esta/firebase",
   "version": "2.0.0",
-  "description": "Centralized Firebase Admin SDK service for ESTA Tracker",
+  "description": "Centralized Firebase service for ESTA Tracker - single source of truth for all Firebase initialization",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
@@ -12,20 +12,12 @@
       "import": "./dist/index.js"
     },
     "./admin": {
-      "types": "./dist/admin.d.ts",
-      "import": "./dist/admin.js"
+      "types": "./dist/admin-exports.d.ts",
+      "import": "./dist/admin-exports.js"
     },
-    "./auth": {
-      "types": "./dist/auth.d.ts",
-      "import": "./dist/auth.js"
-    },
-    "./firestore": {
-      "types": "./dist/firestore.d.ts",
-      "import": "./dist/firestore.js"
-    },
-    "./storage": {
-      "types": "./dist/storage.d.ts",
-      "import": "./dist/storage.js"
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js"
     }
   },
   "scripts": {
@@ -35,6 +27,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "firebase": "^12.6.0",
     "firebase-admin": "^12.0.0"
   },
   "devDependencies": {

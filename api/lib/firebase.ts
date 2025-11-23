@@ -1,68 +1,40 @@
-import { initializeApp, getApps, cert, App } from 'firebase-admin/app';
-import { getAuth, Auth } from 'firebase-admin/auth';
-import { getFirestore, Firestore } from 'firebase-admin/firestore';
+/**
+ * Firebase initialization for API routes
+ * 
+ * Re-exports Firebase Admin SDK from centralized @esta/firebase package.
+ * Maintains backward compatibility with existing API code.
+ */
 
-let app: App | undefined;
-let auth: Auth | undefined;
-let db: Firestore | undefined;
+import { 
+  initializeFirebaseAdmin,
+  getAuth,
+  getFirestore,
+} from '@esta/firebase/admin';
+
+// Initialize Firebase Admin on import
+initializeFirebaseAdmin();
 
 /**
  * Initialize Firebase Admin SDK
  * Singleton pattern to ensure only one instance
  */
 export function initializeFirebase(): void {
-  if (getApps().length > 0) {
-    return; // Already initialized
-  }
-
-  const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
-    ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
-    : undefined;
-
-  if (serviceAccount) {
-    app = initializeApp({
-      credential: cert(serviceAccount),
-      projectId: process.env.FIREBASE_PROJECT_ID,
-    });
-  } else {
-    // For local development, use default credentials
-    app = initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-    });
-  }
-
-  auth = getAuth(app);
-  db = getFirestore(app);
+  // Initialization is already handled by the centralized package
+  initializeFirebaseAdmin();
 }
 
 /**
  * Get Firebase Auth instance
  */
-export function getFirebaseAuth(): Auth {
-  if (!auth) {
-    initializeFirebase();
-    if (app) {
-      auth = getAuth(app);
-    } else {
-      auth = getAuth();
-    }
-  }
-  return auth;
+export function getFirebaseAuth() {
+  return getAuth();
 }
 
 /**
  * Get Firestore instance
  */
-export function getFirebaseDb(): Firestore {
-  if (!db) {
-    initializeFirebase();
-    if (app) {
-      db = getFirestore(app);
-    } else {
-      db = getFirestore();
-    }
-  }
-  return db;
+export function getFirebaseDb() {
+  return getFirestore();
 }
 
 /**
