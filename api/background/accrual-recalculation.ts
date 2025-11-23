@@ -122,11 +122,11 @@ async function processAccrualRecalculation(
       const employeeDoc = employees[i];
       const employeeData = employeeDoc.data();
       
-      // Safe data check
+      // Safe data check - skip employees with no data (may be soft-deleted)
       if (!employeeData) {
         errorCount++;
-        errors.push(`Employee ${employeeDoc.id}: No data found`);
-        await writeJobLog(jobId, 'error', `Skipping employee ${employeeDoc.id}: No data found`);
+        errors.push(`Employee ${employeeDoc.id}: No data found (possibly soft-deleted)`);
+        await writeJobLog(jobId, 'warn', `Skipping employee ${employeeDoc.id}: No data found (possibly soft-deleted)`);
         continue;
       }
       
@@ -190,26 +190,21 @@ async function processAccrualRecalculation(
           const currentBalance = balanceQuery.docs[0].data();
           
           // Safe data extraction with fallback defaults
+          const yearlyUsed = currentBalance?.yearlyUsed ?? 0;
+          
           if (!currentBalance) {
             const employeeEmail = employeeData.email ?? employeeId;
             await writeJobLog(jobId, 'warn', `Employee ${employeeEmail}: Balance document exists but has no data, creating fresh record`);
-            await balanceDoc.update({
-              yearlyAccrued: accruedHours,
-              availablePaidHours: accruedHours,
-              yearlyUsed: 0,
-              lastCalculated: admin.firestore.FieldValue.serverTimestamp(),
-              recalculatedAt: admin.firestore.FieldValue.serverTimestamp(),
-            });
-          } else {
-            const yearlyUsed = currentBalance.yearlyUsed ?? 0;
-            
-            await balanceDoc.update({
-              yearlyAccrued: accruedHours,
-              availablePaidHours: accruedHours - yearlyUsed,
-              lastCalculated: admin.firestore.FieldValue.serverTimestamp(),
-              recalculatedAt: admin.firestore.FieldValue.serverTimestamp(),
-            });
           }
+          
+          // Common update fields
+          await balanceDoc.update({
+            yearlyAccrued: accruedHours,
+            availablePaidHours: accruedHours - yearlyUsed,
+            yearlyUsed: yearlyUsed,
+            lastCalculated: admin.firestore.FieldValue.serverTimestamp(),
+            recalculatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
         }
 
         recalculatedCount++;
