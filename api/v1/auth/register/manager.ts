@@ -3,6 +3,31 @@ import { getFirebaseAuth, getFirebaseDb, generateId } from '../../../lib/firebas
 import { setCorsHeaders, handlePreflight } from '../../../lib/cors';
 
 /**
+ * Validates that all required fields are present in an object
+ * @param data The data object to validate
+ * @param requiredFields Array of required field names
+ * @param context Context string for logging (e.g., 'user data', 'employer data')
+ * @throws Error if any required fields are missing
+ */
+function validateRequiredFields(
+  data: Record<string, unknown>,
+  requiredFields: string[],
+  context: string
+): void {
+  const missingFields = requiredFields.filter(field => !data[field]);
+  
+  if (missingFields.length > 0) {
+    const fieldStatus = requiredFields.reduce((acc, field) => {
+      acc[`has${field.charAt(0).toUpperCase()}${field.slice(1)}`] = !!data[field];
+      return acc;
+    }, {} as Record<string, boolean>);
+    
+    console.error(`[DEBUG] Critical error: Missing required ${context} fields`, fieldStatus);
+    throw new Error(`Failed to construct ${context}: missing required fields (${missingFields.join(', ')})`);
+  }
+}
+
+/**
  * Manager Registration API Endpoint
  * POST /api/v1/auth/register/manager
  */
@@ -105,16 +130,7 @@ export default async function handler(
     };
 
     // Defensive check: Ensure all required fields are present
-    if (!userData.id || !userData.email || !userData.name || !userData.role || !userData.employerId) {
-      console.error('[DEBUG] Critical error: Missing required user data fields', {
-        hasId: !!userData.id,
-        hasEmail: !!userData.email,
-        hasName: !!userData.name,
-        hasRole: !!userData.role,
-        hasEmployerId: !!userData.employerId,
-      });
-      throw new Error('Failed to construct user data: missing required fields');
-    }
+    validateRequiredFields(userData, ['id', 'email', 'name', 'role', 'employerId'], 'user data');
 
     console.log('[DEBUG] Saving user data to Firestore');
     await db.collection('users').doc(userRecord.uid).set(userData);
@@ -133,14 +149,7 @@ export default async function handler(
     };
 
     // Defensive check: Ensure all required employer fields are present
-    if (!employerData.id || !employerData.name || !employerData.ownerId) {
-      console.error('[DEBUG] Critical error: Missing required employer data fields', {
-        hasId: !!employerData.id,
-        hasName: !!employerData.name,
-        hasOwnerId: !!employerData.ownerId,
-      });
-      throw new Error('Failed to construct employer data: missing required fields');
-    }
+    validateRequiredFields(employerData, ['id', 'name', 'ownerId'], 'employer data');
 
     console.log('[DEBUG] Creating employer record');
     await db.collection('employers').doc(employerId).set(employerData);

@@ -114,7 +114,10 @@ class ApiClient {
       }
 
       const responseData = await response.json();
-      console.log('[DEBUG] API Client: Success response parsed');
+      console.log('[DEBUG] API Client: Success response parsed:', {
+        hasData: !!responseData,
+        keys: Object.keys(responseData || {}),
+      });
       return responseData;
     } catch (error) {
       // Handle network errors, timeouts, and CORS issues

@@ -3,6 +3,31 @@ import { getFirebaseAuth, getFirebaseDb } from '../../../lib/firebase';
 import { setCorsHeaders, handlePreflight } from '../../../lib/cors';
 
 /**
+ * Validates that all required fields are present in an object
+ * @param data The data object to validate
+ * @param requiredFields Array of required field names
+ * @param context Context string for logging (e.g., 'user data')
+ * @throws Error if any required fields are missing
+ */
+function validateRequiredFields(
+  data: Record<string, unknown>,
+  requiredFields: string[],
+  context: string
+): void {
+  const missingFields = requiredFields.filter(field => !data[field]);
+  
+  if (missingFields.length > 0) {
+    const fieldStatus = requiredFields.reduce((acc, field) => {
+      acc[`has${field.charAt(0).toUpperCase()}${field.slice(1)}`] = !!data[field];
+      return acc;
+    }, {} as Record<string, boolean>);
+    
+    console.error(`[DEBUG] Critical error: Missing required ${context} fields`, fieldStatus);
+    throw new Error(`Failed to construct ${context}: missing required fields (${missingFields.join(', ')})`);
+  }
+}
+
+/**
  * Employee Registration API Endpoint
  * POST /api/v1/auth/register/employee
  * 
@@ -89,15 +114,7 @@ export default async function handler(
     };
 
     // Defensive check: Ensure all required fields are present
-    if (!userData.id || !userData.email || !userData.name || !userData.role) {
-      console.error('[DEBUG] Critical error: Missing required user data fields', {
-        hasId: !!userData.id,
-        hasEmail: !!userData.email,
-        hasName: !!userData.name,
-        hasRole: !!userData.role,
-      });
-      throw new Error('Failed to construct user data: missing required fields');
-    }
+    validateRequiredFields(userData, ['id', 'email', 'name', 'role'], 'user data');
 
     console.log('[DEBUG] Saving user data to Firestore');
     await db.collection('users').doc(userRecord.uid).set(userData);
