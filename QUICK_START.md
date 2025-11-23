@@ -4,10 +4,12 @@ This guide gets you up and running with ESTA Tracker in development mode.
 
 ## Prerequisites
 
-- Node.js 20.x or higher
-- npm 9.0.0 or higher
+- **Node.js 22.x** (required - see `.nvmrc`)
+- npm 10.0.0 or higher
 - A Firebase project (free tier is fine)
 - A code editor (VS Code recommended)
+
+> ⚠️ **Important**: This project requires Node.js 22.x. Earlier versions are not supported.
 
 ## Step 1: Clone and Install
 
@@ -301,8 +303,8 @@ See `DEPLOYMENT_TROUBLESHOOTING.md` Section 8 for common error messages and solu
 
 ## Success Checklist
 
-- [ ] Node.js 20.x installed
-- [ ] npm 9.0+ installed
+- [ ] Node.js 22.x installed
+- [ ] npm 10.0+ installed
 - [ ] Repository cloned
 - [ ] Dependencies installed (`npm ci`)
 - [ ] Firebase project created

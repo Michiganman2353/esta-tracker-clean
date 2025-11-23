@@ -18,10 +18,12 @@ ESTA Tracker is a full-stack SaaS platform that automates compliance with the Mi
 ## Quick Start
 
 ### Prerequisites
-- Node.js 20.x (see `.nvmrc`)
+- **Node.js 22.x** (required - see `.nvmrc`)
 - npm ≥10.0.0
 - Firebase account
 - Vercel account (for deployment)
+
+> ⚠️ **Important**: This project requires Node.js 22.x. Earlier versions are not supported.
 
 ### Installation
 
@@ -44,18 +46,77 @@ ESTA Tracker is a full-stack SaaS platform that automates compliance with the Mi
 
 4. **Start development server**
    ```bash
+   # Start all packages in dev mode
    npm run dev
+   
+   # Or start individual packages:
+   npm run dev:frontend  # Frontend only
+   npm run dev:backend   # Backend only
    ```
 
 5. **Build for production**
    ```bash
+   # Build all packages
    npm run build
+   
+   # Or build individual packages:
+   npm run build:frontend
+   npm run build:backend
    ```
 
 For detailed setup instructions, see:
 - [Firebase Setup Guide](./docs/setup/FIREBASE_SETUP.md)
 - [Deployment Guide](./docs/deployment/deployment.md)
 - [KMS Security Setup](./docs/setup/KMS_SETUP_GUIDE.md)
+
+### Monorepo Architecture
+
+This project uses a modern monorepo structure powered by:
+- **Nx** - Build orchestration and task running
+- **Lerna** - Package management
+- **npm Workspaces** - Dependency management
+
+#### Available Commands
+
+```bash
+# Development
+npm run dev              # Run all packages in dev mode
+npm run dev:frontend     # Run frontend only
+npm run dev:backend      # Run backend only
+
+# Building
+npm run build            # Build all packages
+npm run build:frontend   # Build frontend only
+npm run build:backend    # Build backend only
+
+# Testing
+npm run test             # Run all tests
+npm run test:frontend    # Run frontend tests
+npm run test:backend     # Run backend tests
+npm run test:e2e         # Run end-to-end tests
+
+# Code Quality
+npm run lint             # Lint all packages
+npm run typecheck        # Type check all packages
+
+# Nx Commands (for advanced usage)
+npx nx graph             # View project dependency graph
+npx nx show projects     # List all projects
+npx nx build <package>   # Build specific package
+```
+
+#### Package Structure
+
+```
+packages/
+├── frontend/          # React + Vite frontend application
+├── backend/           # Node.js Express backend
+├── accrual-engine/    # ESTA accrual logic library
+├── csv-processor/     # CSV import handling
+├── firebase/          # Firebase Admin SDK service
+├── shared-types/      # Shared TypeScript types
+└── shared-utils/      # Shared utilities
+```
 
 ## Features
 
@@ -79,6 +140,7 @@ See [Security Documentation](./docs/security/) for complete security details.
 
 ## Technology Stack
 
+### Core Technologies
 - **Frontend**: React + Vite + TypeScript
 - **Backend**: Node.js + Express + TypeScript
 - **Database**: Firebase Firestore
@@ -88,6 +150,13 @@ See [Security Documentation](./docs/security/) for complete security details.
 - **Encryption**: Google Cloud KMS
 - **Hosting**: Vercel (Frontend), Firebase (Functions)
 - **Testing**: Vitest (Unit), Playwright (E2E)
+
+### Build & Development Tools
+- **Monorepo Management**: Nx + Lerna + npm Workspaces
+- **Build Orchestration**: Nx (v20+)
+- **Package Management**: Lerna (v8+) with Nx integration
+- **Node Version**: 22.x (enforced across all environments)
+- **CI/CD**: GitHub Actions with Nx caching
 
 For architectural details, see [Architecture Documentation](./docs/architecture/architecture.md).
 

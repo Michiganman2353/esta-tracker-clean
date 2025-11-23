@@ -22,8 +22,12 @@ out/
 coverage/
 *.tsbuildinfo
 
-# Turborepo
+# Turborepo (removed - kept for cleanup reference)
 .turbo/
+
+# Nx
+.nx/cache/
+.nx/workspace-data/
 
 # Vite
 .vite/

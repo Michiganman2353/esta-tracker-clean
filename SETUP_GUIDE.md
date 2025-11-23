@@ -3,10 +3,12 @@
 ## 🎯 Quick Start (5 Minutes)
 
 ### Prerequisites
-- Node.js 20.x (see `.nvmrc`)
+- **Node.js 22.x** (required - see `.nvmrc`)
 - npm ≥10.0.0
 - Firebase account (free tier works)
 - Git
+
+> ⚠️ **Important**: This project requires Node.js 22.x. Earlier versions are not supported.
 
 ### Step 1: Clone & Install (2 minutes)
 
