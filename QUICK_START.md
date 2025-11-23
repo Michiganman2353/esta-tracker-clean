@@ -13,14 +13,11 @@ This guide gets you up and running with ESTA Tracker in development mode.
 
 ```bash
 # Clone the repository
-git clone https://github.com/Michiganman2353/esta-tracker-clean.git
-cd esta-tracker-clean
+git clone https://github.com/Michiganman2353/ESTA-Logic.git
+cd ESTA-Logic
 
 # Install dependencies
 npm ci
-
-# Verify installation
-npm run validate:env
 ```
 
 ## Step 2: Set Up Firebase
@@ -245,7 +242,7 @@ npm outdated           # Check for package updates
 ## Project Structure
 
 ```
-esta-tracker-clean/
+ESTA-Logic/
 ├── packages/
 │   ├── frontend/          # React + Vite frontend
 │   ├── backend/           # Express backend (not used in Vercel)

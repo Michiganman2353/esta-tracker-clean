@@ -14,6 +14,71 @@
  * a clear, fatal error message indicating which variable is missing.
  */
 
+const fs = require('fs');
+const path = require('path');
+
+/**
+ * Load environment variables from .env files
+ * Loads in order: .env, .env.local (local overrides default)
+ * This mimics Vite's behavior for environment variable loading
+ */
+function loadEnvFiles() {
+  // Find repository root by looking for package.json with workspaces
+  let rootDir = __dirname;
+  while (rootDir !== '/' && rootDir !== '.') {
+    const packageJsonPath = path.join(rootDir, 'package.json');
+    if (fs.existsSync(packageJsonPath)) {
+      try {
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+        // Check if this is the monorepo root (has workspaces)
+        if (packageJson.workspaces) {
+          break;
+        }
+      } catch (e) {
+        // Invalid package.json, continue searching
+      }
+    }
+    rootDir = path.dirname(rootDir);
+  }
+  
+  const envFiles = [
+    path.join(rootDir, '.env'),
+    path.join(rootDir, '.env.local'),
+  ];
+  
+  envFiles.forEach(filePath => {
+    if (fs.existsSync(filePath)) {
+      const content = fs.readFileSync(filePath, 'utf8');
+      content.split('\n').forEach(line => {
+        // Skip comments and empty lines
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) return;
+        
+        // Parse KEY=VALUE format
+        const match = trimmed.match(/^([^=]+)=(.*)$/);
+        if (match) {
+          const key = match[1].trim();
+          let value = match[2].trim();
+          
+          // Remove surrounding quotes if present
+          if ((value.startsWith('"') && value.endsWith('"')) || 
+              (value.startsWith("'") && value.endsWith("'"))) {
+            value = value.slice(1, -1);
+          }
+          
+          // Only set if not already in process.env (allow override from actual env vars)
+          if (!process.env[key]) {
+            process.env[key] = value;
+          }
+        }
+      });
+    }
+  });
+}
+
+// Load environment variables from .env files
+loadEnvFiles();
+
 /**
  * Required Firebase environment variable keys.
  * These can be provided with either REACT_APP_ or VITE_ prefix.
@@ -53,7 +118,9 @@ function validateEnvironmentVariables() {
   const hasReactApp = REACT_APP_ENV_VARS.some(varName => process.env[varName]);
   
   if (hasVite && hasReactApp) {
-    // Both prefixes found - this is OK, we'll use VITE_ as primary
+    // Both prefixes found - use VITE_ as primary, but log this for transparency
+    console.log('ℹ️  Note: Found both VITE_ and REACT_APP_ prefixed variables');
+    console.log('   Using VITE_ prefix as primary (standard for Vite builds)');
     foundPrefix = 'VITE_';
   } else if (hasVite) {
     foundPrefix = 'VITE_';
@@ -86,6 +153,10 @@ function validateEnvironmentVariables() {
 /**
  * Print fatal error message and exit.
  * @param {string[]} missingVars - Array of missing variable names
+ * 
+ * Note: Uses process.exit(1) directly because this is a prebuild validation script
+ * that must halt the build process immediately if required variables are missing.
+ * This prevents builds from proceeding with invalid configuration.
  */
 function exitWithError(missingVars) {
   console.error('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

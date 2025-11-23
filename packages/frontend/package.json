@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "prebuild": "node ./scripts/check-envs.js",
+    "prebuild": "node ./scripts/check-envs.cjs",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",

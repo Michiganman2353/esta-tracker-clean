@@ -28,8 +28,8 @@ ESTA Tracker is a Michigan-specific compliance and workforce-management applicat
 1. Fork the repository on GitHub
 2. Clone your fork locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/esta-tracker-clean.git
-   cd esta-tracker-clean
+   git clone https://github.com/YOUR_USERNAME/ESTA-Logic.git
+   cd ESTA-Logic
    ```
 
 3. Install dependencies:
@@ -53,7 +53,7 @@ ESTA Tracker is a Michigan-specific compliance and workforce-management applicat
 ### Project Structure
 
 ```
-esta-tracker-clean/
+ESTA-Logic/
 ├── packages/
 │   ├── frontend/          # React + Vite application
 │   └── backend/           # Express API

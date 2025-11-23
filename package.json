@@ -29,7 +29,6 @@
     "clean": "turbo run clean && rm -rf node_modules packages/*/node_modules .turbo",
     "postinstall": "npm run postinstall --workspaces --if-present",
     "setup:kms": "node scripts/setup-kms.js",
-    "validate:env": "node scripts/validate-env.js",
     "validate:deployment": "bash scripts/validate-deployment.sh",
     "ci:validate": "npm run lint && npm run typecheck && npm run test && npm run build && npm run validate:deployment"
   },
