@@ -1,3 +1,6 @@
+# Allow necessary script folder for frontend to prevent missing module errors
+!packages/frontend/scripts/
+
 # ==================== #
 # Node modules
 # ==================== #

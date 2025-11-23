@@ -52,10 +52,21 @@ function calculateAccrual(hoursWorked: number, employerSize: 'small' | 'large'):
  */
 async function getEmployerSize(tenantId: string): Promise<'small' | 'large'> {
   const tenantDoc = await db.collection('tenants').doc(tenantId).get();
+  
+  // Safe snapshot check
+  if (!tenantDoc.exists) {
+    console.warn(`Tenant ${tenantId} does not exist, defaulting to small employer`);
+    return 'small';
+  }
+  
   const tenantData = tenantDoc.data();
+  if (!tenantData) {
+    console.warn(`Tenant ${tenantId} has no data, defaulting to small employer`);
+    return 'small';
+  }
   
   // Assuming size is stored in tenant document
-  const employeeCount = tenantData?.employeeCount || 0;
+  const employeeCount = tenantData.employeeCount ?? 0;
   return employeeCount >= 50 ? 'large' : 'small';
 }
 
@@ -110,6 +121,15 @@ async function processAccrualRecalculation(
     for (let i = 0; i < employees.length; i++) {
       const employeeDoc = employees[i];
       const employeeData = employeeDoc.data();
+      
+      // Safe data check - skip employees with no data (may be soft-deleted)
+      if (!employeeData) {
+        errorCount++;
+        errors.push(`Employee ${employeeDoc.id}: No data found (possibly soft-deleted)`);
+        await writeJobLog(jobId, 'warn', `Skipping employee ${employeeDoc.id}: No data found (possibly soft-deleted)`);
+        continue;
+      }
+      
       const employeeId = employeeDoc.id;
       const progress = 15 + Math.floor((i / totalEmployees) * 70);
 
@@ -168,11 +188,20 @@ async function processAccrualRecalculation(
           // Update existing balance
           balanceDoc = balanceQuery.docs[0].ref;
           const currentBalance = balanceQuery.docs[0].data();
-          const yearlyUsed = currentBalance.yearlyUsed || 0;
           
+          // Safe data extraction with fallback defaults
+          const yearlyUsed = currentBalance?.yearlyUsed ?? 0;
+          
+          if (!currentBalance) {
+            const employeeEmail = employeeData.email ?? employeeId;
+            await writeJobLog(jobId, 'warn', `Employee ${employeeEmail}: Balance document exists but has no data, creating fresh record`);
+          }
+          
+          // Common update fields
           await balanceDoc.update({
             yearlyAccrued: accruedHours,
             availablePaidHours: accruedHours - yearlyUsed,
+            yearlyUsed: yearlyUsed,
             lastCalculated: admin.firestore.FieldValue.serverTimestamp(),
             recalculatedAt: admin.firestore.FieldValue.serverTimestamp(),
           });
@@ -183,8 +212,9 @@ async function processAccrualRecalculation(
       } catch (error) {
         errorCount++;
         const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-        errors.push(`${employeeData.email}: ${errorMsg}`);
-        await writeJobLog(jobId, 'error', `Failed to recalculate for ${employeeData.email}: ${errorMsg}`);
+        const employeeEmail = employeeData?.email ?? employeeId;
+        errors.push(`${employeeEmail}: ${errorMsg}`);
+        await writeJobLog(jobId, 'error', `Failed to recalculate for ${employeeEmail}: ${errorMsg}`);
       }
     }
 
