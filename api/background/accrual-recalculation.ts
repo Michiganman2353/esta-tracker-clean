@@ -52,10 +52,21 @@ function calculateAccrual(hoursWorked: number, employerSize: 'small' | 'large'):
  */
 async function getEmployerSize(tenantId: string): Promise<'small' | 'large'> {
   const tenantDoc = await db.collection('tenants').doc(tenantId).get();
+  
+  // Safe snapshot check
+  if (!tenantDoc.exists) {
+    console.warn(`Tenant ${tenantId} does not exist, defaulting to small employer`);
+    return 'small';
+  }
+  
   const tenantData = tenantDoc.data();
+  if (!tenantData) {
+    console.warn(`Tenant ${tenantId} has no data, defaulting to small employer`);
+    return 'small';
+  }
   
   // Assuming size is stored in tenant document
-  const employeeCount = tenantData?.employeeCount || 0;
+  const employeeCount = tenantData.employeeCount ?? 0;
   return employeeCount >= 50 ? 'large' : 'small';
 }
 
@@ -110,6 +121,15 @@ async function processAccrualRecalculation(
     for (let i = 0; i < employees.length; i++) {
       const employeeDoc = employees[i];
       const employeeData = employeeDoc.data();
+      
+      // Safe data check
+      if (!employeeData) {
+        errorCount++;
+        errors.push(`Employee ${employeeDoc.id}: No data found`);
+        await writeJobLog(jobId, 'error', `Skipping employee ${employeeDoc.id}: No data found`);
+        continue;
+      }
+      
       const employeeId = employeeDoc.id;
       const progress = 15 + Math.floor((i / totalEmployees) * 70);
 
@@ -168,14 +188,27 @@ async function processAccrualRecalculation(
           // Update existing balance
           balanceDoc = balanceQuery.docs[0].ref;
           const currentBalance = balanceQuery.docs[0].data();
-          const yearlyUsed = currentBalance.yearlyUsed || 0;
           
-          await balanceDoc.update({
-            yearlyAccrued: accruedHours,
-            availablePaidHours: accruedHours - yearlyUsed,
-            lastCalculated: admin.firestore.FieldValue.serverTimestamp(),
-            recalculatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          });
+          // Safe data extraction with fallback defaults
+          if (!currentBalance) {
+            await writeJobLog(jobId, 'warn', `Employee ${employeeData.email}: Balance document exists but has no data, creating fresh record`);
+            await balanceDoc.update({
+              yearlyAccrued: accruedHours,
+              availablePaidHours: accruedHours,
+              yearlyUsed: 0,
+              lastCalculated: admin.firestore.FieldValue.serverTimestamp(),
+              recalculatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+          } else {
+            const yearlyUsed = currentBalance.yearlyUsed ?? 0;
+            
+            await balanceDoc.update({
+              yearlyAccrued: accruedHours,
+              availablePaidHours: accruedHours - yearlyUsed,
+              lastCalculated: admin.firestore.FieldValue.serverTimestamp(),
+              recalculatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+          }
         }
 
         recalculatedCount++;
