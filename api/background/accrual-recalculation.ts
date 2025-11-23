@@ -191,7 +191,8 @@ async function processAccrualRecalculation(
           
           // Safe data extraction with fallback defaults
           if (!currentBalance) {
-            await writeJobLog(jobId, 'warn', `Employee ${employeeData.email}: Balance document exists but has no data, creating fresh record`);
+            const employeeEmail = employeeData.email ?? employeeId;
+            await writeJobLog(jobId, 'warn', `Employee ${employeeEmail}: Balance document exists but has no data, creating fresh record`);
             await balanceDoc.update({
               yearlyAccrued: accruedHours,
               availablePaidHours: accruedHours,
@@ -216,8 +217,9 @@ async function processAccrualRecalculation(
       } catch (error) {
         errorCount++;
         const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-        errors.push(`${employeeData.email}: ${errorMsg}`);
-        await writeJobLog(jobId, 'error', `Failed to recalculate for ${employeeData.email}: ${errorMsg}`);
+        const employeeEmail = employeeData?.email ?? employeeId;
+        errors.push(`${employeeEmail}: ${errorMsg}`);
+        await writeJobLog(jobId, 'error', `Failed to recalculate for ${employeeEmail}: ${errorMsg}`);
       }
     }
 
