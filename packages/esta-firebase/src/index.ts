@@ -47,31 +47,42 @@ export {
 // Export initialized instances for convenience
 import { getApp, getFirebaseAuth, getFirebaseFirestore, getFirebaseStorage } from './firebase-app.js';
 
-// These will be lazy-initialized when accessed
-export let app: ReturnType<typeof getApp> | null = null;
-export let auth: ReturnType<typeof getFirebaseAuth> | null = null;
-export let db: ReturnType<typeof getFirebaseFirestore> | null = null;
-export let storage: ReturnType<typeof getFirebaseStorage> | null = null;
+// These will be lazy-initialized when accessed via getters
+let _app: ReturnType<typeof getApp> | null = null;
+let _auth: ReturnType<typeof getFirebaseAuth> | null = null;
+let _db: ReturnType<typeof getFirebaseFirestore> | null = null;
+let _storage: ReturnType<typeof getFirebaseStorage> | null = null;
 
 // Lazy initialization helpers
 function ensureInitialized() {
-  if (!app) {
-    app = getApp();
-    auth = getFirebaseAuth();
-    db = getFirebaseFirestore();
-    storage = getFirebaseStorage();
+  if (!_app) {
+    _app = getApp();
+    _auth = getFirebaseAuth();
+    _db = getFirebaseFirestore();
+    _storage = getFirebaseStorage();
   }
 }
 
-// Initialize on import if in browser environment
-if (typeof window !== 'undefined') {
-  try {
-    ensureInitialized();
-  } catch (error) {
-    // Environment variables not available yet, will initialize when needed
-    console.warn('Firebase not initialized on import, will initialize when accessed');
-  }
-}
+// Export getters instead of direct references to ensure initialization
+export const app = (() => {
+  ensureInitialized();
+  return _app!;
+})();
+
+export const auth = (() => {
+  ensureInitialized();
+  return _auth!;
+})();
+
+export const db = (() => {
+  ensureInitialized();
+  return _db!;
+})();
+
+export const storage = (() => {
+  ensureInitialized();
+  return _storage!;
+})();
 
 // Re-export common Firebase client types for convenience
 export type { FirebaseApp, FirebaseOptions } from 'firebase/app';

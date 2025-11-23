@@ -310,5 +310,10 @@ export function mockAdminFile(path: string) {
  * Reset all mocks (useful between tests)
  */
 export function resetMocks(): void {
+  // Reset client auth state
   mockAuth.currentUser = null;
+  
+  // Note: Mock functions return fresh objects each time,
+  // so no need to reset collections/docs/storage refs.
+  // This is sufficient for most test isolation needs.
 }

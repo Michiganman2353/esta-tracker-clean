@@ -20,8 +20,11 @@ let storage: FirebaseStorage | null = null;
  */
 function getEnvVar(key: string): string | undefined {
   // Check Vite environment first (frontend)
-  if (typeof import.meta !== 'undefined' && (import.meta as any).env) {
-    return (import.meta as any).env[key];
+  if (typeof import.meta !== 'undefined') {
+    const meta = import.meta as { env?: Record<string, string | undefined> };
+    if (meta.env && key in meta.env) {
+      return meta.env[key];
+    }
   }
   // Fallback to process.env (backend/test)
   if (typeof process !== 'undefined' && process.env) {
