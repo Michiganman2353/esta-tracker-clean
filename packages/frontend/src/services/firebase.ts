@@ -2,15 +2,6 @@ import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-// Helper function to get env variable with either VITE_ or REACT_APP_ prefix
-function getEnvVar(key: string): string | undefined {
-  const viteKey = `VITE_FIREBASE_${key}`;
-  const reactAppKey = `REACT_APP_FIREBASE_${key}`;
-  
-  // Check VITE_ first, then REACT_APP_
-  return import.meta.env[viteKey] || import.meta.env[reactAppKey];
-}
-
 // Validate required environment variables
 const requiredEnvVars = [
   'API_KEY',
@@ -21,20 +12,20 @@ const requiredEnvVars = [
   'APP_ID'
 ] as const;
 
-const missingVars = requiredEnvVars.filter(key => !getEnvVar(key));
+const missingVars = requiredEnvVars.filter(key => !import.meta.env[`VITE_FIREBASE_${key}`]);
 if (missingVars.length > 0) {
   throw new Error(
-    `Missing required Firebase environment variables: ${missingVars.map(k => `VITE_FIREBASE_${k} or REACT_APP_FIREBASE_${k}`).join(', ')}`
+    `Missing required Firebase environment variables: ${missingVars.map(k => `VITE_FIREBASE_${k}`).join(', ')}`
   );
 }
 
 const firebaseConfig = {
-  apiKey: getEnvVar('API_KEY')!,
-  authDomain: getEnvVar('AUTH_DOMAIN')!,
-  projectId: getEnvVar('PROJECT_ID')!,
-  storageBucket: getEnvVar('STORAGE_BUCKET')!,
-  messagingSenderId: getEnvVar('MESSAGING_SENDER_ID')!,
-  appId: getEnvVar('APP_ID')!,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY!,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN!,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID!,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET!,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID!,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID!,
 };
 
 // Initialize Firebase only once

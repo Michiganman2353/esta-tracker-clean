@@ -49,6 +49,8 @@ Add your Firebase configuration:
 
 ```bash
 # Frontend Firebase Config
+# NOTE: This monorepo uses VITE_ prefix exclusively for all frontend environment variables
+# REACT_APP_* and unprefixed FIREBASE_* variables are NOT supported
 VITE_FIREBASE_API_KEY=your-api-key-here
 VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=your-project-id
@@ -60,7 +62,7 @@ VITE_FIREBASE_MEASUREMENT_ID=your-measurement-id
 # API URL (for local development)
 VITE_API_URL=http://localhost:3001
 
-# Backend Firebase Project ID
+# Backend Firebase Project ID (server-side API use only)
 FIREBASE_PROJECT_ID=your-project-id
 ```
 

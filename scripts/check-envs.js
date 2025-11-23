@@ -14,37 +14,39 @@ try {
   // ignore errors loading .env
 }
 
-const pairs = [
-  ['VITE_FIREBASE_API_KEY', 'REACT_APP_FIREBASE_API_KEY', 'FIREBASE_API_KEY'],
-  ['VITE_FIREBASE_AUTH_DOMAIN', 'REACT_APP_FIREBASE_AUTH_DOMAIN', 'FIREBASE_AUTH_DOMAIN'],
-  ['VITE_FIREBASE_PROJECT_ID', 'REACT_APP_FIREBASE_PROJECT_ID', 'FIREBASE_PROJECT_ID'],
-  ['VITE_FIREBASE_STORAGE_BUCKET', 'REACT_APP_FIREBASE_STORAGE_BUCKET', 'FIREBASE_STORAGE_BUCKET'],
-  ['VITE_FIREBASE_MESSAGING_SENDER_ID', 'REACT_APP_FIREBASE_MESSAGING_SENDER_ID', 'FIREBASE_MESSAGING_SENDER_ID'],
-  ['VITE_FIREBASE_APP_ID', 'REACT_APP_FIREBASE_APP_ID', 'FIREBASE_APP_ID']
+// VITE_ prefix is the only supported prefix for frontend Firebase configuration
+const requiredVars = [
+  'VITE_FIREBASE_API_KEY',
+  'VITE_FIREBASE_AUTH_DOMAIN',
+  'VITE_FIREBASE_PROJECT_ID',
+  'VITE_FIREBASE_STORAGE_BUCKET',
+  'VITE_FIREBASE_MESSAGING_SENDER_ID',
+  'VITE_FIREBASE_APP_ID'
 ];
 
 const missing = [];
 const present = [];
 
-for (const names of pairs) {
-  const found = names.find(n => typeof process.env[n] === 'string' && process.env[n].length > 0);
-  if (found) {
-    present.push(found);
+for (const varName of requiredVars) {
+  if (typeof process.env[varName] === 'string' && process.env[varName].length > 0) {
+    present.push(varName);
   } else {
-    missing.push(names);
+    missing.push(varName);
   }
 }
 
 if (missing.length > 0) {
-  const missingList = missing.map(group => `(${group.join(' or ')})`).join(', ');
   console.error('');
   console.error('ERROR: Missing required Firebase environment variables:');
-  console.error(`  Required (per item): ${pairs.map(g => `(${g.join(' or ')})`).join(', ')}`);
+  console.error(`  Required: ${requiredVars.join(', ')}`);
   console.error('');
-  console.error(`Currently missing: ${missingList}`);
+  console.error(`Currently missing: ${missing.join(', ')}`);
   console.error('');
   console.error('Set these in your environment, in Vercel project settings, or as GitHub Actions secrets.');
-  console.error('For local development, create a .env with the VITE_ or REACT_APP_ prefixed keys.');
+  console.error('For local development, create a .env with the VITE_ prefixed keys.');
+  console.error('');
+  console.error('⚠️  NOTE: REACT_APP_* and unprefixed FIREBASE_* variables are NO LONGER SUPPORTED.');
+  console.error('    The monorepo exclusively uses VITE_* prefix for all frontend environment variables.');
   process.exit(1);
 }
 
