@@ -1,22 +1,19 @@
 /**
- * @esta-tracker/firebase
+ * Firebase Admin SDK Exports
  * 
- * Centralized Firebase Admin SDK package for ESTA Tracker
- * Provides consistent Firebase initialization and utilities across:
- * - Backend server
- * - Vercel API functions
- * - Firebase Cloud Functions
+ * This file provides the Admin SDK exports for backend use.
+ * Import from '@esta/firebase/admin' in your backend code.
  * 
  * Usage:
  * ```typescript
- * import { initializeFirebaseAdmin, getFirestore } from '@esta-tracker/firebase';
+ * import { initializeFirebaseAdmin, getFirestore, getAuth } from '@esta/firebase/admin';
  * 
  * // Initialize once at app startup
  * initializeFirebaseAdmin();
  * 
  * // Use throughout your app
  * const db = getFirestore();
- * const users = await db.collection('users').get();
+ * const auth = getAuth();
  * ```
  */
 
@@ -26,7 +23,7 @@ export {
   getFirebaseApp,
   resetFirebaseAdmin,
   type FirebaseAdminConfig,
-} from './admin.js';
+} from './admin-app.js';
 
 // Firestore utilities
 export {

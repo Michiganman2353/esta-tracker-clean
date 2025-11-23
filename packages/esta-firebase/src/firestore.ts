@@ -1,5 +1,5 @@
 import admin from 'firebase-admin';
-import { getFirebaseApp } from './admin.js';
+import { getFirebaseApp } from './admin-app.js';
 
 /**
  * Firestore Service
