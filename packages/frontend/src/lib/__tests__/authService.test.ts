@@ -5,6 +5,9 @@ import { registerManager, registerEmployee } from '../authService';
 vi.mock('firebase/auth', () => ({
   createUserWithEmailAndPassword: vi.fn(),
   signInWithEmailAndPassword: vi.fn(),
+  getAuth: vi.fn(() => ({
+    currentUser: null,
+  })),
 }));
 
 vi.mock('firebase/firestore', () => ({
@@ -16,6 +19,13 @@ vi.mock('firebase/firestore', () => ({
   where: vi.fn(),
   getDocs: vi.fn(),
   serverTimestamp: vi.fn(() => new Date()),
+  getFirestore: vi.fn(() => ({})),
+}));
+
+// Mock Firebase App
+vi.mock('firebase/app', () => ({
+  initializeApp: vi.fn(() => ({})),
+  getApps: vi.fn(() => []),
 }));
 
 vi.mock('../firebase', () => ({
