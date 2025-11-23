@@ -247,7 +247,7 @@ Vercel is configured to use Nx:
 ```json
 {
   "buildCommand": "npx nx build frontend",
-  "nodeVersion": "22.x"
+  "node": "22.x"
 }
 ```
 
