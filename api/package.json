@@ -14,7 +14,7 @@
     "next": "^16.0.3"
   },
   "devDependencies": {
-    "@types/node": "^20.11.10",
+    "@types/node": "^22.10.0",
     "typescript": "^5.3.3",
     "vitest": "^2.1.8"
   }
