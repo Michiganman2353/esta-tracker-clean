@@ -248,6 +248,74 @@ describe('calculateAccrual', () => {
 # Run all tests
 npm test
 
+# Run specific package tests
+npm run test:frontend
+npm run test:backend
+
+# Run with coverage
+npm run test:coverage
+
+# Run E2E tests
+npm run test:e2e
+
+# Run with UI (watch mode)
+npm run test:frontend -- --ui
+```
+
+### Testing Authentication Flows
+
+The project uses a centralized Firebase authentication system with employer profiles. When testing auth flows:
+
+**Testing Employer Registration:**
+```typescript
+// Mock Firebase helpers
+import { createEmployerProfile } from '@esta/firebase';
+
+// Test should verify:
+// 1. 4-digit employer code is generated
+// 2. Employer profile is created in Firestore
+// 3. User document has correct employerId (self-reference)
+// 4. Tenant is created for backwards compatibility
+```
+
+**Testing Employee Registration:**
+```typescript
+// Mock Firebase helpers
+import { getEmployerProfileByCode, linkEmployeeToEmployer } from '@esta/firebase';
+
+// Test should verify:
+// 1. Employer code is validated
+// 2. Employee is linked to correct employer
+// 3. User document has correct employerId
+// 4. Employee record created in employer's subcollection
+```
+
+**Testing with Mocks:**
+```typescript
+import { vi } from 'vitest';
+
+// Mock Firebase
+vi.mock('@esta/firebase', () => ({
+  db: mockFirestore,
+  auth: mockAuth,
+  getEmployerProfileByCode: vi.fn(),
+  createEmployerProfile: vi.fn(),
+  linkEmployeeToEmployer: vi.fn(),
+}));
+```
+
+**Smoke Tests:**
+
+Fast, dependency-free tests for critical logic:
+```bash
+# Run employer code generation smoke test
+node scripts/smoke-test-employer-code.mjs
+```
+
+These tests run in CI before the full test suite and don't require Firebase credentials.
+
+## Submission Guidelines
+
 # Run tests in watch mode (for active development)
 npm run test:frontend -- --watch
 

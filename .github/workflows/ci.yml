@@ -91,6 +91,12 @@ jobs:
       - name: Type Check
         run: npm run typecheck
 
+      - name: Build Shared Types (for smoke test)
+        run: npx nx build shared-types
+
+      - name: Smoke Test - Employer Code Generation
+        run: node scripts/smoke-test-employer-code.mjs
+
       - name: Run Unit Tests
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}

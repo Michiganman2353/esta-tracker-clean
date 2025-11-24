@@ -32,6 +32,40 @@ service cloud.firestore {
       return isAuthenticated() && getUserData().role == 'employee';
     }
     
+    function belongsToEmployer(employerId) {
+      return isAuthenticated() && getUserData().employerId == employerId;
+    }
+    
+    // Employer Profiles collection
+    match /employerProfiles/{employerId} {
+      // Allow employer to create their own profile during registration
+      allow create: if isAuthenticated() && request.auth.uid == employerId;
+      
+      // Employer can read/update their own profile
+      allow read, update: if isAuthenticated() && request.auth.uid == employerId;
+      
+      // Employees can read their employer's profile (for branding)
+      allow read: if isAuthenticated() && belongsToEmployer(employerId);
+      
+      // No one can delete employer profiles
+      allow delete: if false;
+      
+      // Employee subcollection within employer profile
+      match /employees/{employeeUid} {
+        // Employer can read all employees under their profile
+        allow read: if isAuthenticated() && request.auth.uid == employerId;
+        
+        // Employee can read their own record
+        allow read: if isAuthenticated() && request.auth.uid == employeeUid;
+        
+        // Employer can create/update employee records
+        allow create, update: if isAuthenticated() && request.auth.uid == employerId;
+        
+        // No deletion of employee records
+        allow delete: if false;
+      }
+    }
+    
     // Users collection
     match /users/{userId} {
       // FIXED: Allow authenticated users to create their own document during registration
@@ -48,6 +82,10 @@ service cloud.firestore {
       // Employers can read users in their tenant
       allow read: if isEmployer() && 
         belongsToTenant(resource.data.tenantId);
+      
+      // Employers can read employees linked to them
+      allow read: if isEmployer() && 
+        request.auth.uid == resource.data.employerId;
       
       // No one can delete user documents
       allow delete: if false;

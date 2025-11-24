@@ -27,6 +27,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@esta/shared-types": "file:../shared-types",
     "firebase": "^12.6.0",
     "firebase-admin": "^12.0.0"
   },

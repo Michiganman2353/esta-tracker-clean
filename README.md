@@ -172,6 +172,9 @@ packages/
 
 ### Core Capabilities
 - ✅ **Automated Sick Time Accrual** - 1 hour per 30 hours worked, Michigan ESTA compliant
+- ✅ **Employer Profile System** - Unique 4-digit codes for easy employee onboarding
+- ✅ **White-Label Branding** - Employers can customize with logo, company name, and colors
+- ✅ **Secure Employee Linking** - Employees link to employers via 4-digit code during registration
 - ✅ **PTO Request Workflow** - Employee requests, manager approval, automatic deductions
 - ✅ **Secure Document Upload** - Medical notes and documentation with immutability after approval
 - ✅ **Role-Based Access Control** - Employer, Manager, Employee, and Auditor roles
@@ -209,6 +212,29 @@ See [Security Documentation](./docs/security/) for complete security details.
 - **CI/CD**: GitHub Actions with Nx caching
 
 For architectural details, see [Architecture Documentation](./docs/architecture/architecture.md).
+
+## Employer Profile System
+
+ESTA Tracker uses a centralized employer profile system with unique 4-digit codes for easy employee onboarding:
+
+### For Employers
+- **Unique 4-Digit Code**: Upon registration, employers receive a unique code (e.g., "1234")
+- **White-Label Branding**: Customize with company logo, name, and brand colors
+- **Employee Management**: View and manage all employees linked to your account
+- **Code Regeneration**: Request a new code if needed (old code becomes invalid)
+
+### For Employees  
+- **Simple Onboarding**: Register using your employer's 4-digit code
+- **Automatic Linking**: Instantly connected to your employer's account
+- **Branded Experience**: See your employer's logo and company name
+- **Secure Access**: View only your own data and your employer's profile
+
+### Security Features
+- **Data Isolation**: Employers can only access their own employees' data
+- **Role-Based Access**: Strict Firestore rules enforce access controls
+- **Audit Trail**: All registration and linking events are logged
+
+For detailed information, see [Employer Profile Documentation](./docs/employer-profile.md).
 
 ## Documentation
 

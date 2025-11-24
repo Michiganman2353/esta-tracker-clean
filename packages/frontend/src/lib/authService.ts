@@ -14,6 +14,11 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { auth, db } from '@/services/firebase';
+import {
+  createEmployerProfile,
+  getEmployerProfileByCode,
+  linkEmployeeToEmployer,
+} from '@esta/firebase';
 import { User } from '@/types';
 import { 
   isValidEmail, 
@@ -171,7 +176,16 @@ export async function registerManager(data: RegisterManagerData): Promise<{ user
     // Determine employer size
     const employerSize = data.employeeCount >= 10 ? 'large' : 'small';
 
-    // Create tenant/company document with retry
+    // Create employer profile with 4-digit code
+    console.log('Creating employer profile with unique code');
+    const employerProfile = await createEmployerProfile(firebaseDb, firebaseUser.uid, {
+      displayName: sanitizedCompanyName,
+      employeeCount: data.employeeCount,
+      contactEmail: sanitizedEmail,
+    });
+    console.log('Employer profile created with code:', employerProfile.employerCode);
+
+    // Create tenant/company document with retry (for backwards compatibility)
     const tenantId = `tenant_${firebaseUser.uid}`;
     console.log('Creating tenant document:', tenantId);
     
@@ -184,6 +198,7 @@ export async function registerManager(data: RegisterManagerData): Promise<{ user
         employeeCount: data.employeeCount,
         ownerId: firebaseUser.uid,
         status: 'active', // FIXED: Set to active immediately
+        employerProfileId: firebaseUser.uid, // Link to new employer profile
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -196,7 +211,7 @@ export async function registerManager(data: RegisterManagerData): Promise<{ user
       email: sanitizedEmail,
       name: sanitizedName,
       role: 'employer',
-      employerId: tenantId,
+      employerId: firebaseUser.uid, // Self-reference for employer
       employerSize,
       status: 'approved', // FIXED: Set to approved immediately
       createdAt: new Date().toISOString(),
@@ -210,6 +225,7 @@ export async function registerManager(data: RegisterManagerData): Promise<{ user
         tenantId,
         tenantCode,
         companyName: sanitizedCompanyName,
+        employerCode: employerProfile.employerCode, // Store employer code
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -219,13 +235,14 @@ export async function registerManager(data: RegisterManagerData): Promise<{ user
     await retryWithBackoff(async () => {
       await setDoc(doc(collection(firebaseDb, 'auditLogs')), {
         userId: firebaseUser.uid,
-        employerId: tenantId,
+        employerId: firebaseUser.uid,
         action: 'registration',
         details: {
           role: 'employer',
           companyName: data.companyName,
           employeeCount: data.employeeCount,
           tenantCode,
+          employerCode: employerProfile.employerCode,
         },
         timestamp: serverTimestamp(),
       });
@@ -333,7 +350,7 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
   }
 
   if (!data.tenantCode && !data.employerEmail) {
-    throw new Error('Please provide either a company code or employer email');
+    throw new Error('Please provide an employer code');
   }
 
   try {
@@ -343,37 +360,53 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       timestamp: new Date().toISOString(),
     }));
     
-    // Validate tenant code or employer email
-    let tenantId = '';
+    // Validate employer code (new system)
+    let employerId = '';
     let employerSize: 'small' | 'large' = 'small';
     let companyName = '';
+    let tenantId = '';
 
     if (data.tenantCode) {
-      console.log('Looking up tenant by code:', data.tenantCode);
-      // Find tenant by code with retry
-      const tenantSnapshot = await retryWithBackoff(async () => {
-        const tenantsQuery = query(
-          collection(firebaseDb, 'tenants'),
-          where('tenantCode', '==', data.tenantCode!.toUpperCase())
-        );
-        return await getDocs(tenantsQuery);
-      });
+      console.log('Looking up employer by code:', data.tenantCode);
+      
+      // First try new employer profile system with 4-digit code
+      const employerProfile = await getEmployerProfileByCode(firebaseDb, data.tenantCode);
+      
+      if (employerProfile) {
+        // New system: use employer profile
+        employerId = employerProfile.id;
+        employerSize = employerProfile.size;
+        companyName = employerProfile.displayName;
+        tenantId = `tenant_${employerId}`; // For backwards compatibility
+        console.log('Found employer profile:', employerId, companyName);
+      } else {
+        // Fallback to old tenant code system (8-character alphanumeric)
+        console.log('Employer profile not found, trying legacy tenant code');
+        const tenantSnapshot = await retryWithBackoff(async () => {
+          const tenantsQuery = query(
+            collection(firebaseDb, 'tenants'),
+            where('tenantCode', '==', data.tenantCode!.toUpperCase())
+          );
+          return await getDocs(tenantsQuery);
+        });
 
-      if (tenantSnapshot.empty) {
-        throw new Error('Invalid company code. Please check with your employer and try again.');
-      }
+        if (tenantSnapshot.empty) {
+          throw new Error('Invalid employer code. Please check with your employer and try again.');
+        }
 
-      const tenantDoc = tenantSnapshot.docs[0];
-      if (!tenantDoc) {
-        throw new Error('Unable to retrieve company information.');
+        const tenantDoc = tenantSnapshot.docs[0];
+        if (!tenantDoc) {
+          throw new Error('Unable to retrieve company information.');
+        }
+        tenantId = tenantDoc.id;
+        const tenantData = tenantDoc.data();
+        employerSize = tenantData.size;
+        companyName = tenantData.companyName;
+        employerId = tenantData.employerProfileId || tenantData.ownerId;
+        console.log('Found tenant (legacy):', tenantId, companyName);
       }
-      tenantId = tenantDoc.id;
-      const tenantData = tenantDoc.data();
-      employerSize = tenantData.size;
-      companyName = tenantData.companyName;
-      console.log('Found tenant:', tenantId, companyName);
     } else if (data.employerEmail) {
-      // Find tenant by employer email domain with retry
+      // Find tenant by employer email domain with retry (legacy system only)
       const emailDomain = data.employerEmail.split('@')[1];
       
       if (!emailDomain) {
@@ -389,7 +422,7 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       });
 
       if (tenantSnapshot.empty) {
-        throw new Error('No company found with this email domain. Please use a company code instead or contact your employer.');
+        throw new Error('No company found with this email domain. Please use an employer code instead or contact your employer.');
       }
 
       const tenantDoc = tenantSnapshot.docs[0];
@@ -400,8 +433,9 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       const tenantData = tenantDoc.data();
       employerSize = tenantData.size;
       companyName = tenantData.companyName;
+      employerId = tenantData.employerProfileId || tenantData.ownerId;
     } else {
-      throw new Error('Please provide either a company code or employer email.');
+      throw new Error('Please provide an employer code.');
     }
 
     // Create Firebase Auth user with retry
@@ -423,7 +457,7 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       email: sanitizedEmail,
       name: sanitizedName,
       role: 'employee',
-      employerId: tenantId,
+      employerId: employerId,
       employerSize,
       status: 'approved', // FIXED: Set to approved immediately
       createdAt: new Date().toISOString(),
@@ -441,16 +475,33 @@ export async function registerEmployee(data: RegisterEmployeeData): Promise<{ us
       });
     });
 
+    // Link employee to employer profile
+    console.log('Linking employee to employer profile');
+    try {
+      await linkEmployeeToEmployer(firebaseDb, firebaseUser.uid, employerId, {
+        email: sanitizedEmail,
+        displayName: sanitizedName,
+        role: 'employee',
+      });
+      console.log('Employee linked to employer successfully');
+    } catch (linkError) {
+      console.error('Failed to link employee to employer profile:', linkError);
+      // Log to monitoring but don't fail registration
+      // The employerId is set in the user document, so basic linking is complete
+      // The subcollection link can be recreated later if needed
+      console.error('Employee registration completed but subcollection link failed - employerId is set in user document');
+    }
+
     // Create audit log with retry
     await retryWithBackoff(async () => {
       await setDoc(doc(collection(firebaseDb, 'auditLogs')), {
         userId: firebaseUser.uid,
-        employerId: tenantId,
+        employerId: employerId,
         action: 'registration',
         details: {
           role: 'employee',
           tenantId,
-          registrationMethod: data.tenantCode ? 'tenantCode' : 'employerEmail',
+          registrationMethod: data.tenantCode ? 'employerCode' : 'employerEmail',
         },
         timestamp: serverTimestamp(),
       });
