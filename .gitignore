@@ -22,6 +22,10 @@ out/
 coverage/
 *.tsbuildinfo
 
+# SBOM artifacts
+bom.xml
+bom.json
+
 # Prevent TypeScript output in source directories
 src/**/*.js
 src/**/*.d.ts
