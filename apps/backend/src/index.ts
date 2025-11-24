@@ -12,14 +12,18 @@ import { documentsRouter } from './routes/documents.js';
 import policiesRouter from './routes/policies.js';
 import importRouter from './routes/import.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { generalLimiter, authLimiter } from './middleware/rateLimiter.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
+// Security Middleware
 app.use(helmet());
+
+// Rate limiting - Apply general rate limiter to all requests
+app.use(generalLimiter);
 
 // CORS configuration to support multiple origins
 const allowedOrigins = [
@@ -59,7 +63,8 @@ app.get('/health', (_req, res) => {
 });
 
 // API Routes
-app.use('/api/v1/auth', authRouter);
+// Apply strict rate limiting to auth endpoints
+app.use('/api/v1/auth', authLimiter, authRouter);
 app.use('/api/v1/accrual', accrualRouter);
 app.use('/api/v1/requests', requestsRouter);
 app.use('/api/v1/audit', auditRouter);
