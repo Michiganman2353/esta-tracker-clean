@@ -12,6 +12,7 @@
         "cwd": "libs/esta-firebase"
       },
       "outputs": ["{projectRoot}/dist"],
+      // Explicitly depend on shared-types build to ensure types are available before compilation
       "dependsOn": ["shared-types:build"]
     },
     "typecheck": {
@@ -20,6 +21,7 @@
         "command": "tsc --noEmit",
         "cwd": "libs/esta-firebase"
       },
+      // Also depends on shared-types for type checking
       "dependsOn": ["shared-types:build"]
     },
     "test": {
