@@ -4,7 +4,7 @@
  * Pure functions for calculating sick time accrual according to Michigan ESTA law
  */
 
-import type { EmployerSize, AccrualCalculation } from '@esta-tracker/shared-types';
+import type { EmployerSize, AccrualCalculation } from '@esta/shared-types';
 import { LARGE_EMPLOYER_RULES, SMALL_EMPLOYER_RULES } from '@esta-tracker/shared-utils';
 
 /**

@@ -4,7 +4,7 @@
  * Michigan ESTA compliance rules and caps
  */
 
-import type { EmployerSize, ComplianceRules } from '@esta-tracker/shared-types';
+import type { EmployerSize, ComplianceRules } from '@esta/shared-types';
 import { LARGE_EMPLOYER_RULES, SMALL_EMPLOYER_RULES } from '@esta-tracker/shared-utils';
 
 /**

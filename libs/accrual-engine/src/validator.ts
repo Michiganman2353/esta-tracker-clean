@@ -4,7 +4,7 @@
  * Validation functions for accrual-related data
  */
 
-import type { EmployerSize } from '@esta-tracker/shared-types';
+import type { EmployerSize } from '@esta/shared-types';
 import { isValidHoursWorked } from '@esta-tracker/shared-utils';
 
 /**

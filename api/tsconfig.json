@@ -4,7 +4,9 @@
     "target": "ES2020",
     "module": "ESNext",
     "lib": ["ES2020"],
-    "moduleResolution": "node",
+    // Use "bundler" resolution to properly handle package.json "exports" field
+    // This allows importing from @esta/firebase/admin with correct path resolution
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,

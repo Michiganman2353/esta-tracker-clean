@@ -24,7 +24,10 @@
     "isolatedModules": true,
     "baseUrl": ".",
     "paths": {
-      "@esta/shared-types": ["libs/shared-types/dist/index.d.ts"],
+      // Workspace path aliases: Point to dist output to avoid cross-project compilation issues.
+      // Each package builds independently, then dependent packages reference the built output.
+      // This ensures proper build order via nx dependencies while maintaining clean boundaries.
+      "@esta/shared-types": ["libs/shared-types/dist"],
       "@esta/shared-types/*": ["libs/shared-types/dist/*"]
     }
   },

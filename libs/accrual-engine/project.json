@@ -11,7 +11,9 @@
         "command": "tsc",
         "cwd": "libs/accrual-engine"
       },
-      "outputs": ["{projectRoot}/dist"]
+      "outputs": ["{projectRoot}/dist"],
+      // Build dependencies: shared-types and shared-utils must build before accrual-engine
+      "dependsOn": ["shared-types:build", "shared-utils:build"]
     },
     "typecheck": {
       "executor": "nx:run-commands",
