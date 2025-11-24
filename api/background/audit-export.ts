@@ -50,7 +50,7 @@ interface AuditData {
 /**
  * Fetch employee data
  */
-async function fetchEmployees(tenantId: string, startDate: Date, endDate: Date): Promise<any[]> {
+async function fetchEmployees(tenantId: string, _startDate: Date, _endDate: Date): Promise<any[]> {
   const employeesQuery = await db
     .collection('users')
     .where('tenantId', '==', tenantId)

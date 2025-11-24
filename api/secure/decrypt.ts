@@ -10,9 +10,9 @@
  * Only authenticated users can decrypt data they have permission to access.
  */
 
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { decryptHybrid, type HybridDecryptionPayload } from '../../apps/backend/src/utils/encryption/hybridEncryption';
-import { decryptWithKMS, type KMSDecryptionPayload } from '../../apps/backend/src/services/kmsHybridEncryption';
+import type { VercelResponse } from '@vercel/node';
+import { decryptHybrid, type HybridDecryptionPayload } from '../lib/encryption/hybridEncryption';
+import { decryptWithKMS, type KMSDecryptionPayload } from '../lib/services/kmsHybridEncryption';
 import { 
   requireAuth, 
   isResourceOwner, 

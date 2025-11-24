@@ -78,8 +78,9 @@ async function processBatch(
         completed++;
       } else {
         failed++;
+        const chunkItem = chunk[index];
         errors.push({
-          operationId: chunk[index].id,
+          operationId: chunkItem ? chunkItem.id : `unknown-${index}`,
           error: result.reason?.message || 'Unknown error',
         });
       }

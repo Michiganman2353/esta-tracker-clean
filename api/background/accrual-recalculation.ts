@@ -120,6 +120,12 @@ async function processAccrualRecalculation(
     // Process each employee
     for (let i = 0; i < employees.length; i++) {
       const employeeDoc = employees[i];
+      if (!employeeDoc) {
+        errorCount++;
+        errors.push(`Employee at index ${i}: Document not found`);
+        continue;
+      }
+      
       const employeeData = employeeDoc.data();
       
       // Safe data check - skip employees with no data (may be soft-deleted)
@@ -186,8 +192,12 @@ async function processAccrualRecalculation(
           });
         } else {
           // Update existing balance
-          balanceDoc = balanceQuery.docs[0].ref;
-          const currentBalance = balanceQuery.docs[0].data();
+          const firstDoc = balanceQuery.docs[0];
+          if (!firstDoc) {
+            throw new Error('Expected balance document but found none');
+          }
+          balanceDoc = firstDoc.ref;
+          const currentBalance = firstDoc.data();
           
           // Safe data extraction with fallback defaults
           const yearlyUsed = currentBalance?.yearlyUsed ?? 0;

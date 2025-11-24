@@ -46,12 +46,18 @@ interface EmployeeRow {
  */
 function parseCSV(csvData: string): EmployeeRow[] {
   const lines = csvData.trim().split('\n');
-  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+  const firstLine = lines[0];
+  if (!firstLine) {
+    throw new Error('CSV file is empty or has no header row');
+  }
+  const headers = firstLine.split(',').map(h => h.trim().toLowerCase());
   
   const employees: EmployeeRow[] = [];
   
   for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',').map(v => v.trim());
+    const line = lines[i];
+    if (!line) continue;
+    const values = line.split(',').map(v => v.trim());
     const employee: any = {};
     
     headers.forEach((header, index) => {
@@ -113,6 +119,11 @@ async function processCSVImport(
     // Process each employee
     for (let i = 0; i < employees.length; i++) {
       const employee = employees[i];
+      if (!employee) {
+        errorCount++;
+        errors.push(`Row ${i + 1}: Invalid employee data`);
+        continue;
+      }
       const progress = 15 + Math.floor((i / totalEmployees) * 70);
 
       try {

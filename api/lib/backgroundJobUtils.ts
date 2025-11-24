@@ -208,7 +208,14 @@ export async function verifyUserPermission(
       admin: 4,
     };
 
-    return roleHierarchy[userRole] >= roleHierarchy[requiredRole];
+    const userRoleLevel = roleHierarchy[userRole];
+    const requiredRoleLevel = roleHierarchy[requiredRole];
+    
+    if (userRoleLevel === undefined || requiredRoleLevel === undefined) {
+      return false;
+    }
+    
+    return userRoleLevel >= requiredRoleLevel;
   } catch (error) {
     console.error('Error verifying user permission:', error);
     return false;

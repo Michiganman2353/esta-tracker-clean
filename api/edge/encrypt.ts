@@ -74,8 +74,20 @@ export default async function handler(request: NextRequest) {
 
   try {
     // Parse request body
-    const body = await request.json();
-    const { data, publicKey } = body;
+    const body = await request.json() as unknown;
+    
+    // Validate body is an object
+    if (!body || typeof body !== 'object') {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid request body' }),
+        { 
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+    
+    const { data, publicKey } = body as { data?: unknown; publicKey?: unknown };
 
     // Validate input
     if (!data || typeof data !== 'string') {
@@ -188,7 +200,10 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
   let binary = '';
   for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
+    const byte = bytes[i];
+    if (byte !== undefined) {
+      binary += String.fromCharCode(byte);
+    }
   }
   return btoa(binary);
 }

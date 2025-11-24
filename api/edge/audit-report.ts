@@ -36,31 +36,11 @@ interface AuditLogEntry {
 }
 
 /**
- * Generate CSV from audit log entries
- */
-function generateCSV(entries: AuditLogEntry[]): string {
-  const headers = ['ID', 'Timestamp', 'User ID', 'Action', 'Resource', 'Details'];
-  const rows = entries.map(entry => [
-    entry.id,
-    entry.timestamp,
-    entry.userId,
-    entry.action,
-    entry.resource,
-    JSON.stringify(entry.details)
-  ]);
-
-  return [
-    headers.join(','),
-    ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-  ].join('\n');
-}
-
-/**
  * Fetch audit logs with pagination
  * In production, this would query Firebase
  */
 async function fetchAuditLogs(
-  request: AuditReportRequest,
+  _request: AuditReportRequest,
   page: number = 0,
   pageSize: number = 100
 ): Promise<{ entries: AuditLogEntry[], hasMore: boolean }> {
@@ -71,8 +51,8 @@ async function fetchAuditLogs(
     id: `log-${page * pageSize + i}`,
     timestamp: new Date(Date.now() - i * 3600000).toISOString(),
     userId: `user-${Math.floor(Math.random() * 100)}`,
-    action: ['create', 'update', 'delete', 'read'][Math.floor(Math.random() * 4)],
-    resource: ['employee', 'timesheet', 'pto_request'][Math.floor(Math.random() * 3)],
+    action: (['create', 'update', 'delete', 'read'][Math.floor(Math.random() * 4)] || 'read') as string,
+    resource: (['employee', 'timesheet', 'pto_request'][Math.floor(Math.random() * 3)] || 'employee') as string,
     details: { sample: 'data' },
   }));
 

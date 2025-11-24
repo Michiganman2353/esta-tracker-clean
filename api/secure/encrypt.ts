@@ -10,8 +10,8 @@
  * Rate-limited to prevent abuse.
  */
 
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { encryptWithKMS } from '../../apps/backend/src/services/kmsHybridEncryption';
+import type { VercelResponse } from '@vercel/node';
+import { encryptWithKMS } from '../lib/services/kmsHybridEncryption';
 import { 
   requireAuth, 
   logSecurityEvent,

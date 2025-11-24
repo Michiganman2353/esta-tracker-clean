@@ -6,7 +6,7 @@
  * documentation of expected behavior.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 /**
  * Mock tests to document expected behavior of background job utilities

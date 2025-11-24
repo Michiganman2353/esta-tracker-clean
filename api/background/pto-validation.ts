@@ -86,14 +86,20 @@ async function validatePTORequest(
     if (balanceQuery.empty) {
       issues.push('Employee accrual balance not found');
     } else {
-      const balanceData = balanceQuery.docs[0].data();
-      const availableHours = balanceData.availablePaidHours || 0;
+      const firstDoc = balanceQuery.docs[0];
+      if (!firstDoc) {
+        issues.push('Employee accrual balance document not found');
+      } else {
+        const balanceData = firstDoc.data();
+        const availableHours = balanceData.availablePaidHours || 0;
 
-      // Check if employee has enough balance
-      if (requestedHours > availableHours) {
-        issues.push(`Insufficient balance: requested ${requestedHours} hours, available ${availableHours} hours`);
-      } else if (requestedHours > availableHours * 0.8) {
-        warnings.push(`Request uses ${Math.round((requestedHours / availableHours) * 100)}% of available balance`);
+        // Check if employee has enough balance
+        if (requestedHours > availableHours) {
+          issues.push(`Insufficient balance: requested ${requestedHours} hours, available ${availableHours} hours`);
+        } else if (requestedHours > availableHours * 0.8) {
+          warnings.push(`High balance usage: ${requestedHours} hours requested out of ${availableHours} hours available`);
+          warnings.push(`Request uses ${Math.round((requestedHours / availableHours) * 100)}% of available balance`);
+        }
       }
     }
 
@@ -246,6 +252,10 @@ async function processPTOValidation(
     // Process each request
     for (let i = 0; i < requests.length; i++) {
       const requestDoc = requests[i];
+      if (!requestDoc) {
+        await writeJobLog(jobId, 'error', `Request at index ${i} is undefined`);
+        continue;
+      }
       const progress = 15 + Math.floor((i / totalRequests) * 70);
 
       try {

@@ -129,6 +129,11 @@ async function processBulkEmployeeUpdate(
     // Process each employee
     for (let i = 0; i < employeeIds.length; i++) {
       const employeeId = employeeIds[i];
+      if (!employeeId) {
+        errorCount++;
+        errors.push(`Row ${i + 1}: Invalid employee ID`);
+        continue;
+      }
       const progress = 5 + Math.floor((i / totalEmployees) * 80);
 
       try {
