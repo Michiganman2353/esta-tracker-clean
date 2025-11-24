@@ -21,7 +21,12 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@esta/shared-types": ["libs/shared-types/dist/index.d.ts"],
+      "@esta/shared-types/*": ["libs/shared-types/dist/*"]
+    }
   },
   "include": ["src"]
 }
