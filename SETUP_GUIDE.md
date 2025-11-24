@@ -36,13 +36,13 @@ npm install
 
 ```bash
 # Copy the example environment file
-cp .env.local.example .env.local
+cp .env.example .env
 
-# Edit .env.local with your Firebase credentials
-nano .env.local  # or use your favorite editor
+# Edit .env with your Firebase credentials
+nano .env  # or use your favorite editor
 ```
 
-Update these values in `.env.local`:
+Update these values in `.env`:
 ```bash
 # Required Firebase Configuration
 # NOTE: This monorepo uses VITE_ prefix exclusively for all frontend environment variables
