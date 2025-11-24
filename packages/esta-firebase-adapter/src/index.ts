@@ -36,7 +36,8 @@ export function getFirestore(): admin.firestore.Firestore {
  * @returns Hours worked, or 0 if employee not found
  */
 export async function getEmployeeHours(employeeId: string): Promise<number> {
-  const doc = await admin.firestore().doc(`employees/${employeeId}`).get();
+  const db = getFirestore();
+  const doc = await db.doc(`employees/${employeeId}`).get();
   if (!doc.exists) {
     return 0;
   }
@@ -56,10 +57,8 @@ export async function computeAndStoreAccrual(
   const hours = await getEmployeeHours(employeeId);
   const accrued = calculateAccruedHours(hours);
 
-  await admin
-    .firestore()
-    .doc(`employees/${employeeId}`)
-    .update({ accruedHours: accrued });
+  const db = getFirestore();
+  await db.doc(`employees/${employeeId}`).update({ accruedHours: accrued });
 
   return accrued;
 }
@@ -78,10 +77,8 @@ export async function computeAndStoreCappedAccrual(
   const hours = await getEmployeeHours(employeeId);
   const accrued = calculateCappedAccrual(hours, employeeCount);
 
-  await admin
-    .firestore()
-    .doc(`employees/${employeeId}`)
-    .update({ accruedHours: accrued });
+  const db = getFirestore();
+  await db.doc(`employees/${employeeId}`).update({ accruedHours: accrued });
 
   return accrued;
 }

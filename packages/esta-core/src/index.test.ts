@@ -6,7 +6,7 @@ import {
   HOURS_TO_ACCRUE_PER_HOUR,
   MAX_ACCRUAL_SMALL_EMPLOYER,
   MAX_ACCRUAL_LARGE_EMPLOYER,
-} from './index.js';
+} from './index';
 
 describe('calculateAccruedHours', () => {
   it('calculates accrual for 30 hours (should be 1 hour)', () => {
