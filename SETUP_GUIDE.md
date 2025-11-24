@@ -154,7 +154,7 @@ npm run test:e2e
 npm run build
 
 # Verify build output
-ls -la packages/frontend/dist
+ls -la apps/frontend/dist
 ```
 
 ### 3. Test API Endpoints

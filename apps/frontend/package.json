@@ -20,7 +20,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@esta/firebase": "file:../esta-firebase",
+    "@esta/firebase": "file:../../libs/esta-firebase",
     "@types/crypto-js": "^4.2.2",
     "@vercel/edge-config": "^1.4.3",
     "clsx": "^2.1.0",

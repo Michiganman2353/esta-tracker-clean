@@ -1,7 +1,7 @@
 {
-  "name": "shared-types",
+  "name": "shared-utils",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/shared-types/src",
+  "sourceRoot": "libs/shared-utils/src",
   "projectType": "library",
   "tags": ["type:lib", "scope:shared"],
   "targets": {
@@ -9,7 +9,7 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc",
-        "cwd": "packages/shared-types"
+        "cwd": "libs/shared-utils"
       },
       "outputs": ["{projectRoot}/dist"]
     },
@@ -17,21 +17,21 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --noEmit",
-        "cwd": "packages/shared-types"
+        "cwd": "libs/shared-utils"
       }
     },
     "test": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "echo 'No tests configured'",
-        "cwd": "packages/shared-types"
+        "command": "vitest run --passWithNoTests",
+        "cwd": "libs/shared-utils"
       }
     },
     "clean": {
       "executor": "nx:run-commands",
       "options": {
         "command": "rm -rf dist",
-        "cwd": "packages/shared-types"
+        "cwd": "libs/shared-utils"
       }
     }
   }

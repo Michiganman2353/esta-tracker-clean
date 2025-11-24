@@ -121,7 +121,7 @@ npm run typecheck           # Check TypeScript types
 - Keep components small and focused (single responsibility)
 - Extract reusable logic into custom hooks
 - Use TypeScript for props definitions
-- Follow the existing component structure in `packages/frontend/src/components/`
+- Follow the existing component structure in `apps/frontend/src/components/`
 
 ### File Naming
 

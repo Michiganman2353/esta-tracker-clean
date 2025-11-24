@@ -1,0 +1,40 @@
+# CODEOWNERS file for ESTA Tracker
+# This file defines code ownership for automatic review assignments
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @Michiganman2353
+
+# Frontend Application
+/apps/frontend/ @Michiganman2353
+/apps/frontend/src/components/ @Michiganman2353
+/apps/frontend/src/pages/ @Michiganman2353
+
+# Backend Application
+/apps/backend/ @Michiganman2353
+/apps/backend/src/services/ @Michiganman2353
+/apps/backend/src/utils/ @Michiganman2353
+
+# Shared Libraries
+/libs/shared-types/ @Michiganman2353
+/libs/shared-utils/ @Michiganman2353
+/libs/esta-firebase/ @Michiganman2353
+
+# Domain Libraries
+/libs/accrual-engine/ @Michiganman2353
+/libs/csv-processor/ @Michiganman2353
+
+# CI/CD and Infrastructure
+/.github/workflows/ @Michiganman2353
+/vercel.json @Michiganman2353
+/firebase.json @Michiganman2353
+
+# Configuration Files
+/nx.json @Michiganman2353
+/package.json @Michiganman2353
+/tsconfig.base.json @Michiganman2353
+/.eslintrc.json @Michiganman2353
+
+# Documentation
+/docs/ @Michiganman2353
+/*.md @Michiganman2353

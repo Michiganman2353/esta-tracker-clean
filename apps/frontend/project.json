@@ -1,15 +1,15 @@
 {
   "name": "frontend",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/frontend/src",
+  "sourceRoot": "apps/frontend/src",
   "projectType": "application",
-  "tags": ["type:app", "platform:web"],
+  "tags": ["type:app", "scope:frontend", "platform:web"],
   "targets": {
     "dev": {
       "executor": "nx:run-commands",
       "options": {
         "command": "vite",
-        "cwd": "packages/frontend"
+        "cwd": "apps/frontend"
       }
     },
     "build": {
@@ -20,7 +20,7 @@
           "tsc",
           "vite build"
         ],
-        "cwd": "packages/frontend",
+        "cwd": "apps/frontend",
         "parallel": false
       },
       "outputs": ["{projectRoot}/dist"],
@@ -30,28 +30,28 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "vite preview",
-        "cwd": "packages/frontend"
+        "cwd": "apps/frontend"
       }
     },
     "test": {
       "executor": "nx:run-commands",
       "options": {
         "command": "vitest",
-        "cwd": "packages/frontend"
+        "cwd": "apps/frontend"
       }
     },
     "test:ui": {
       "executor": "nx:run-commands",
       "options": {
         "command": "vitest --ui",
-        "cwd": "packages/frontend"
+        "cwd": "apps/frontend"
       }
     },
     "test:coverage": {
       "executor": "nx:run-commands",
       "options": {
         "command": "vitest --coverage",
-        "cwd": "packages/frontend"
+        "cwd": "apps/frontend"
       },
       "outputs": ["{projectRoot}/coverage"]
     },
@@ -59,14 +59,14 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-        "cwd": "packages/frontend"
+        "cwd": "apps/frontend"
       }
     },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --noEmit",
-        "cwd": "packages/frontend"
+        "cwd": "apps/frontend"
       },
       "dependsOn": ["^build"]
     }

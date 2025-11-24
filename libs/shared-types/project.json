@@ -1,15 +1,15 @@
 {
-  "name": "csv-processor",
+  "name": "shared-types",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/csv-processor/src",
+  "sourceRoot": "libs/shared-types/src",
   "projectType": "library",
-  "tags": ["type:lib", "scope:csv"],
+  "tags": ["type:lib", "scope:shared"],
   "targets": {
     "build": {
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc",
-        "cwd": "packages/csv-processor"
+        "cwd": "libs/shared-types"
       },
       "outputs": ["{projectRoot}/dist"]
     },
@@ -17,21 +17,21 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --noEmit",
-        "cwd": "packages/csv-processor"
+        "cwd": "libs/shared-types"
       }
     },
     "test": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "vitest run --passWithNoTests",
-        "cwd": "packages/csv-processor"
+        "command": "echo 'No tests configured'",
+        "cwd": "libs/shared-types"
       }
     },
     "clean": {
       "executor": "nx:run-commands",
       "options": {
         "command": "rm -rf dist",
-        "cwd": "packages/csv-processor"
+        "cwd": "libs/shared-types"
       }
     }
   }

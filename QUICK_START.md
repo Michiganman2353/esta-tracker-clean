@@ -266,7 +266,7 @@ ESTA-Logic/
 ### For Development:
 1. Explore the codebase structure
 2. Read the documentation in `docs/`
-3. Check out the component library in `packages/frontend/src/components`
+3. Check out the component library in `apps/frontend/src/components`
 4. Review the ESTA accrual logic in `packages/accrual-engine`
 
 ### For Deployment:

@@ -1,22 +1,22 @@
 {
   "name": "backend",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/backend/src",
+  "sourceRoot": "apps/backend/src",
   "projectType": "application",
-  "tags": ["type:app", "platform:node"],
+  "tags": ["type:app", "scope:backend", "platform:node"],
   "targets": {
     "dev": {
       "executor": "nx:run-commands",
       "options": {
         "command": "tsx watch src/index.ts",
-        "cwd": "packages/backend"
+        "cwd": "apps/backend"
       }
     },
     "build": {
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc",
-        "cwd": "packages/backend"
+        "cwd": "apps/backend"
       },
       "outputs": ["{projectRoot}/dist"],
       "dependsOn": ["^build"]
@@ -25,7 +25,7 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "node dist/index.js",
-        "cwd": "packages/backend"
+        "cwd": "apps/backend"
       },
       "dependsOn": ["build"]
     },
@@ -33,14 +33,14 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "vitest",
-        "cwd": "packages/backend"
+        "cwd": "apps/backend"
       }
     },
     "test:coverage": {
       "executor": "nx:run-commands",
       "options": {
         "command": "vitest --coverage",
-        "cwd": "packages/backend"
+        "cwd": "apps/backend"
       },
       "outputs": ["{projectRoot}/coverage"]
     },
@@ -48,14 +48,14 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "eslint . --ext .ts --report-unused-disable-directives --max-warnings 0",
-        "cwd": "packages/backend"
+        "cwd": "apps/backend"
       }
     },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --noEmit",
-        "cwd": "packages/backend"
+        "cwd": "apps/backend"
       },
       "dependsOn": ["^build"]
     },
@@ -63,7 +63,7 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "node dist/db/migrate.js",
-        "cwd": "packages/backend"
+        "cwd": "apps/backend"
       },
       "dependsOn": ["build"]
     }

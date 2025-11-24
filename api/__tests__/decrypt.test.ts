@@ -7,7 +7,7 @@ import type { VercelResponse } from '@vercel/node';
 import handler from '../secure/decrypt';
 import type { AuthenticatedVercelRequest } from '../lib/authMiddleware';
 import * as authMiddleware from '../lib/authMiddleware';
-import * as hybridEncryption from '../../packages/backend/src/utils/encryption/hybridEncryption';
+import * as hybridEncryption from '../../apps/backend/src/utils/encryption/hybridEncryption';
 
 // Mock dependencies
 vi.mock('../lib/authMiddleware', async () => {
@@ -21,8 +21,8 @@ vi.mock('../lib/authMiddleware', async () => {
   };
 });
 
-vi.mock('../../packages/backend/src/utils/encryption/hybridEncryption', async () => {
-  const actual = await vi.importActual('../../packages/backend/src/utils/encryption/hybridEncryption');
+vi.mock('../../apps/backend/src/utils/encryption/hybridEncryption', async () => {
+  const actual = await vi.importActual('../../apps/backend/src/utils/encryption/hybridEncryption');
   return {
     ...actual,
     decryptHybrid: vi.fn()

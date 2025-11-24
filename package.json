@@ -3,7 +3,8 @@
   "version": "2.0.0",
   "private": true,
   "workspaces": [
-    "packages/*",
+    "apps/*",
+    "libs/*",
     "api",
     "functions"
   ],
@@ -34,6 +35,8 @@
     "firebase-admin": "^12.0.0"
   },
   "devDependencies": {
+    "@nx/eslint": "^22.1.1",
+    "@nx/eslint-plugin": "^22.1.1",
     "@nx/node": "^20.3.2",
     "@nx/react": "^20.3.2",
     "@nx/workspace": "^20.3.2",

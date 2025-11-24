@@ -11,7 +11,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { encryptWithKMS } from '../../packages/backend/src/services/kmsHybridEncryption';
+import { encryptWithKMS } from '../../apps/backend/src/services/kmsHybridEncryption';
 import { 
   requireAuth, 
   logSecurityEvent,

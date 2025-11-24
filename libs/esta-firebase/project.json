@@ -1,15 +1,15 @@
 {
-  "name": "accrual-engine",
+  "name": "esta-firebase",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/accrual-engine/src",
+  "sourceRoot": "libs/esta-firebase/src",
   "projectType": "library",
-  "tags": ["type:lib", "scope:accrual"],
+  "tags": ["type:lib", "scope:firebase"],
   "targets": {
     "build": {
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc",
-        "cwd": "packages/accrual-engine"
+        "cwd": "libs/esta-firebase"
       },
       "outputs": ["{projectRoot}/dist"]
     },
@@ -17,21 +17,21 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --noEmit",
-        "cwd": "packages/accrual-engine"
+        "cwd": "libs/esta-firebase"
       }
     },
     "test": {
       "executor": "nx:run-commands",
       "options": {
         "command": "vitest run --passWithNoTests",
-        "cwd": "packages/accrual-engine"
+        "cwd": "libs/esta-firebase"
       }
     },
     "clean": {
       "executor": "nx:run-commands",
       "options": {
         "command": "rm -rf dist",
-        "cwd": "packages/accrual-engine"
+        "cwd": "libs/esta-firebase"
       }
     }
   }

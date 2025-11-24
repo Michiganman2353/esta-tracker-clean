@@ -18,14 +18,14 @@ ERRORS=0
 # Check if required directories exist
 echo ""
 echo "📁 Checking build output directories..."
-if [ ! -d "packages/frontend/dist" ]; then
-    echo -e "${RED}❌ Error: packages/frontend/dist directory not found${NC}"
+if [ ! -d "apps/frontend/dist" ]; then
+    echo -e "${RED}❌ Error: apps/frontend/dist directory not found${NC}"
     echo "   Please run 'npm run build' first"
     ERRORS=$((ERRORS + 1))
 else
     echo -e "${GREEN}✅ Frontend build output found${NC}"
     # Check for critical files
-    if [ ! -f "packages/frontend/dist/index.html" ]; then
+    if [ ! -f "apps/frontend/dist/index.html" ]; then
         echo -e "${RED}❌ Error: index.html not found in dist${NC}"
         ERRORS=$((ERRORS + 1))
     else
@@ -95,9 +95,9 @@ if command -v jq &> /dev/null; then
     echo "🔧 Validating vercel.json structure..."
     
     OUTPUT_DIR=$(jq -r '.outputDirectory' vercel.json 2>/dev/null)
-    if [ "$OUTPUT_DIR" != "packages/frontend/dist" ]; then
+    if [ "$OUTPUT_DIR" != "apps/frontend/dist" ]; then
         echo -e "${YELLOW}⚠️  Warning: outputDirectory in vercel.json might be incorrect${NC}"
-        echo "   Expected: packages/frontend/dist, Found: $OUTPUT_DIR"
+        echo "   Expected: apps/frontend/dist, Found: $OUTPUT_DIR"
     else
         echo -e "${GREEN}✅ outputDirectory correctly configured${NC}"
     fi
