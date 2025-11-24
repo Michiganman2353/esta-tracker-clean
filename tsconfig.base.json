@@ -28,7 +28,11 @@
       // Each package builds independently, then dependent packages reference the built output.
       // This ensures proper build order via nx dependencies while maintaining clean boundaries.
       "@esta/shared-types": ["libs/shared-types/dist"],
-      "@esta/shared-types/*": ["libs/shared-types/dist/*"]
+      "@esta/shared-types/*": ["libs/shared-types/dist/*"],
+      "@esta/core": ["packages/esta-core/dist"],
+      "@esta/core/*": ["packages/esta-core/dist/*"],
+      "@esta/firebase-adapter": ["packages/esta-firebase-adapter/dist"],
+      "@esta/firebase-adapter/*": ["packages/esta-firebase-adapter/dist/*"]
     }
   },
   "include": ["src"]

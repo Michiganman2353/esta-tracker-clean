@@ -1,0 +1,32 @@
+# Gitleaks configuration for ESTA Tracker
+# https://github.com/gitleaks/gitleaks
+
+title = "ESTA Tracker Gitleaks Config"
+
+[extend]
+# Use the default gitleaks config as a base
+useDefault = true
+
+# Custom rules for common patterns
+[[rules]]
+description = "Generic API Key"
+regex = '''(?i)(?:api_key|apikey|secret|token|password|auth)[\s:=]{1,}['"]?[A-Za-z0-9-_./]{16,}['"]?'''
+tags = ["key", "generic"]
+
+[[rules]]
+description = "Firebase Config"
+regex = '''(?i)firebase.*(?:api_key|apikey|secret|auth_domain)[\s:=]{1,}['"]?[A-Za-z0-9-_.]+['"]?'''
+tags = ["firebase", "config"]
+
+# Allow list for false positives
+[allowlist]
+description = "Allowlist for false positives"
+paths = [
+  '''\.env\.example$''',
+  '''package-lock\.json$''',
+  '''node_modules/'''
+]
+regexes = [
+  '''(?i)VITE_FIREBASE_\w+=\s*$''',  # Empty placeholder values
+  '''(?i)example|placeholder|your-|changeme'''  # Example/placeholder values
+]
