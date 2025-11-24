@@ -89,3 +89,15 @@ export type { FirebaseApp, FirebaseOptions } from 'firebase/app';
 export type { Auth, User } from 'firebase/auth';
 export type { Firestore, DocumentReference, CollectionReference, QuerySnapshot } from 'firebase/firestore';
 export type { FirebaseStorage, StorageReference } from 'firebase/storage';
+
+// Export employer profile helpers
+export {
+  generateEmployerCode,
+  getEmployerProfileByCode,
+  getEmployerProfileById,
+  createEmployerProfile,
+  updateEmployerBranding,
+  linkEmployeeToEmployer,
+  getEmployerEmployee,
+  regenerateEmployerCode,
+} from './employer-profile.js';
