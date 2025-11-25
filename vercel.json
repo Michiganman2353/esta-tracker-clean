@@ -1,7 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  // Build configuration: Uses Nx to build frontend, which handles workspace dependencies
-  // The build system ensures shared-types and other dependencies are built first
   "buildCommand": "npx nx build frontend",
   "outputDirectory": "apps/frontend/dist",
   "installCommand": "npm install",

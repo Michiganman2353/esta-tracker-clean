@@ -51,6 +51,26 @@ The project uses a modern `vercel.json` configuration with:
 
 The configuration uses the latest Vercel format without deprecated `builds` or `routes` properties.
 
+**⚠️ Important: JSON Syntax Rules**
+
+The `vercel.json` file must be valid JSON. Keep in mind:
+
+- **No comments allowed**: JSON does not support `//` or `/* */` comments. If you need to document configuration options, add them to this documentation file instead.
+- **No trailing commas**: The last item in an object or array must not have a trailing comma.
+- **Proper quoting**: All keys and string values must use double quotes (`"`), not single quotes.
+- **Valid escaping**: Special characters in strings must be properly escaped (e.g., `\\`, `\"`, `\n`).
+
+To validate your `vercel.json` changes locally:
+
+```bash
+# Quick validation using Node.js
+node -e "JSON.parse(require('fs').readFileSync('vercel.json', 'utf-8'))"
+
+# Or use an online validator like jsonlint.com
+```
+
+The CI workflow includes a JSON validation step that will fail-fast if `vercel.json` contains syntax errors.
+
 **Note**: API routes and service workers are not currently configured. Future updates may add serverless functions.
 
 ## Environment Variables
@@ -193,7 +213,29 @@ open https://your-deployment.vercel.app
 
 ## Common Issues
 
-### Issue 1: Build Fails with "Module not found"
+### Issue 1: "Could not parse File as JSON: vercel.json"
+
+**Cause**: The `vercel.json` file contains invalid JSON syntax, such as:
+- JavaScript-style comments (`//` or `/* */`)
+- Trailing commas after the last item in objects/arrays
+- Unquoted keys or values
+- Single quotes instead of double quotes
+
+**Solution**:
+```bash
+# Validate the JSON syntax locally
+node -e "JSON.parse(require('fs').readFileSync('vercel.json', 'utf-8'))"
+
+# If it fails, check for:
+# - Remove any // or /* */ comments (JSON doesn't support comments)
+# - Remove trailing commas
+# - Use double quotes for all strings
+# - Properly escape special characters
+```
+
+**Prevention**: The CI workflow now includes a JSON validation step that will catch this issue early.
+
+### Issue 2: Build Fails with "Module not found"
 
 **Cause**: Missing dependencies or incorrect workspace setup
 
@@ -204,7 +246,7 @@ npm install
 npm run build
 ```
 
-### Issue 2: Environment Variables Not Working
+### Issue 3: Environment Variables Not Working
 
 **Cause**: Variables not set in Vercel Dashboard or incorrect naming
 
@@ -213,7 +255,7 @@ npm run build
 - For Vite variables, must start with `VITE_`
 - Redeploy after adding variables
 
-### Issue 3: Firebase Connection Issues
+### Issue 4: Firebase Connection Issues
 
 **Cause**: Missing or incorrect Firebase environment variables
 
@@ -223,7 +265,7 @@ npm run build
 - Ensure variables are prefixed with `VITE_` for Vite access
 - Redeploy after adding/updating variables
 
-### Issue 4: Build Fails with TypeScript Errors
+### Issue 5: Build Fails with TypeScript Errors
 
 **Cause**: Type errors in TypeScript code
 
@@ -236,7 +278,7 @@ npm run typecheck
 npm run build
 ```
 
-### Issue 5: Security Vulnerabilities in Dependencies
+### Issue 6: Security Vulnerabilities in Dependencies
 
 **Current Status**: 5 moderate vulnerabilities in esbuild/vite (dev dependencies)
 

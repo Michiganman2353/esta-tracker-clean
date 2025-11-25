@@ -94,6 +94,16 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Validate JSON Configuration Files
+        run: |
+          echo "Validating vercel.json..."
+          if ! node -e "JSON.parse(require('fs').readFileSync('vercel.json', 'utf-8'))"; then
+            echo "❌ Error: vercel.json is not valid JSON"
+            echo "Hint: JSON does not support comments. Remove any // or /* */ comments."
+            exit 1
+          fi
+          echo "✅ vercel.json is valid JSON"
+
       - name: Debug Secrets
         run: |
           echo "Checking if secrets are set:"
