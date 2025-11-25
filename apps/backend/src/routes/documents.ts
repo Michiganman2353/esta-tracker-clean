@@ -1,4 +1,10 @@
 import { Router, Request, Response } from 'express';
+import {
+  validateBody,
+  documentUploadUrlSchema,
+  ValidatedRequest,
+  DocumentUploadUrlInput,
+} from '../validation/index.js';
 
 export const documentsRouter = Router();
 
@@ -35,6 +41,14 @@ documentsRouter.get('/:documentId', async (req: Request, res: Response) => {
   try {
     const { documentId } = req.params;
     
+    if (!documentId) {
+      res.status(400).json({
+        success: false,
+        error: 'Document ID is required',
+      });
+      return;
+    }
+    
     // TODO: Add authentication middleware
     // TODO: Query Firestore for document
     // TODO: Generate download URL via Cloud Function
@@ -58,35 +72,34 @@ documentsRouter.get('/:documentId', async (req: Request, res: Response) => {
  * POST /api/v1/documents/upload-url
  * Body: { requestId, fileName, contentType }
  */
-documentsRouter.post('/upload-url', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { requestId, fileName, contentType } = req.body;
+documentsRouter.post(
+  '/upload-url',
+  validateBody(documentUploadUrlSchema),
+  async (req: ValidatedRequest<DocumentUploadUrlInput>, res: Response): Promise<void> => {
+    try {
+      const { requestId, fileName, contentType } = req.validated!.body;
     
-    if (!requestId || !fileName || !contentType) {
-      res.status(400).json({
-        success: false,
-        error: 'Missing required fields: requestId, fileName, contentType',
+      // TODO: Add authentication middleware
+      // TODO: Call Cloud Function to generate signed URL
+    
+      res.json({
+        success: true,
+        uploadUrl: null,
+        documentId: null,
+        expiresIn: 900,
+        requestId,
+        fileName,
+        contentType,
+        message: 'Upload URL generation endpoint - requires Firebase Cloud Function integration',
       });
-      return;
+    } catch (_error) {
+      res.status(500).json({
+        success: false,
+        error: 'Failed to generate upload URL',
+      });
     }
-    
-    // TODO: Add authentication middleware
-    // TODO: Call Cloud Function to generate signed URL
-    
-    res.json({
-      success: true,
-      uploadUrl: null,
-      documentId: null,
-      expiresIn: 900,
-      message: 'Upload URL generation endpoint - requires Firebase Cloud Function integration',
-    });
-  } catch (_error) {
-    res.status(500).json({
-      success: false,
-      error: 'Failed to generate upload URL',
-    });
   }
-});
+);
 
 /**
  * Confirm a document upload

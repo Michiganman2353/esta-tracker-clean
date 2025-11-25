@@ -2,6 +2,16 @@ import { Response, Router } from 'express';
 import { getFirestore } from '../services/firebase';
 import { authenticate, rateLimit } from '../middleware/auth';
 import { AuthenticatedRequest } from '../middleware/auth';
+import {
+  validateBody,
+  validateQuery,
+  policyCreateSchema,
+  policyActivateSchema,
+  policyQuerySchema,
+  PolicyCreateInput,
+  PolicyActivateInput,
+  PolicyQueryInput,
+} from '../validation/index.js';
 
 const router = Router();
 const db = getFirestore();
@@ -39,10 +49,10 @@ interface TenantPolicyConfig {
  * GET /api/v1/policies
  * Get all available policies for tenant
  */
-router.get('/', authenticate, rateLimit(100, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.get('/', authenticate, rateLimit(100, 60000), validateQuery(policyQuerySchema), async (req: AuthenticatedRequest & { validated?: { query: PolicyQueryInput } }, res: Response): Promise<void> => {
   try {
     const { tenantId } = req.user || {};
-    const { employerSize } = req.query;
+    const employerSize = req.validated?.query?.employerSize;
 
     if (!tenantId) {
       res.status(400).json({ error: 'Tenant ID required' });
@@ -104,10 +114,10 @@ router.get('/:id', authenticate, rateLimit(100, 60000), async (req: Authenticate
  * POST /api/v1/policies
  * Create a new custom policy
  */
-router.post('/', authenticate, rateLimit(10, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.post('/', authenticate, rateLimit(10, 60000), validateBody(policyCreateSchema), async (req: AuthenticatedRequest & { validated?: { body: PolicyCreateInput } }, res: Response): Promise<void> => {
   try {
     const { tenantId, uid: userId } = req.user || {};
-    const { basePolicyId, customizations } = req.body;
+    const { basePolicyId, customizations } = req.validated?.body || {};
 
     if (!tenantId || !userId) {
       res.status(400).json({ error: 'Authentication required' });
@@ -168,10 +178,10 @@ router.post('/', authenticate, rateLimit(10, 60000), async (req: AuthenticatedRe
  * PUT /api/v1/policies/active
  * Set active policy for tenant
  */
-router.put('/active', authenticate, rateLimit(20, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.put('/active', authenticate, rateLimit(20, 60000), validateBody(policyActivateSchema), async (req: AuthenticatedRequest & { validated?: { body: PolicyActivateInput } }, res: Response): Promise<void> => {
   try {
     const { tenantId, uid: userId } = req.user || {};
-    const { policyId, customizations } = req.body;
+    const { policyId, customizations } = req.validated?.body || {};
 
     if (!tenantId || !userId) {
       res.status(400).json({ error: 'Authentication required' });

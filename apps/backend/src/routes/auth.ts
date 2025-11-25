@@ -1,5 +1,15 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { randomUUID } from 'crypto';
+import {
+  validateBody,
+  employeeRegistrationSchema,
+  managerRegistrationSchema,
+  loginSchema,
+  ValidatedRequest,
+  EmployeeRegistrationInput,
+  ManagerRegistrationInput,
+  LoginInput,
+} from '../validation/index.js';
 
 export const authRouter = Router();
 
@@ -23,197 +33,184 @@ const users = new Map<string, StoredUser>();
 const tokenToUserId = new Map<string, string>();
 
 // Mock authentication endpoints
-authRouter.post('/login', (req, res) => {
-  const { email } = req.body;
+authRouter.post(
+  '/login',
+  validateBody(loginSchema),
+  (req: ValidatedRequest<LoginInput>, res: Response) => {
+    const { email } = req.validated!.body;
   
-  // Find user by email
-  let user: StoredUser | undefined;
-  for (const [, u] of users) {
-    if (u.email === email) {
-      user = u;
-      break;
+    // Find user by email
+    let user: StoredUser | undefined;
+    for (const [, u] of users) {
+      if (u.email === email) {
+        user = u;
+        break;
+      }
+    }
+  
+    if (user) {
+      // Generate token and store mapping
+      const token = `mock-token-${user.role}-${user.id}`;
+      tokenToUserId.set(token, user.id);
+    
+      res.json({ 
+        token, 
+        user
+      });
+    } else {
+      // For testing, create a default employee user
+      const defaultUser: StoredUser = {
+        id: '1',
+        email: email,
+        name: 'Test User',
+        role: 'employee',
+        status: 'approved',
+        employerSize: 'small',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+    
+      const token = 'mock-token-employee-1';
+      users.set('1', defaultUser);
+      tokenToUserId.set(token, '1');
+    
+      res.json({ 
+        token, 
+        user: defaultUser 
+      });
     }
   }
+);
+
+authRouter.post(
+  '/register',
+  validateBody(employeeRegistrationSchema),
+  (req: ValidatedRequest<EmployeeRegistrationInput>, res: Response) => {
+    const { email, name } = req.validated!.body;
+    const userId = 'user-' + randomUUID();
+    const token = `mock-token-employee-${userId}`;
   
-  if (user) {
-    // Generate token and store mapping
-    const token = `mock-token-${user.role}-${user.id}`;
-    tokenToUserId.set(token, user.id);
-    
-    res.json({ 
-      token, 
-      user
-    });
-  } else {
-    // For testing, create a default employee user
-    const defaultUser: StoredUser = {
-      id: '1',
-      email: email,
-      name: 'Test User',
+    const user: StoredUser = {
+      id: userId,
+      email,
+      name,
       role: 'employee',
       status: 'approved',
       employerSize: 'small',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    
-    const token = 'mock-token-employee-1';
-    users.set('1', defaultUser);
-    tokenToUserId.set(token, '1');
-    
-    res.json({ 
-      token, 
-      user: defaultUser 
-    });
+  
+    users.set(userId, user);
+    tokenToUserId.set(token, userId);
+  
+    res.json({ token, user });
   }
-});
-
-authRouter.post('/register', (req, res) => {
-  const { email, name } = req.body;
-  const userId = 'user-' + randomUUID();
-  const token = `mock-token-employee-${userId}`;
-  
-  const user: StoredUser = {
-    id: userId,
-    email,
-    name,
-    role: 'employee',
-    status: 'approved',
-    employerSize: 'small',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-  
-  users.set(userId, user);
-  tokenToUserId.set(token, userId);
-  
-  res.json({ token, user });
-});
+);
 
 // Employee registration endpoint
-authRouter.post('/register/employee', (req, res): void => {
-  const { name, email, password } = req.body;
-  
-  // Basic validation
-  if (!name || !email || !password) {
-    res.status(400).json({ message: 'Name, email, and password are required' });
-    return;
-  }
+authRouter.post(
+  '/register/employee',
+  validateBody(employeeRegistrationSchema),
+  (req: ValidatedRequest<EmployeeRegistrationInput>, res: Response): void => {
+    const { name, email } = req.validated!.body;
 
-  if (password.length < 8) {
-    res.status(400).json({ message: 'Password must be at least 8 characters' });
-    return;
-  }
-
-  // Check if email already exists
-  for (const [, user] of users) {
-    if (user.email === email) {
-      res.status(409).json({ message: 'Email already registered' });
-      return;
+    // Check if email already exists
+    for (const [, user] of users) {
+      if (user.email === email) {
+        res.status(409).json({ message: 'Email already registered' });
+        return;
+      }
     }
-  }
 
-  // In a real app, you would:
-  // 1. Hash the password
-  // 2. Save to database
-  // 3. Generate real JWT token
+    // In a real app, you would:
+    // 1. Hash the password
+    // 2. Save to database
+    // 3. Generate real JWT token
   
-  const userId = 'emp-' + randomUUID();
-  const token = `mock-token-employee-${userId}`;
+    const userId = 'emp-' + randomUUID();
+    const token = `mock-token-employee-${userId}`;
   
-  const user: StoredUser = {
-    id: userId,
-    email,
-    name,
-    role: 'employee',
-    employerSize: 'small',
-    status: 'approved', // Employees are auto-approved
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
+    const user: StoredUser = {
+      id: userId,
+      email,
+      name,
+      role: 'employee',
+      employerSize: 'small',
+      status: 'approved', // Employees are auto-approved
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
   
-  users.set(userId, user);
-  tokenToUserId.set(token, userId);
+    users.set(userId, user);
+    tokenToUserId.set(token, userId);
   
-  res.json({ 
-    token, 
-    user
-  });
-});
+    res.json({ 
+      token, 
+      user
+    });
+  }
+);
 
 // Manager registration endpoint
-authRouter.post('/register/manager', (req, res): void => {
-  const { name, email, password, companyName, employeeCount } = req.body;
-  
-  // Basic validation
-  if (!name || !email || !password || !companyName || !employeeCount) {
-    res.status(400).json({ 
-      message: 'Name, email, password, company name, and employee count are required' 
-    });
-    return;
-  }
+authRouter.post(
+  '/register/manager',
+  validateBody(managerRegistrationSchema),
+  (req: ValidatedRequest<ManagerRegistrationInput>, res: Response): void => {
+    const { name, email, companyName, employeeCount } = req.validated!.body;
 
-  if (password.length < 8) {
-    res.status(400).json({ message: 'Password must be at least 8 characters' });
-    return;
-  }
-
-  if (employeeCount < 1) {
-    res.status(400).json({ message: 'Employee count must be at least 1' });
-    return;
-  }
-
-  // Check if email already exists
-  for (const [, user] of users) {
-    if (user.email === email) {
-      res.status(409).json({ message: 'Email already registered' });
-      return;
+    // Check if email already exists
+    for (const [, user] of users) {
+      if (user.email === email) {
+        res.status(409).json({ message: 'Email already registered' });
+        return;
+      }
     }
+
+    // Determine employer size based on Michigan ESTA law
+    // Small employers: < 10 employees (40 hours max paid, 32 hours unpaid)
+    // Large employers: >= 10 employees (72 hours max paid)
+    const employerSize = employeeCount < 10 ? 'small' : 'large';
+
+    // In a real app, you would:
+    // 1. Hash the password
+    // 2. Save user and company info to database
+    // 3. Send notification to admin for approval
+    // 4. Create employer settings record after approval
+  
+    // Manager registration requires approval before access is granted
+    // Return token so user can be logged in immediately after registration
+    // NOTE: In production, use cryptographically secure JWT tokens instead of mock tokens
+  
+    const userId = 'mgr-' + randomUUID();
+    const employerId = 'company-' + randomUUID();
+    const token = `mock-token-manager-${userId}`;
+  
+    const user: StoredUser = {
+      id: userId,
+      email,
+      name,
+      role: 'employer',
+      employerId,
+      employerSize,
+      companyName,
+      employeeCount,
+      status: 'approved', // Changed to 'approved' for immediate access during development
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+  
+    users.set(userId, user);
+    tokenToUserId.set(token, userId);
+  
+    res.json({ 
+      success: true,
+      message: 'Registration completed successfully.',
+      token,
+      user
+    });
   }
-
-  // Determine employer size based on Michigan ESTA law
-  // Small employers: < 10 employees (40 hours max paid, 32 hours unpaid)
-  // Large employers: >= 10 employees (72 hours max paid)
-  const employerSize = employeeCount < 10 ? 'small' : 'large';
-
-  // In a real app, you would:
-  // 1. Hash the password
-  // 2. Save user and company info to database
-  // 3. Send notification to admin for approval
-  // 4. Create employer settings record after approval
-  
-  // Manager registration requires approval before access is granted
-  // Return token so user can be logged in immediately after registration
-  // NOTE: In production, use cryptographically secure JWT tokens instead of mock tokens
-  
-  const userId = 'mgr-' + randomUUID();
-  const employerId = 'company-' + randomUUID();
-  const token = `mock-token-manager-${userId}`;
-  
-  const user: StoredUser = {
-    id: userId,
-    email,
-    name,
-    role: 'employer',
-    employerId,
-    employerSize,
-    companyName,
-    employeeCount,
-    status: 'approved', // Changed to 'approved' for immediate access during development
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-  
-  users.set(userId, user);
-  tokenToUserId.set(token, userId);
-  
-  res.json({ 
-    success: true,
-    message: 'Registration completed successfully.',
-    token,
-    user
-  });
-});
+);
 
 authRouter.post('/logout', (_req, res) => {
   res.json({ success: true });
