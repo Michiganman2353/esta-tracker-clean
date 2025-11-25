@@ -110,6 +110,9 @@ export function initializeFirebase(): FirebaseApp {
     console.log(`   Project ID: ${firebaseConfig.projectId}`);
 
     // Initialize Analytics only in browser environment and when supported
+    // Note: Analytics initialization is intentionally async. getFirebaseAnalytics()
+    // may return null during initialization or if analytics is not supported.
+    // This is by design - analytics is optional and should not block app initialization.
     if (firebaseConfig.measurementId && typeof window !== 'undefined') {
       isSupported().then((supported) => {
         if (supported && app) {
@@ -186,7 +189,8 @@ export function getFirebaseStorage(): FirebaseStorage {
 
 /**
  * Get Firebase Analytics instance
- * Returns null if Analytics is not supported or not configured
+ * Returns null if Analytics is not supported, not configured, or still initializing.
+ * Analytics initialization is async to avoid blocking the app.
  * 
  * @returns Analytics instance or null
  */
