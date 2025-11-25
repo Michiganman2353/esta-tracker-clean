@@ -34,7 +34,7 @@
     "clean": "nx run-many --target=clean --all && rm -rf node_modules packages/*/node_modules .nx",
     "clean:all": "npm run clean && rm -rf apps/*/dist libs/*/dist packages/*/dist functions/dist api/dist .nx/cache",
     "postinstall": "npm run postinstall --workspaces --if-present",
-    "prepare": "husky || true",
+    "prepare": "husky || echo 'Husky not available (CI environment)'",
     "setup:kms": "node scripts/setup-kms.js",
     "validate:deployment": "bash scripts/validate-deployment.sh",
     "validate:tsconfig": "node scripts/validate-tsconfig-paths.js",

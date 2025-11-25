@@ -82,10 +82,12 @@ function validateTsconfigPaths() {
   if (hasErrors) {
     console.log('\n⚠️  Some path aliases point to missing directories.');
     console.log(
-      '   This may cause build failures. Run "npm run build:libs" to generate dist folders.\n'
+      '   This may cause build failures. Run "npm run build:libs" to generate dist folders.'
     );
-    // Don't fail - just warn, since dist might not exist before first build
-    process.exit(0);
+    console.log('   Use --strict flag to fail on missing paths.\n');
+    // Exit with warning code (0) by default, but allow strict mode via flag
+    const strictMode = process.argv.includes('--strict');
+    process.exit(strictMode ? 1 : 0);
   }
 
   console.log('\n✅ All tsconfig path aliases validated successfully!\n');

@@ -62,8 +62,10 @@ export class AppError extends Error {
     this.details = details;
     this.isOperational = isOperational;
 
-    // Maintains proper stack trace for where error was thrown
-    Error.captureStackTrace(this, this.constructor);
+    // Maintains proper stack trace for where error was thrown (Node.js only)
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, this.constructor);
+    }
   }
 
   /**

@@ -31,15 +31,30 @@ async function runHealthCheck() {
 
   // Test 1: Check if @esta/core is importable
   try {
-    const coreDistPath = path.join(
+    const coreDistDir = path.join(
       __dirname,
       '..',
       'packages',
       'esta-core',
-      'dist',
-      'index.js'
+      'dist'
     );
-    const core = require(coreDistPath);
+    const possibleEntryPoints = ['index.js', 'index.mjs', 'index.cjs'];
+    let core = null;
+    let loadedPath = null;
+
+    for (const entryPoint of possibleEntryPoints) {
+      const fullPath = path.join(coreDistDir, entryPoint);
+      if (require('fs').existsSync(fullPath)) {
+        core = require(fullPath);
+        loadedPath = fullPath;
+        break;
+      }
+    }
+
+    if (!core) {
+      throw new Error(`No entry point found in ${coreDistDir}`);
+    }
+
     totalTests++;
 
     // Verify exports exist
