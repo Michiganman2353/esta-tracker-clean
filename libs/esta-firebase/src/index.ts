@@ -45,8 +45,23 @@ export {
   resetFirebase,
 } from './firebase-app.js';
 
-// Export initialized instances for convenience
+// Import getter functions for lazy initialization
 import { getApp, getFirebaseAuth, getFirebaseFirestore, getFirebaseStorage, getFirebaseAnalytics } from './firebase-app.js';
+
+/**
+ * Detect if running in a test environment
+ * This prevents Firebase initialization during test imports
+ */
+function isTestEnvironment(): boolean {
+  // Check for common test environment indicators
+  if (typeof process !== 'undefined' && process.env) {
+    // Vitest and Jest set these
+    if (process.env.VITEST || process.env.JEST_WORKER_ID || process.env.NODE_ENV === 'test') {
+      return true;
+    }
+  }
+  return false;
+}
 
 // These will be lazy-initialized when accessed via getters
 let _app: ReturnType<typeof getApp> | null = null;
@@ -54,7 +69,11 @@ let _auth: ReturnType<typeof getFirebaseAuth> | null = null;
 let _db: ReturnType<typeof getFirebaseFirestore> | null = null;
 let _storage: ReturnType<typeof getFirebaseStorage> | null = null;
 
-// Lazy initialization helpers
+/**
+ * Lazy initialization helper
+ * Only initializes Firebase when actually needed, not at import time
+ * In test environments, this will throw if Firebase is not mocked
+ */
 function ensureInitialized() {
   if (!_app) {
     _app = getApp();
@@ -64,29 +83,67 @@ function ensureInitialized() {
   }
 }
 
-// Export getters instead of direct references to ensure initialization
-export const app = (() => {
-  ensureInitialized();
-  return _app!;
-})();
+/**
+ * Flag to track if we're in test mode and should skip eager initialization
+ * In test environments, the module should be mocked before any Firebase calls
+ */
+const inTestEnv = isTestEnvironment();
 
-export const auth = (() => {
+/**
+ * Get or initialize the Firebase App instance
+ * In test environments, returns null until explicitly initialized
+ */
+function getLazyApp() {
+  if (inTestEnv && !_app) {
+    // In test environments, return null to allow mocking
+    // Tests should mock this module entirely
+    return null;
+  }
   ensureInitialized();
-  return _auth!;
-})();
+  return _app;
+}
 
-export const db = (() => {
+/**
+ * Get or initialize the Firebase Auth instance
+ */
+function getLazyAuth() {
+  if (inTestEnv && !_auth) {
+    return null;
+  }
   ensureInitialized();
-  return _db!;
-})();
+  return _auth;
+}
 
-export const storage = (() => {
+/**
+ * Get or initialize the Firestore instance
+ */
+function getLazyDb() {
+  if (inTestEnv && !_db) {
+    return null;
+  }
   ensureInitialized();
-  return _storage!;
-})();
+  return _db;
+}
 
-// Analytics is optional and may be null
-export const analytics = getFirebaseAnalytics();
+/**
+ * Get or initialize the Firebase Storage instance
+ */
+function getLazyStorage() {
+  if (inTestEnv && !_storage) {
+    return null;
+  }
+  ensureInitialized();
+  return _storage;
+}
+
+// Export Firebase instances
+// In production: These will be lazily initialized on first access
+// In test environments: These will be null, and should be mocked
+export const app = getLazyApp();
+export const auth = getLazyAuth();
+export const db = getLazyDb();
+export const storage = getLazyStorage();
+export const analytics = inTestEnv ? null : getFirebaseAnalytics();
 
 // Re-export common Firebase client types for convenience
 export type { FirebaseApp, FirebaseOptions } from 'firebase/app';

@@ -7,11 +7,27 @@ import type { User } from '../../types';
 
 // Mock modules
 vi.mock('../../lib/authService');
-vi.mock('../../lib/firebase', () => ({
+
+// Mock the Firebase service - Login.tsx may import from @/services/firebase
+vi.mock('@/services/firebase', () => ({
   auth: {},
   db: {},
-  isFirebaseConfigured: true,
+  storage: {},
+  app: {},
 }));
+
+// Mock @esta/firebase
+vi.mock('@esta/firebase', () => ({
+  app: {},
+  auth: { currentUser: null },
+  db: {},
+  storage: {},
+  analytics: null,
+  createEmployerProfile: vi.fn(),
+  getEmployerProfileByCode: vi.fn(),
+  linkEmployeeToEmployer: vi.fn(),
+}));
+
 vi.mock('../../lib/api', () => ({
   apiClient: {
     login: vi.fn(),

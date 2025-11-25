@@ -28,12 +28,44 @@ vi.mock('firebase/app', () => ({
   getApps: vi.fn(() => []),
 }));
 
-vi.mock('../firebase', () => ({
+// Mock the Firebase service used by authService
+// Note: authService imports from '@/services/firebase' which is an alias for 'src/services/firebase'
+vi.mock('@/services/firebase', () => ({
   auth: {
     currentUser: null,
   },
   db: {},
-  isFirebaseConfigured: true,
+  storage: {},
+  app: {},
+}));
+
+// Mock @esta/firebase for employer profile functions
+vi.mock('@esta/firebase', () => ({
+  app: {},
+  auth: { currentUser: null },
+  db: {},
+  storage: {},
+  analytics: null,
+  createEmployerProfile: vi.fn().mockResolvedValue({
+    id: 'test-employer-id',
+    employerCode: 'TST1',
+    size: 'large',
+    displayName: 'Test Company',
+  }),
+  getEmployerProfileByCode: vi.fn().mockResolvedValue(null),
+  linkEmployeeToEmployer: vi.fn().mockResolvedValue(undefined),
+  generateEmployerCode: vi.fn().mockReturnValue('TST1'),
+  getEmployerProfileById: vi.fn(),
+  updateEmployerBranding: vi.fn(),
+  getEmployerEmployee: vi.fn(),
+  regenerateEmployerCode: vi.fn(),
+  initializeFirebase: vi.fn(),
+  getApp: vi.fn(),
+  getFirebaseAuth: vi.fn(),
+  getFirebaseFirestore: vi.fn(),
+  getFirebaseStorage: vi.fn(),
+  getFirebaseAnalytics: vi.fn(),
+  resetFirebase: vi.fn(),
 }));
 
 describe('authService', () => {
@@ -159,7 +191,7 @@ describe('authService', () => {
         password: 'password123',
       };
 
-      await expect(registerEmployee(invalidData)).rejects.toThrow('company code or employer email');
+      await expect(registerEmployee(invalidData)).rejects.toThrow('Please provide an employer code');
     });
   });
 
