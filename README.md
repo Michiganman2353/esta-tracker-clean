@@ -12,6 +12,8 @@ ESTA Tracker is a full-stack SaaS platform that automates compliance with the Mi
 - [Features](#features)
 - [Technology Stack](#technology-stack)
 - [Documentation](#documentation)
+- [Vision & Roadmap](#vision--roadmap)
+- [Enterprise Subscription System](#enterprise-subscription-system)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -291,6 +293,184 @@ For detailed information, see [Employer Profile Documentation](./docs/employer-p
 - **Phase 4**: National HR compliance engine, Enterprise partnerships
 
 See [docs/archive/MASTER_PLAN_V2_IMPLEMENTATION.md](./docs/archive/MASTER_PLAN_V2_IMPLEMENTATION.md) for the complete strategic vision.
+
+---
+
+## Enterprise Subscription System 💳
+
+> **"Build it once. Build it right. This system will process millions."**
+
+The Enterprise Subscription System is the financial backbone of ESTA Tracker, engineered with financial-grade reliability, absolute data consistency, and zero-tolerance for revenue leakage.
+
+### 🏗️ Core Architecture
+
+#### Design Principles
+
+| Principle | Description |
+|-----------|-------------|
+| **Failure Is Not An Option** | Every component engineered with financial-grade reliability and zero-tolerance for revenue leakage |
+| **Scale Is Assumed** | Architected for 10,000 concurrent subscriptions from day one, designed for 100x growth |
+| **Compliance Is Non-Negotiable** | PCI DSS, SOC 2, GDPR, and global tax compliance are foundational requirements |
+
+#### System-Wide Non-Negotiables
+
+- **Event Sourcing Architecture**: Every financial state change emits immutable events with complete audit trails
+- **CQRS Pattern**: Strict separation between command (write) and query (read) models
+- **Circuit Breakers Everywhere**: All external dependencies have aggressive circuit breakers with graceful degradation
+- **Idempotency By Design**: Every payment operation is safely retryable with zero financial impact from duplicates
+
+#### Data Consistency Requirements
+
+- **ACID Transactions** for all monetary operations—eventual consistency is unacceptable for financial data
+- **Distributed Transactions** across subscription and billing domains with absolute consistency
+- **Real-time Revenue Recognition** with GAAP-compliant revenue scheduling across subscription periods
+
+### 💎 Subscription Tier Architecture
+
+#### Four-Tier Enterprise Model
+
+| Tier | Description | Target Audience |
+|------|-------------|-----------------|
+| **FREE** | Acquisition funnel with hard limits, designed to convert | Individual users, trial |
+| **PRO** | Premium individual offering with 10x value over free | Power users, small teams |
+| **AGENCY** | Multi-seat B2B with white-labeling and bulk operations | Agencies, mid-size businesses |
+| **ENTERPRISE** | Custom contracts with SLA guarantees | Large organizations |
+
+#### Pricing Engine Capabilities
+
+- **Multi-dimensional Pricing**: Seat-based, usage-based, feature-based, and commitment-based pricing
+- **Global Currency Handling**: 50+ currencies with real-time exchange rates and bank-grade rounding
+- **Automated Tax Engine**: VAT, GST, sales tax with region-specific rules and monthly compliance updates
+- **Contract Enforcement**: Custom enterprise agreements with unique terms, discounts, and special provisions
+
+### 💳 Payment Processing Orchestration
+
+#### Multi-Processor Strategy
+
+- **Primary Processor**: Full integration with modern payment platform for global payment methods
+- **Secondary Processor**: Different payment network for redundancy and regional optimization
+- **Backup Processor**: Third processor for emergency failover scenarios
+
+#### Intelligent Routing Logic
+
+- **Geographic Optimization**: Route payments based on processor performance by region
+- **Cost Minimization**: Dynamic selection of lowest-cost processor per transaction type
+- **Success Rate Maximization**: Real-time routing based on historical success rates
+- **Cascading Failover**: Automated failover with zero customer impact during outages
+
+### 📊 Advanced Billing Capabilities
+
+#### Usage-Based Billing Engine
+
+- **Real-time Metering**: Granular tracking of API calls, submissions, storage, and custom metrics
+- **Predictive Analytics**: Usage forecasting to prevent surprise overage charges
+- **Tiered Overage Pricing**: Progressive pricing bands for usage exceeding included limits
+- **Custom Billing Cycles**: Monthly, quarterly, annual, and custom enterprise billing periods
+
+#### Complex Billing Scenarios
+
+- **Proration Engine**: Day-precise calculations for mid-cycle upgrades, downgrades, and cancellations
+- **Trial Management**: Flexible trial periods with automated conversion tracking and win-back campaigns
+- **Dunning Management**: Multi-stage failed payment recovery with intelligent retry timing
+- **Invoice Customization**: White-labeled invoices with agency branding and multi-language support
+
+### 🔐 Enterprise Security & Compliance
+
+#### Security Implementation
+
+| Standard | Description |
+|----------|-------------|
+| **PCI DSS Level 1** | Certified card data handling with zero plaintext card data |
+| **SOC 2 Type II** | Comprehensive financial controls with third-party audits |
+| **GDPR/CCPA** | Full data subject rights including right to erasure and portability |
+| **Financial Audit Trail** | Immutable log of every financial event with tamper-evident sealing |
+
+#### Fraud Prevention
+
+- **Multi-layer Fraud Detection**: Rule-based, behavioral, and machine learning prevention
+- **Velocity Checking**: Real-time analysis of payment patterns across customer base
+- **Geolocation Validation**: IP-based location verification with high-risk region blocking
+- **Manual Review Workflow**: Escalation path for suspicious transactions with case management
+
+### 📈 Observability & Business Intelligence
+
+#### Real-time Monitoring
+
+- **Financial Health Dashboard**: Live MRR, ARR, churn, LTV, and ARPA calculations
+- **Payment Success Analytics**: Granular analysis of decline reasons and recovery rates
+- **Revenue Leakage Detection**: Automated identification of unpaid usage and system errors
+
+#### Business Metrics
+
+- **Cohort Analysis**: Customer lifetime value by acquisition channel and plan type
+- **Churn Analytics**: Voluntary vs involuntary churn with root cause analysis
+- **Conversion Funnels**: Free to paid conversion rates with bottleneck identification
+- **Expansion Revenue Tracking**: Upsell, cross-sell, and usage-based revenue growth
+
+### 🔌 Integration Ecosystem
+
+#### Public API Design
+
+- **RESTful Principles**: Consistent, predictable API design with comprehensive documentation
+- **Webhook Framework**: Real-time event system for 15+ subscription and billing events
+- **SDK Availability**: Client libraries for major programming languages and frameworks
+- **API Versioning**: Strict backward compatibility with deprecation policies
+
+#### Third-party Integrations
+
+| Category | Integrations |
+|----------|-------------|
+| **Accounting** | QuickBooks, Xero, NetSuite |
+| **CRM** | Salesforce, HubSpot, Zoho |
+| **Analytics** | Business intelligence tools |
+| **Support** | Zendesk, Intercom, Freshdesk |
+
+### 🚀 Scalability & Reliability
+
+#### Infrastructure Requirements
+
+- **Database Architecture**: Read replicas for analytics, write-optimized primary with connection pooling
+- **Caching Strategy**: Multi-layer caching with Redis clusters for subscription state and pricing
+- **Queue Processing**: Background job system for non-critical operations with retry logic
+- **CDN Integration**: Global content delivery for billing portals and documentation
+
+#### Disaster Recovery
+
+- **Multi-region Deployment**: Active-active across at least two geographic regions
+- **Data Resilience**: Real-time replication with point-in-time recovery
+- **Business Continuity**: Manual processing workflows for complete system outages
+- **Incident Response**: Documented playbooks for payment processor outages and security incidents
+
+### 📅 Implementation Phases
+
+| Phase | Timeline | Scope |
+|-------|----------|-------|
+| **Phase 1: Foundation** | Weeks 1-4 | Core subscription engine, single payment processor, basic tier structure |
+| **Phase 2: Scale** | Weeks 5-8 | Multi-processor architecture, usage-based billing, advanced dunning, basic analytics |
+| **Phase 3: Enterprise** | Weeks 9-12 | Complex pricing models, contract management, security compliance |
+| **Phase 4: Optimization** | Weeks 13-16 | Performance tuning, advanced analytics, security audit preparation |
+
+### 🎯 Success Criteria
+
+#### Technical Excellence
+
+| Metric | Target |
+|--------|--------|
+| **Uptime** | 99.95% for payment processing operations |
+| **Response Time** | Sub-2-second for 95th percentile API requests |
+| **Data Loss** | Zero in financial transactions |
+| **Error Rate** | Less than 0.1% in payment processing |
+
+#### Business Impact
+
+| Metric | Target |
+|--------|--------|
+| **Payment Failure Rate** | Less than 1% after recovery attempts |
+| **Free to Paid Conversion** | Greater than 20% |
+| **Monthly Voluntary Churn** | Less than 5% |
+| **Automated Revenue Collection** | Over 90% of total revenue |
+
+---
 
 ## Contributing
 
