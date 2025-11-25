@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/esta-core/src",
   "projectType": "library",
-  "tags": ["type:lib", "scope:core"],
+  "tags": ["type:lib", "scope:shared", "scope:core"],
   "targets": {
     "build": {
       "executor": "nx:run-commands",

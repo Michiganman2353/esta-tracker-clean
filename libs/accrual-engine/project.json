@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/accrual-engine/src",
   "projectType": "library",
-  "tags": ["type:lib", "scope:accrual"],
+  "tags": ["type:lib", "scope:shared", "scope:accrual"],
   "targets": {
     "build": {
       "executor": "nx:run-commands",
