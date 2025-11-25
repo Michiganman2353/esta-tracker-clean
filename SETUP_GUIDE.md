@@ -14,8 +14,8 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/Michiganman2353/esta-tracker-clean.git
-cd esta-tracker-clean
+git clone https://github.com/Michiganman2353/ESTA-Logic.git
+cd ESTA-Logic
 
 # Install all dependencies
 npm install
@@ -278,7 +278,7 @@ npm run test -- --watch
 ## 🎓 Architecture Overview
 
 ```
-esta-tracker-clean/
+ESTA-Logic/
 ├── packages/
 │   ├── frontend/          # React + Vite frontend
 │   ├── backend/           # Express API (for local dev)
@@ -351,7 +351,7 @@ esta-tracker-clean/
    - Review [DEPLOYMENT_TROUBLESHOOTING.md](./DEPLOYMENT_TROUBLESHOOTING.md)
 
 2. **Search Issues:**
-   - [GitHub Issues](https://github.com/Michiganman2353/esta-tracker-clean/issues)
+   - [GitHub Issues](https://github.com/Michiganman2353/ESTA-Logic/issues)
 
 3. **Create New Issue:**
    - Include error messages

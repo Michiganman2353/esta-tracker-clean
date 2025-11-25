@@ -635,7 +635,7 @@ The ESTA Tracker repository is in **excellent condition** and ready for producti
 
 ### A. File Structure
 ```
-esta-tracker-clean/
+ESTA-Logic/
 ├── packages/
 │   ├── frontend/         ✅ Build passing, tests passing
 │   └── backend/          ✅ Build passing, tests passing

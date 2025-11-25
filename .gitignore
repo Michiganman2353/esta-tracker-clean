@@ -42,6 +42,7 @@ src/**/*.d.ts.map
 # Vite
 .vite/
 vite.config.*.timestamp-*
+vitest.config.*.timestamp-*
 
 # Vercel
 .vercel/

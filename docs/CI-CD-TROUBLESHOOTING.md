@@ -25,7 +25,7 @@ The `VERCEL_TOKEN` GitHub secret contains invalid characters or formatting issue
    ```
 
 2. **Update GitHub Secret:**
-   - Go to: `https://github.com/Michiganman2353/esta-tracker-clean/settings/secrets/actions`
+   - Go to: `https://github.com/Michiganman2353/ESTA-Logic/settings/secrets/actions`
    - Delete the old `VERCEL_TOKEN` secret
    - Click "New repository secret"
    - Name: `VERCEL_TOKEN`
@@ -50,7 +50,7 @@ Error: Missing required parameter VERCEL_PROJECT_ID
 
 1. **Link your project locally:**
    ```bash
-   cd /path/to/esta-tracker-clean
+   cd /path/to/ESTA-Logic
    vercel link
    ```
 

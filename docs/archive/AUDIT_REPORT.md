@@ -214,7 +214,7 @@ npm audit fix --force  # Requires major version upgrades
 ### 4.1 Monorepo Structure: ✅ WELL-ORGANIZED
 
 ```
-esta-tracker-clean/
+ESTA-Logic/
 ├── packages/
 │   ├── frontend/  (Vite + React + TypeScript)
 │   └── backend/   (Express + TypeScript)

@@ -21,7 +21,7 @@ ESTA Tracker is currently using npm workspaces for a basic monorepo structure wi
 
 ### Repository Structure
 ```
-esta-tracker-clean/
+ESTA-Logic/
 ├── packages/
 │   ├── frontend/          # React + Vite + TypeScript
 │   └── backend/           # Node + Express + TypeScript

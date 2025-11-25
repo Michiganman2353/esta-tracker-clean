@@ -1,7 +1,7 @@
 # Firebase Authentication & Firestore Security Hardening - Complete Audit Report
 
 **Date**: 2025-11-21  
-**Repository**: Michiganman2353/esta-tracker-clean  
+**Repository**: Michiganman2353/ESTA-Logic  
 **Branch**: copilot/audit-firebase-auth-security  
 
 ---

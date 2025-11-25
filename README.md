@@ -4,8 +4,8 @@
 
 ESTA Tracker is a full-stack SaaS platform that automates compliance with the Michigan Earned Sick Time Act (ESTA) of 2025, helping employers track, calculate, and document paid sick time without the complexity.
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/Michiganman2353/esta-tracker-clean/ci.yml?branch=main)](https://github.com/Michiganman2353/esta-tracker-clean/actions)
-[![License](https://img.shields.io/github/license/Michiganman2353/esta-tracker-clean)](./LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/Michiganman2353/ESTA-Logic/ci.yml?branch=main)](https://github.com/Michiganman2353/ESTA-Logic/actions)
+[![License](https://img.shields.io/github/license/Michiganman2353/ESTA-Logic)](./LICENSE)
 
 ## Table of Contents
 - [Quick Start](#quick-start)
@@ -81,8 +81,8 @@ Add all 6 variables as **repository secrets**:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Michiganman2353/esta-tracker-clean.git
-   cd esta-tracker-clean
+   git clone https://github.com/Michiganman2353/ESTA-Logic.git
+   cd ESTA-Logic
    ```
 
 2. **Install dependencies**
@@ -486,8 +486,8 @@ This project is licensed under the terms specified in the [LICENSE](./LICENSE) f
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/Michiganman2353/esta-tracker-clean/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/Michiganman2353/esta-tracker-clean/discussions)
+- **Issues**: [GitHub Issues](https://github.com/Michiganman2353/ESTA-Logic/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Michiganman2353/ESTA-Logic/discussions)
 - **Security**: For security concerns, please see [SECURITY.md](./SECURITY.md)
 
 ---

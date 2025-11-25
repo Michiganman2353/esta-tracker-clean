@@ -7,7 +7,7 @@ ESTA Tracker uses **Turborepo** for efficient monorepo management with intellige
 ## Architecture
 
 ```
-esta-tracker-clean/
+ESTA-Logic/
 ├── packages/
 │   ├── frontend/             # React + Vite application
 │   ├── backend/              # Node + Express API

@@ -22,7 +22,7 @@ vercel login
 
 ### 3. Link Your Project
 ```bash
-cd /path/to/esta-tracker-clean
+cd /path/to/ESTA-Logic
 vercel link
 ```
 

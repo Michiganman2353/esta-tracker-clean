@@ -264,7 +264,7 @@ If deployment fails:
 
 ## 📞 Support Resources
 
-- [GitHub Actions Logs](https://github.com/Michiganman2353/esta-tracker-clean/actions)
+- [GitHub Actions Logs](https://github.com/Michiganman2353/ESTA-Logic/actions)
 - [Vercel Dashboard](https://vercel.com/dashboard)
 - [CI/CD Troubleshooting Guide](./CI-CD-TROUBLESHOOTING.md)
 - [GitHub Secrets Setup Guide](./GITHUB-SECRETS-SETUP.md)

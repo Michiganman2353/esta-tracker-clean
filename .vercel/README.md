@@ -47,7 +47,7 @@ Follow the prompts to authenticate with your Vercel account.
 ### Step 3: Link the project
 
 ```bash
-cd /path/to/esta-tracker-clean
+cd /path/to/ESTA-Logic
 vercel link
 ```
 
@@ -55,7 +55,7 @@ You'll be asked:
 1. **Set up and deploy?** → Yes
 2. **Which scope?** → Select your team/account
 3. **Link to existing project?** → Yes (if project exists) or No (to create new)
-4. **Project name** → Select or enter `esta-tracker-clean`
+4. **Project name** → Select or enter `esta-logic`
 
 ### Step 4: Extract the IDs
 

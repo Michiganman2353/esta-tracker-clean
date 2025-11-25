@@ -7,7 +7,7 @@ This document provides visual representations of the monorepo package structure 
 ## Current Package Structure
 
 ```
-esta-tracker-clean/
+ESTA-Logic/
 │
 ├── packages/                           # Workspace packages
 │   ├── frontend/                       # React SPA (Vite + TypeScript)
