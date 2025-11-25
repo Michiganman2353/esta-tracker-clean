@@ -83,7 +83,7 @@ The repository includes a pre-configured `vercel.json` that handles:
 #### Option A: GitHub Integration (Recommended)
 
 1. Go to **Vercel Dashboard → Add New → Project**
-2. Import your GitHub repository `Michiganman2353/esta-tracker-clean`
+2. Import your GitHub repository `Michiganman2353/ESTA-Logic`
 3. Select the repository
 4. Configure environment variables (see Step 1)
 5. Click **Deploy**

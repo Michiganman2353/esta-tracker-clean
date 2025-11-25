@@ -14,7 +14,7 @@ This guide covers deploying the ESTA Tracker application to Vercel. The project 
 ## Project Structure
 
 ```
-esta-tracker-clean/
+ESTA-Logic/
 ├── packages/
 │   ├── frontend/          # React + Vite application (builds to dist/)
 │   └── backend/           # Express API (for local dev and future deployment)
@@ -398,7 +398,7 @@ For automated deployments to work, configure these secrets in your GitHub reposi
 
 2. **Link Your Project**
    ```bash
-   cd /path/to/esta-tracker-clean
+   cd /path/to/ESTA-Logic
    vercel link
    ```
    
@@ -406,7 +406,7 @@ For automated deployments to work, configure these secrets in your GitHub reposi
    - **Set up and deploy?** → Yes
    - **Which scope?** → Select your team/account
    - **Link to existing project?** → Yes (if exists) or No (to create)
-   - **What's your project's name?** → esta-tracker-clean
+   - **What's your project's name?** → esta-logic
 
 3. **Extract the IDs**
    After linking, a `.vercel/project.json` file is created:
@@ -426,7 +426,7 @@ For automated deployments to work, configure these secrets in your GitHub reposi
 4. **Add to GitHub Secrets**
    Go to your repository and add these values:
    
-   - Navigate to: `https://github.com/Michiganman2353/esta-tracker-clean/settings/secrets/actions`
+   - Navigate to: `https://github.com/Michiganman2353/ESTA-Logic/settings/secrets/actions`
    - Click "New repository secret" for each:
      - Name: `VERCEL_ORG_ID`, Value: the orgId from project.json
      - Name: `VERCEL_PROJECT_ID`, Value: the projectId from project.json
@@ -478,7 +478,7 @@ For more details on secret configuration, see [VERCEL_TOKEN_SETUP.md](VERCEL_TOK
 - [Vercel Documentation](https://vercel.com/docs)
 - [Vite Deployment Guide](https://vitejs.dev/guide/static-deploy.html#vercel)
 - [Firebase Web Setup](https://firebase.google.com/docs/web/setup)
-- [Project Repository](https://github.com/Michiganman2353/esta-tracker-clean)
+- [Project Repository](https://github.com/Michiganman2353/ESTA-Logic)
 
 ## Quick Reference
 

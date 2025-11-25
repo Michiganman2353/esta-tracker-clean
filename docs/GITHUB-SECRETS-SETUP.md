@@ -52,7 +52,7 @@ Follow the prompts:
 Navigate to your project directory and link it to Vercel:
 
 ```bash
-cd /path/to/esta-tracker-clean
+cd /path/to/ESTA-Logic
 vercel link
 ```
 
@@ -60,7 +60,7 @@ Answer the prompts:
 - **Set up and deploy?** → Yes
 - **Which scope?** → Select your team/account
 - **Link to existing project?** → Yes (if project exists) or No (to create new)
-- **What's your project's name?** → `esta-tracker-clean`
+- **What's your project's name?** → `esta-logic`
 
 After successful linking, a `.vercel` directory will be created.
 
@@ -95,7 +95,7 @@ You should see output like:
 
 1. **Navigate to your repository on GitHub:**
    ```
-   https://github.com/Michiganman2353/esta-tracker-clean
+   https://github.com/Michiganman2353/ESTA-Logic
    ```
 
 2. **Go to Settings:**

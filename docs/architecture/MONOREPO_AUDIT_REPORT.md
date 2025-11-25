@@ -23,7 +23,7 @@ This audit evaluates the ESTA Tracker monorepo for production readiness, archite
 ### 1.1 Directory Layout
 
 ```
-esta-tracker-clean/
+ESTA-Logic/
 ├── packages/                    ✅ Well-organized workspace packages
 │   ├── frontend/               ✅ React/Vite SPA with TypeScript
 │   ├── backend/                ✅ Express server with Firebase Admin
@@ -436,7 +436,7 @@ Add `vite-plugin-bundle-analyzer` to frontend.
 ### 5.1 Proposed Directory Tree
 
 ```
-esta-tracker-clean/
+ESTA-Logic/
 ├── packages/
 │   ├── frontend/               # React SPA
 │   ├── backend/                # Express server

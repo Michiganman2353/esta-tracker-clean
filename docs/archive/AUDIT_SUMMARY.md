@@ -61,7 +61,7 @@ This document summarizes the comprehensive audit conducted on the ESTA Tracker r
 
 ### Directory Structure
 ```
-esta-tracker-clean/
+ESTA-Logic/
 ├── .github/              # GitHub workflows and configuration
 ├── packages/
 │   ├── frontend/         # React + Vite + TypeScript application
@@ -199,5 +199,5 @@ The repository audit successfully identified and resolved all issues related to 
 
 **Audit Completed**: November 17, 2024
 **Audited By**: GitHub Copilot (Automated Code Review)
-**Repository**: github.com/Michiganman2353/esta-tracker-clean
+**Repository**: github.com/Michiganman2353/ESTA-Logic
 **Branch**: copilot/run-audit-and-review-files

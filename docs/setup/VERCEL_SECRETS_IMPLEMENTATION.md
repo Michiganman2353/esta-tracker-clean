@@ -26,7 +26,7 @@ vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
 ```
 
 ### 2. `.env.example` (Documentation)
-**Location**: `/esta-tracker-clean/.env.example`  
+**Location**: `/ESTA-Logic/.env.example`  
 **Purpose**: Template for developers to know what variables are needed  
 **Git Status**: Tracked (committed, safe)
 
@@ -36,7 +36,7 @@ Contains placeholders with detailed instructions:
 - `VERCEL_PROJECT_ID=your-vercel-project-id`
 
 ### 3. Local `.env.local` (For Development)
-**Location**: `/esta-tracker-clean/.env.local`  
+**Location**: `/ESTA-Logic/.env.local`  
 **Purpose**: Local development and Vercel CLI deployments  
 **Git Status**: ✅ Gitignored (will never be committed)
 
@@ -50,7 +50,7 @@ VERCEL_PROJECT_ID=your-actual-project-id
 ## Vercel Configuration Files
 
 ### `.vercel/` Directory
-**Location**: `/esta-tracker-clean/.vercel/`  
+**Location**: `/ESTA-Logic/.vercel/`  
 **Purpose**: Contains local Vercel configuration after running `vercel link`  
 **Git Status**: ✅ Gitignored (contains sensitive data)
 
@@ -60,7 +60,7 @@ See `.vercel/README.md` for detailed information about:
 - Troubleshooting common issues
 
 ### `vercel.json`
-**Location**: `/esta-tracker-clean/vercel.json`  
+**Location**: `/ESTA-Logic/vercel.json`  
 **Purpose**: Vercel deployment configuration  
 **Git Status**: Tracked (contains no secrets)
 

@@ -6,13 +6,13 @@ This guide helps diagnose and resolve common deployment issues for the ESTA Trac
 ## Quick Diagnostics
 
 ### GitHub Actions Status
-1. Check the [Actions tab](https://github.com/Michiganman2353/esta-tracker-clean/actions)
+1. Check the [Actions tab](https://github.com/Michiganman2353/ESTA-Logic/actions)
 2. Look for failed workflows
 3. Click on failed workflow to see logs
 
 ### Vercel Dashboard
 1. Visit [Vercel Dashboard](https://vercel.com/dashboard)
-2. Select the esta-tracker project
+2. Select the esta-logic project
 3. Check deployment status
 4. Review build logs
 
@@ -69,7 +69,7 @@ npm run build
 #### B. Get Organization and Project IDs
 ```bash
 # Link the project (if not already linked)
-cd /path/to/esta-tracker-clean
+cd /path/to/ESTA-Logic
 vercel link
 
 # Get IDs from .vercel/project.json
@@ -309,7 +309,7 @@ vercel --prod           # Deploy to production
 ```
 
 ### Key URLs
-- [GitHub Actions](https://github.com/Michiganman2353/esta-tracker-clean/actions)
+- [GitHub Actions](https://github.com/Michiganman2353/ESTA-Logic/actions)
 - [Vercel Dashboard](https://vercel.com/dashboard)
 - [Firebase Console](https://console.firebase.google.com/)
 - [Production Site](https://estatracker.com)
