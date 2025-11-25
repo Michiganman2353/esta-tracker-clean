@@ -1,0 +1,51 @@
+{
+  "name": "firebase-infra",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "infra/firebase",
+  "projectType": "library",
+  "tags": ["type:infra", "scope:firebase"],
+  "targets": {
+    "deploy:rules": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "firebase deploy --only firestore:rules,storage",
+        "cwd": "."
+      },
+      "inputs": [
+        "{workspaceRoot}/firestore.rules",
+        "{workspaceRoot}/storage.rules"
+      ]
+    },
+    "deploy:indexes": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "firebase deploy --only firestore:indexes",
+        "cwd": "."
+      },
+      "inputs": ["{workspaceRoot}/firestore.indexes.json"]
+    },
+    "deploy:all": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "firebase deploy",
+        "cwd": "."
+      },
+      "dependsOn": ["functions:build"]
+    },
+    "emulators": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "firebase emulators:start",
+        "cwd": "."
+      }
+    },
+    "emulators:functions": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "firebase emulators:start --only functions,firestore,auth",
+        "cwd": "."
+      },
+      "dependsOn": ["functions:build"]
+    }
+  }
+}

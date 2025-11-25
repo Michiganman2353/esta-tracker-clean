@@ -7,7 +7,11 @@
   "targetDefaults": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["{projectRoot}/dist", "{projectRoot}/build"],
+      "outputs": [
+        "{projectRoot}/dist",
+        "{projectRoot}/build",
+        "{projectRoot}/lib"
+      ],
       "cache": true,
       "inputs": [
         "{projectRoot}/src/**",
@@ -63,6 +67,14 @@
     },
     "clean": {
       "cache": false
+    },
+    "deploy": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "emulators": {
+      "cache": false,
+      "persistent": true
     }
   },
   "namedInputs": {
@@ -75,13 +87,25 @@
       "!{projectRoot}/vitest.config.ts",
       "!{projectRoot}/.eslintrc.*",
       "!{projectRoot}/eslint.config.js"
+    ],
+    "firebase": [
+      "{workspaceRoot}/firebase.json",
+      "{workspaceRoot}/firestore.rules",
+      "{workspaceRoot}/firestore.indexes.json",
+      "{workspaceRoot}/storage.rules"
     ]
   },
   "tasksRunnerOptions": {
     "default": {
       "runner": "nx/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "test", "test:coverage", "lint", "typecheck"]
+        "cacheableOperations": [
+          "build",
+          "test",
+          "test:coverage",
+          "lint",
+          "typecheck"
+        ]
       }
     }
   },

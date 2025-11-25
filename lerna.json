@@ -1,16 +1,19 @@
 {
   "$schema": "node_modules/lerna/schemas/lerna-schema.json",
   "version": "independent",
-  "packages": ["apps/*", "libs/*"],
+  "packages": ["apps/*", "libs/*", "packages/*"],
   "useNx": true,
+  "useWorkspaces": true,
   "npmClient": "npm",
   "command": {
     "version": {
       "conventionalCommits": true,
-      "message": "chore(release): publish"
+      "message": "chore(release): publish",
+      "createRelease": "github"
     },
     "publish": {
-      "message": "chore(release): publish"
+      "message": "chore(release): publish",
+      "conventionalCommits": true
     }
   }
 }

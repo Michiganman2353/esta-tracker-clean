@@ -1,0 +1,54 @@
+{
+  "name": "@esta/core",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/esta-core/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:shared", "scope:core"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc",
+        "cwd": "packages/esta-core"
+      },
+      "outputs": ["{projectRoot}/dist"],
+      "dependsOn": ["shared-types:build"]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run",
+        "cwd": "packages/esta-core"
+      }
+    },
+    "test:watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest",
+        "cwd": "packages/esta-core"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo 'Lint handled by workspace'",
+        "cwd": "packages/esta-core"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit",
+        "cwd": "packages/esta-core"
+      },
+      "dependsOn": ["shared-types:build"]
+    },
+    "clean": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "rm -rf dist",
+        "cwd": "packages/esta-core"
+      }
+    }
+  }
+}

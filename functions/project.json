@@ -1,0 +1,68 @@
+{
+  "name": "functions",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "functions/src",
+  "projectType": "library",
+  "tags": ["type:firebase", "scope:functions", "platform:node"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc",
+        "cwd": "functions"
+      },
+      "outputs": ["{projectRoot}/lib"],
+      "dependsOn": ["esta-firebase:build"]
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "npx nx build functions",
+          "firebase emulators:start --only functions"
+        ],
+        "cwd": ".",
+        "parallel": false
+      },
+      "dependsOn": ["build"]
+    },
+    "shell": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["npx nx build functions", "firebase functions:shell"],
+        "cwd": ".",
+        "parallel": false
+      },
+      "dependsOn": ["build"]
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "firebase deploy --only functions",
+        "cwd": "."
+      },
+      "dependsOn": ["build"]
+    },
+    "logs": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "firebase functions:log",
+        "cwd": "."
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo 'No tests configured'",
+        "cwd": "functions"
+      }
+    },
+    "clean": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "rm -rf lib",
+        "cwd": "functions"
+      }
+    }
+  }
+}

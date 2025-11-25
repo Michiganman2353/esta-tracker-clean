@@ -64,7 +64,7 @@ jobs:
             "VITE_FIREBASE_MESSAGING_SENDER_ID"
             "VITE_FIREBASE_APP_ID"
           )
-          
+
           MISSING_SECRETS=()
           for SECRET_NAME in "${REQUIRED_SECRETS[@]}"; do
             # Use indirect reference to check if the environment variable is set
@@ -72,7 +72,7 @@ jobs:
               MISSING_SECRETS+=("$SECRET_NAME")
             fi
           done
-          
+
           if [ ${#MISSING_SECRETS[@]} -ne 0 ]; then
             echo "❌ ERROR: Missing required GitHub secrets:"
             printf '  - %s\n' "${MISSING_SECRETS[@]}"
@@ -81,7 +81,7 @@ jobs:
             echo "GitHub Repository → Settings → Secrets and variables → Actions"
             exit 1
           fi
-          
+
           echo "✅ All required secrets are configured"
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
@@ -98,6 +98,14 @@ jobs:
           key: ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-nx-
+
+      - name: Validate Nx Workspace
+        run: |
+          echo "Validating Nx project graph..."
+          npx nx graph --file=/tmp/nx-graph.json
+          echo "✅ Nx workspace graph validated"
+          echo "Projects in workspace:"
+          npx nx show projects
 
       - name: Validate Frontend Entry Point
         run: |
@@ -305,10 +313,10 @@ jobs:
   # Production deployment for master branch
   # IMPORTANT: This job uses GitHub Secrets to securely store the Vercel authentication token.
   # The VERCEL_TOKEN secret is referenced via ${{ secrets.VERCEL_TOKEN }} and is never exposed in code.
-  # 
+  #
   # SECURITY NOTE: Secrets must be configured in GitHub repository settings under
   # Settings > Secrets and variables > Actions before this workflow can succeed.
-  # 
+  #
   # SETUP VERIFICATION: This deployment step should NOT be considered complete until:
   # 1. The VERCEL_TOKEN secret is properly configured in GitHub repository settings
   # 2. The VERCEL_ORG_ID secret is properly configured

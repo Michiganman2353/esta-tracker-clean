@@ -13,16 +13,58 @@
             "allow": [],
             "depConstraints": [
               {
+                "sourceTag": "type:app",
+                "onlyDependOnLibsWithTags": [
+                  "type:lib",
+                  "type:firebase",
+                  "type:api"
+                ]
+              },
+              {
                 "sourceTag": "scope:frontend",
-                "onlyDependOnLibsWithTags": ["scope:frontend", "scope:shared"]
+                "onlyDependOnLibsWithTags": [
+                  "scope:frontend",
+                  "scope:shared",
+                  "scope:firebase"
+                ]
               },
               {
                 "sourceTag": "scope:backend",
-                "onlyDependOnLibsWithTags": ["scope:backend", "scope:shared"]
+                "onlyDependOnLibsWithTags": [
+                  "scope:backend",
+                  "scope:shared",
+                  "scope:firebase"
+                ]
               },
               {
                 "sourceTag": "scope:shared",
                 "onlyDependOnLibsWithTags": ["scope:shared"]
+              },
+              {
+                "sourceTag": "scope:firebase",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:firebase"]
+              },
+              {
+                "sourceTag": "type:firebase",
+                "onlyDependOnLibsWithTags": [
+                  "type:lib",
+                  "scope:shared",
+                  "scope:firebase"
+                ],
+                "notDependOnLibsWithTags": ["scope:frontend", "platform:web"]
+              },
+              {
+                "sourceTag": "type:api",
+                "onlyDependOnLibsWithTags": [
+                  "type:lib",
+                  "scope:shared",
+                  "scope:firebase",
+                  "scope:vercel"
+                ]
+              },
+              {
+                "sourceTag": "platform:web",
+                "notDependOnLibsWithTags": ["platform:node"]
               }
             ]
           }

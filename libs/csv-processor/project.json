@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/csv-processor/src",
   "projectType": "library",
-  "tags": ["type:lib", "scope:csv"],
+  "tags": ["type:lib", "scope:shared", "scope:csv"],
   "targets": {
     "build": {
       "executor": "nx:run-commands",
@@ -12,7 +12,6 @@
         "cwd": "libs/csv-processor"
       },
       "outputs": ["{projectRoot}/dist"],
-      // Depends on shared-types for type definitions
       "dependsOn": ["shared-types:build"]
     },
     "typecheck": {
