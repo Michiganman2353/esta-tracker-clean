@@ -11,6 +11,7 @@ import { employerRouter } from './routes/employer.js';
 import { documentsRouter } from './routes/documents.js';
 import policiesRouter from './routes/policies.js';
 import importRouter from './routes/import.js';
+import { complianceRouter } from './routes/compliance.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { generalLimiter, authLimiter } from './middleware/rateLimiter.js';
 
@@ -73,6 +74,7 @@ app.use('/api/v1/employer', employerRouter);
 app.use('/api/v1/documents', documentsRouter);
 app.use('/api/v1/policies', policiesRouter);
 app.use('/api/v1/import', importRouter);
+app.use('/api/v1/compliance', complianceRouter);
 
 // Error handling
 app.use(errorHandler);

@@ -12,3 +12,4 @@ export * from './api.js';
 export * from './employer.js';
 export * from './employer-profile.js';
 export * from './request.js';
+export * from './compliance.js';
