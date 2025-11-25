@@ -41,11 +41,12 @@ export {
   getFirebaseAuth,
   getFirebaseFirestore,
   getFirebaseStorage,
+  getFirebaseAnalytics,
   resetFirebase,
 } from './firebase-app.js';
 
 // Export initialized instances for convenience
-import { getApp, getFirebaseAuth, getFirebaseFirestore, getFirebaseStorage } from './firebase-app.js';
+import { getApp, getFirebaseAuth, getFirebaseFirestore, getFirebaseStorage, getFirebaseAnalytics } from './firebase-app.js';
 
 // These will be lazy-initialized when accessed via getters
 let _app: ReturnType<typeof getApp> | null = null;
@@ -84,11 +85,15 @@ export const storage = (() => {
   return _storage!;
 })();
 
+// Analytics is optional and may be null
+export const analytics = getFirebaseAnalytics();
+
 // Re-export common Firebase client types for convenience
 export type { FirebaseApp, FirebaseOptions } from 'firebase/app';
 export type { Auth, User } from 'firebase/auth';
 export type { Firestore, DocumentReference, CollectionReference, QuerySnapshot } from 'firebase/firestore';
 export type { FirebaseStorage, StorageReference } from 'firebase/storage';
+export type { Analytics } from 'firebase/analytics';
 
 // Export employer profile helpers
 export {

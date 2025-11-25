@@ -6,6 +6,7 @@
  */
 
 import { initializeApp, getApps, FirebaseApp, FirebaseOptions } from 'firebase/app';
+import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
@@ -14,6 +15,7 @@ let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let db: Firestore | null = null;
 let storage: FirebaseStorage | null = null;
+let analytics: Analytics | null = null;
 
 /**
  * Get environment variable - handles both Vite (import.meta.env) and Node (process.env)
@@ -64,7 +66,7 @@ function validateFirebaseConfig(): void {
 function getFirebaseConfig(): FirebaseOptions {
   validateFirebaseConfig();
 
-  return {
+  const config: FirebaseOptions = {
     apiKey: getEnvVar('VITE_FIREBASE_API_KEY')!,
     authDomain: getEnvVar('VITE_FIREBASE_AUTH_DOMAIN')!,
     projectId: getEnvVar('VITE_FIREBASE_PROJECT_ID')!,
@@ -72,6 +74,14 @@ function getFirebaseConfig(): FirebaseOptions {
     messagingSenderId: getEnvVar('VITE_FIREBASE_MESSAGING_SENDER_ID')!,
     appId: getEnvVar('VITE_FIREBASE_APP_ID')!,
   };
+
+  // Add measurementId if provided (optional - for Firebase Analytics)
+  const measurementId = getEnvVar('VITE_FIREBASE_MEASUREMENT_ID');
+  if (measurementId) {
+    config.measurementId = measurementId;
+  }
+
+  return config;
 }
 
 /**
@@ -98,6 +108,20 @@ export function initializeFirebase(): FirebaseApp {
     app = initializeApp(firebaseConfig);
     console.log('✅ Firebase initialized successfully');
     console.log(`   Project ID: ${firebaseConfig.projectId}`);
+
+    // Initialize Analytics only in browser environment and when supported
+    if (firebaseConfig.measurementId && typeof window !== 'undefined') {
+      isSupported().then((supported) => {
+        if (supported && app) {
+          analytics = getAnalytics(app);
+          console.log('✅ Firebase Analytics initialized');
+        }
+      }).catch(() => {
+        // Analytics not supported in this environment (e.g., SSR, Node.js)
+        console.log('ℹ️ Firebase Analytics not supported in this environment');
+      });
+    }
+
     return app;
   } catch (error) {
     console.error('❌ Failed to initialize Firebase:', error);
@@ -161,6 +185,16 @@ export function getFirebaseStorage(): FirebaseStorage {
 }
 
 /**
+ * Get Firebase Analytics instance
+ * Returns null if Analytics is not supported or not configured
+ * 
+ * @returns Analytics instance or null
+ */
+export function getFirebaseAnalytics(): Analytics | null {
+  return analytics;
+}
+
+/**
  * Reset Firebase (useful for testing)
  * ⚠️ Only use in test environments
  */
@@ -169,5 +203,6 @@ export function resetFirebase(): void {
   auth = null;
   db = null;
   storage = null;
+  analytics = null;
   console.log('🧹 Firebase client instance reset');
 }
