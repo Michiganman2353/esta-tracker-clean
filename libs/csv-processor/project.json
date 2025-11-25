@@ -12,7 +12,6 @@
         "cwd": "libs/csv-processor"
       },
       "outputs": ["{projectRoot}/dist"],
-      // Depends on shared-types for type definitions
       "dependsOn": ["shared-types:build"]
     },
     "typecheck": {

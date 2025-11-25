@@ -1,0 +1,39 @@
+{
+  "name": "esta-tracker-api",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "api",
+  "projectType": "library",
+  "tags": ["type:api", "scope:vercel", "platform:node"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc",
+        "cwd": "api"
+      },
+      "outputs": ["{projectRoot}/dist"],
+      "dependsOn": ["esta-firebase:build"]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run",
+        "cwd": "api"
+      }
+    },
+    "test:watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest",
+        "cwd": "api"
+      }
+    },
+    "clean": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "rm -rf dist",
+        "cwd": "api"
+      }
+    }
+  }
+}
