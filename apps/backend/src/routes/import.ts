@@ -2,38 +2,33 @@ import { Response, Router } from 'express';
 import { getFirestore } from '../services/firebase';
 import { authenticate, rateLimit } from '../middleware/auth';
 import { AuthenticatedRequest } from '../middleware/auth';
+import {
+  validateBody,
+  validateQuery,
+  importValidateSchema,
+  employeeImportSchema,
+  hoursImportSchema,
+  importHistoryQuerySchema,
+  ImportValidateInput,
+  EmployeeImportInput,
+  HoursImportInput,
+  ImportHistoryQueryInput,
+} from '../validation/index.js';
 
 const router = Router();
 const db = getFirestore();
-
-interface CSVImportData {
-  type: 'employees' | 'hours';
-  data: Record<string, unknown>[];
-  metadata: {
-    fileName: string;
-    totalRows: number;
-    validRows: number;
-    errors: number;
-    warnings: number;
-  };
-}
 
 /**
  * POST /api/v1/import/validate
  * Validate CSV data before import
  */
-router.post('/validate', authenticate, rateLimit(10, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.post('/validate', authenticate, rateLimit(10, 60000), validateBody(importValidateSchema), async (req: AuthenticatedRequest & { validated?: { body: ImportValidateInput } }, res: Response): Promise<void> => {
   try {
-    const { type, data, metadata } = req.body as CSVImportData;
+    const { type, data, metadata } = req.validated?.body || { type: 'employees' as const, data: [], metadata: { fileName: '', totalRows: 0, validRows: 0, errors: 0, warnings: 0 } };
     const { tenantId } = req.user || {};
 
     if (!tenantId) {
       res.status(400).json({ error: 'Tenant ID required' });
-      return;
-    }
-
-    if (!type || !data || !Array.isArray(data)) {
-      res.status(400).json({ error: 'Invalid import data' });
       return;
     }
 
@@ -91,18 +86,13 @@ router.post('/validate', authenticate, rateLimit(10, 60000), async (req: Authent
  * POST /api/v1/import/employees
  * Import employee data
  */
-router.post('/employees', authenticate, rateLimit(5, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.post('/employees', authenticate, rateLimit(5, 60000), validateBody(employeeImportSchema), async (req: AuthenticatedRequest & { validated?: { body: EmployeeImportInput } }, res: Response): Promise<void> => {
   try {
-    const { data, metadata } = req.body as CSVImportData;
+    const { data, metadata } = req.validated?.body || { data: [], metadata: { fileName: '', totalRows: 0, validRows: 0, errors: 0, warnings: 0 } };
     const { tenantId, uid: userId } = req.user || {};
 
     if (!tenantId || !userId) {
       res.status(400).json({ error: 'Authentication required' });
-      return;
-    }
-
-    if (!data || !Array.isArray(data)) {
-      res.status(400).json({ error: 'Invalid import data' });
       return;
     }
 
@@ -120,7 +110,7 @@ router.post('/employees', authenticate, rateLimit(5, 60000), async (req: Authent
           hireDate: row.hireDate,
           department: row.department || null,
           employmentStatus: row.employmentStatus || 'active',
-          hoursPerWeek: row.hoursPerWeek ? Number(row.hoursPerWeek) : 40,
+          hoursPerWeek: row.hoursPerWeek ?? 40,
           employerId: tenantId,
           role: 'employee',
           updatedAt: new Date(),
@@ -195,9 +185,9 @@ router.post('/employees', authenticate, rateLimit(5, 60000), async (req: Authent
  * POST /api/v1/import/hours
  * Import hours data
  */
-router.post('/hours', authenticate, rateLimit(10, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.post('/hours', authenticate, rateLimit(10, 60000), validateBody(hoursImportSchema), async (req: AuthenticatedRequest & { validated?: { body: HoursImportInput } }, res: Response): Promise<void> => {
   try {
-    const { data, metadata } = req.body as CSVImportData;
+    const { data, metadata } = req.validated?.body || { data: [], metadata: { fileName: '', totalRows: 0, validRows: 0, errors: 0, warnings: 0 } };
     const { tenantId, uid: userId } = req.user || {};
 
     if (!tenantId || !userId) {
@@ -205,13 +195,8 @@ router.post('/hours', authenticate, rateLimit(10, 60000), async (req: Authentica
       return;
     }
 
-    if (!data || !Array.isArray(data)) {
-      res.status(400).json({ error: 'Invalid import data' });
-      return;
-    }
-
     // Get employee mapping
-    const employeeEmails = [...new Set(data.map((row) => (row as { employeeEmail?: string }).employeeEmail))];
+    const employeeEmails = [...new Set(data.map((row) => row.employeeEmail))];
     const employeeDocs = await db
       .collection('users')
       .where('employerId', '==', tenantId)
@@ -232,8 +217,8 @@ router.post('/hours', authenticate, rateLimit(10, 60000), async (req: Authentica
 
         if (!employeeId) {
           failed.push({
-            email: row.employeeEmail as string,
-            date: row.date as string,
+            email: row.employeeEmail,
+            date: row.date,
             error: 'Employee not found',
           });
           continue;
@@ -243,8 +228,8 @@ router.post('/hours', authenticate, rateLimit(10, 60000), async (req: Authentica
           employeeId,
           employerId: tenantId,
           date: row.date,
-          hoursWorked: Number(row.hoursWorked),
-          overtimeHours: row.overtimeHours ? Number(row.overtimeHours) : 0,
+          hoursWorked: row.hoursWorked,
+          overtimeHours: row.overtimeHours ?? 0,
           notes: row.notes || null,
           createdAt: new Date(),
           createdBy: userId,
@@ -256,8 +241,8 @@ router.post('/hours', authenticate, rateLimit(10, 60000), async (req: Authentica
       } catch (error) {
         console.error(`Error processing hours for ${row.employeeEmail}:`, error);
         failed.push({
-          email: row.employeeEmail as string,
-          date: row.date as string,
+          email: row.employeeEmail,
+          date: row.date,
           error: error instanceof Error ? error.message : 'Unknown error',
         });
       }
@@ -297,10 +282,10 @@ router.post('/hours', authenticate, rateLimit(10, 60000), async (req: Authentica
  * GET /api/v1/import/history
  * Get import history for tenant
  */
-router.get('/history', authenticate, rateLimit(50, 60000), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.get('/history', authenticate, rateLimit(50, 60000), validateQuery(importHistoryQuerySchema), async (req: AuthenticatedRequest & { validated?: { query: ImportHistoryQueryInput } }, res: Response): Promise<void> => {
   try {
     const { tenantId } = req.user || {};
-    const { limit = 50 } = req.query;
+    const limit = req.validated?.query?.limit ?? 50;
 
     if (!tenantId) {
       res.status(400).json({ error: 'Tenant ID required' });
@@ -312,7 +297,7 @@ router.get('/history', authenticate, rateLimit(50, 60000), async (req: Authentic
       .where('employerId', '==', tenantId)
       .where('action', 'in', ['csv_import_employees', 'csv_import_hours'])
       .orderBy('timestamp', 'desc')
-      .limit(Number(limit))
+      .limit(limit)
       .get();
 
     const imports = importsSnapshot.docs.map((doc) => ({
