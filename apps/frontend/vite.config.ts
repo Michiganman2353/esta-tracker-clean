@@ -38,9 +38,22 @@ export default defineConfig(({ mode }) => {
     },
     // Force optimization of dependencies for monorepo
     // This prevents workspace resolution issues
+    // Note: Firebase v12+ uses modular exports, so we include specific subpaths
+    // instead of the root 'firebase' package (which has no root export)
     optimizeDeps: {
       force: true,
-      include: ['react', 'react-dom', 'react-router-dom', 'firebase', 'date-fns', 'zustand'],
+      include: [
+        'react',
+        'react-dom',
+        'react-router-dom',
+        'firebase/app',
+        'firebase/auth',
+        'firebase/firestore',
+        'firebase/storage',
+        'firebase/analytics',
+        'date-fns',
+        'zustand',
+      ],
     },
     server: {
       port: 5173,
