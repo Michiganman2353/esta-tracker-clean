@@ -1,9 +1,9 @@
 /**
  * App Component
- * 
+ *
  * This is the root component for the ESTA Tracker web application.
  * It manages authentication state, routes, and global error handling.
- * 
+ *
  * Features:
  * - Integrates with Firebase AuthContext for centralized auth state
  * - Handles loading states with better UX
@@ -16,14 +16,14 @@
  * - Integrates maintenance mode notification
  * - Includes debug panel for development
  * - Uses React lazy loading for optimal performance
- * 
+ *
  * Uses:
  * - React Router for client-side navigation
  * - AuthContext for Firebase authentication state
  * - API client for backend authentication fallback
  * - Design system components for consistent UI feedback
  * - React.lazy and Suspense for code splitting
- * 
+ *
  * All application pages and layout are controlled from here.
  */
 
@@ -38,6 +38,7 @@ import { DebugPanel } from '@/components/DebugPanel';
 import Login from '@/pages/Login';
 
 // Lazy load other pages for better performance
+const Landing = lazy(() => import('@/pages/Landing'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const Register = lazy(() => import('@/pages/Register'));
 const RegisterEmployee = lazy(() => import('@/pages/RegisterEmployee'));
@@ -52,13 +53,13 @@ const Pricing = lazy(() => import('@/pages/Pricing'));
  * Loading fallback component for lazy-loaded routes
  */
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-    <div className="text-center space-y-4">
+  <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+    <div className="space-y-4 text-center">
       <div className="relative">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-200 border-t-primary-600 mx-auto"></div>
+        <div className="border-primary-200 border-t-primary-600 mx-auto h-16 w-16 animate-spin rounded-full border-4"></div>
       </div>
       <div>
-        <div className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+        <div className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
           Loading...
         </div>
         <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -80,7 +81,12 @@ function App() {
   useEffect(() => {
     console.log('=== Auth State Change ===');
     console.log('Firebase User:', currentUser?.email);
-    console.log('User Data:', userData?.email, userData?.role, userData?.status);
+    console.log(
+      'User Data:',
+      userData?.email,
+      userData?.role,
+      userData?.status
+    );
     console.log('Auth Loading:', authLoading);
     console.log('========================');
   }, [currentUser, userData, authLoading]);
@@ -115,25 +121,28 @@ function App() {
   // Enhanced loading screen with progress indicator
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center space-y-4">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="space-y-4 text-center">
           <div className="relative">
             {/* Animated spinner */}
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-200 border-t-primary-600 mx-auto"></div>
+            <div className="border-primary-200 border-t-primary-600 mx-auto h-16 w-16 animate-spin rounded-full border-4"></div>
           </div>
           <div>
-            <div className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            <div className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
               Loading ESTA Tracker
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              {authLoading ? 'Checking authentication...' : 'Connecting to server...'}
+              {authLoading
+                ? 'Checking authentication...'
+                : 'Connecting to server...'}
             </div>
           </div>
           {/* Show helpful info if loading takes too long */}
           {retryCount > 0 && (
-            <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg max-w-md mx-auto">
+            <div className="mx-auto mt-4 max-w-md rounded-lg bg-yellow-50 p-3 dark:bg-yellow-900/20">
               <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                This is taking longer than expected. Please check your internet connection.
+                This is taking longer than expected. Please check your internet
+                connection.
               </p>
             </div>
           )}
@@ -145,26 +154,36 @@ function App() {
   // Enhanced error screen with actionable steps
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-        <div className="max-w-md w-full">
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-gray-900">
+        <div className="w-full max-w-md">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-6 dark:border-red-800 dark:bg-red-900/20">
             <div className="flex items-start">
               <div className="flex-shrink-0">
-                <svg className="h-6 w-6 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                <svg
+                  className="h-6 w-6 text-red-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <div className="ml-3 flex-1">
-                <h3 className="text-base font-semibold text-red-800 dark:text-red-200 mb-2">
+                <h3 className="mb-2 text-base font-semibold text-red-800 dark:text-red-200">
                   Connection Error
                 </h3>
-                <p className="text-sm text-red-700 dark:text-red-300 mb-4">{error}</p>
-                
+                <p className="mb-4 text-sm text-red-700 dark:text-red-300">
+                  {error}
+                </p>
+
                 <div className="mb-4">
-                  <h4 className="text-sm font-semibold text-red-800 dark:text-red-200 mb-2">
+                  <h4 className="mb-2 text-sm font-semibold text-red-800 dark:text-red-200">
                     What you can try:
                   </h4>
-                  <ul className="list-disc list-inside text-sm text-red-700 dark:text-red-300 space-y-1">
+                  <ul className="list-inside list-disc space-y-1 text-sm text-red-700 dark:text-red-300">
                     <li>Check your internet connection</li>
                     <li>Refresh your browser</li>
                     <li>Clear your browser cache</li>
@@ -211,24 +230,60 @@ function App() {
       <DebugPanel />
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          {/* Public routes */}
-          <Route path="/login" element={!user ? <Login onLogin={setUser} /> : <Navigate to="/" />} />
-          <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
-          <Route path="/register/employee" element={!user ? <RegisterEmployee onRegister={setUser} /> : <Navigate to="/" />} />
-          <Route path="/register/manager" element={!user ? <RegisterManager onRegister={setUser} /> : <Navigate to="/" />} />
+          {/* Public routes - accessible without authentication */}
+          <Route
+            path="/"
+            element={!user ? <Landing /> : <Navigate to="/dashboard" />}
+          />
+          <Route
+            path="/login"
+            element={
+              !user ? <Login onLogin={setUser} /> : <Navigate to="/dashboard" />
+            }
+          />
+          <Route
+            path="/register"
+            element={!user ? <Register /> : <Navigate to="/dashboard" />}
+          />
+          <Route
+            path="/register/employee"
+            element={
+              !user ? (
+                <RegisterEmployee onRegister={setUser} />
+              ) : (
+                <Navigate to="/dashboard" />
+              )
+            }
+          />
+          <Route
+            path="/register/manager"
+            element={
+              !user ? (
+                <RegisterManager onRegister={setUser} />
+              ) : (
+                <Navigate to="/dashboard" />
+              )
+            }
+          />
           <Route path="/pricing" element={<Pricing />} />
-          
-          {/* Protected routes */}
+
+          {/* Protected routes - require authentication */}
           {user ? (
             <>
-              <Route path="/" element={<Dashboard user={user} />} />
-              <Route path="/employee" element={<EmployeeDashboard user={user} />} />
-              <Route path="/employer" element={<EmployerDashboard user={user} />} />
+              <Route path="/dashboard" element={<Dashboard user={user} />} />
+              <Route
+                path="/employee"
+                element={<EmployeeDashboard user={user} />}
+              />
+              <Route
+                path="/employer"
+                element={<EmployerDashboard user={user} />}
+              />
               <Route path="/audit" element={<AuditLog user={user} />} />
               <Route path="/settings" element={<Settings user={user} />} />
             </>
           ) : (
-            <Route path="*" element={<Navigate to="/login" />} />
+            <Route path="*" element={<Navigate to="/" />} />
           )}
         </Routes>
       </Suspense>
