@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "Bundler",
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "jsx": "react-jsx",
     "strict": true,
@@ -26,6 +26,10 @@
     "paths": {
       "@esta/shared-types": ["libs/shared-types/dist"],
       "@esta/shared-types/*": ["libs/shared-types/dist/*"],
+      "@esta-tracker/shared-utils": ["libs/shared-utils/dist"],
+      "@esta-tracker/shared-utils/*": ["libs/shared-utils/dist/*"],
+      "@esta/firebase": ["libs/esta-firebase/dist"],
+      "@esta/firebase/*": ["libs/esta-firebase/dist/*"],
       "@esta/core": ["packages/esta-core/dist"],
       "@esta/core/*": ["packages/esta-core/dist/*"],
       "@esta/firebase-adapter": ["packages/esta-firebase-adapter/dist"],
