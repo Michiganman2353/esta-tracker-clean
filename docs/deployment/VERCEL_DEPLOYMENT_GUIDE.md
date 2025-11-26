@@ -11,6 +11,7 @@ Go to **Vercel Dashboard → Your Project → Settings → Environment Variables
 #### Required for ALL Environments (Production, Preview, Development):
 
 ##### Frontend Variables (Public - Exposed to Browser)
+
 ```
 VITE_FIREBASE_API_KEY=AIzaSyCWoqaXUc6ChNLQDBofkml_FgQsCmvAd-g
 VITE_FIREBASE_AUTH_DOMAIN=esta-tracker.firebaseapp.com
@@ -21,13 +22,16 @@ VITE_FIREBASE_APP_ID=1:718800554935:web:44e0da9f10c748848af632
 ```
 
 ##### Backend Variables (Secret - Server-side Only)
+
 ```
 FIREBASE_PROJECT_ID=esta-tracker
 FIREBASE_SERVICE_ACCOUNT={"type":"service_account","project_id":"esta-tracker",...}
 ```
+
 **Note**: For `FIREBASE_SERVICE_ACCOUNT`, paste the entire service account JSON as a single line string.
 
 ##### Optional Variables
+
 ```
 VITE_API_URL=/api
 EDGE_CONFIG=https://edge-config.vercel.com/your-edge-config-id?token=your-token
@@ -35,6 +39,7 @@ ALLOWED_ORIGIN=https://estatracker.com
 ```
 
 ##### GCP/KMS Variables (if using encryption)
+
 ```
 GCP_PROJECT_ID=esta-tracker
 KMS_KEYRING_NAME=esta-tracker-keyring
@@ -48,17 +53,20 @@ KMS_KEY_VERSION=1
 ### 2. Build Settings
 
 #### Project Settings
+
 - **Framework Preset**: Other
-- **Build Command**: `npx turbo run build --filter=@esta-tracker/frontend`
-- **Output Directory**: `packages/frontend/dist`
-- **Install Command**: `npm ci`
+- **Build Command**: `rm -rf .nx/cache .nx/workspace-data && npx nx build frontend`
+- **Output Directory**: `apps/frontend/dist`
+- **Install Command**: `npm install`
 
 #### Root Directory
+
 - **Root Directory**: `.` (repository root)
-- Do NOT set this to `packages/frontend` - Turborepo needs access to the entire monorepo
+- Do NOT set this to `apps/frontend` - Nx needs access to the entire monorepo
 
 #### Node.js Version
-- Vercel will automatically use Node.js 20.x based on `package.json` engines field
+
+- Vercel will automatically use Node.js 22.x based on `package.json` engines field
 - No manual configuration needed
 
 ---
@@ -89,6 +97,7 @@ The repository includes a pre-configured `vercel.json` that handles:
 5. Click **Deploy**
 
 Vercel will:
+
 - ✅ Automatically deploy on every push to `main`/`master`
 - ✅ Create preview deployments for pull requests
 - ✅ Run build with the configured settings
@@ -146,6 +155,7 @@ After deployment, test these key features:
 **Cause**: Turborepo can't find dependencies
 
 **Solution**:
+
 1. Verify `Root Directory` is set to `.` (repository root)
 2. Ensure `Install Command` is `npm ci`
 3. Check `package-lock.json` is committed
@@ -155,6 +165,7 @@ After deployment, test these key features:
 **Cause**: Missing Firebase environment variables
 
 **Solution**:
+
 1. Check all `VITE_FIREBASE_*` variables are set in Vercel Dashboard
 2. Ensure variables are set for the correct environment (Production/Preview)
 3. Redeploy after adding variables
@@ -164,6 +175,7 @@ After deployment, test these key features:
 **Cause**: API directory not found or misconfigured
 
 **Solution**:
+
 1. Verify `api/` directory exists in repository root
 2. Check `vercel.json` has correct function configuration
 3. Ensure API files are TypeScript (`.ts`) and exported correctly
@@ -173,6 +185,7 @@ After deployment, test these key features:
 **Cause**: Vercel not redirecting all routes to index.html
 
 **Solution**:
+
 1. Check `vercel.json` has this rewrite rule:
    ```json
    { "source": "/(.*)", "destination": "/index.html" }
@@ -184,6 +197,7 @@ After deployment, test these key features:
 **Cause**: Incorrect asset paths or CSP blocking resources
 
 **Solution**:
+
 1. Check `Content-Security-Policy` header in `vercel.json`
 2. Verify `style-src` includes `'self'` and `'unsafe-inline'`
 3. Check browser console for CSP violations
@@ -193,6 +207,7 @@ After deployment, test these key features:
 **Cause**: Transitive dependency from Google Cloud SDK
 
 **Solution**:
+
 - This is a **known non-blocking issue**
 - Warning does NOT affect build or runtime
 - Safe to ignore (see `BUILD_SYSTEM_FIXES.md` for details)
@@ -203,20 +218,18 @@ After deployment, test these key features:
 
 ### Enable Caching
 
-Turborepo remote caching is enabled by default. To link to Vercel's remote cache:
-
-1. Run `npx turbo login` locally
-2. Run `npx turbo link` to connect to your Vercel project
-3. Add `TURBO_TOKEN` and `TURBO_TEAM` to GitHub Secrets (for CI/CD)
+Nx caching is enabled by default. Build outputs are cached to speed up subsequent builds.
 
 ### Monitor Bundle Size
 
 Current bundle sizes:
-- Main bundle: ~736 KB (166 KB gzipped)
+
+- Main bundle: ~634 KB (151 KB gzipped)
 - React vendor: ~164 KB (54 KB gzipped)
-- CSS: ~58 KB (8 KB gzipped)
+- CSS: ~64 KB (9 KB gzipped)
 
 Monitor for increases and consider:
+
 - Code splitting for large features
 - Lazy loading routes
 - Tree-shaking unused exports
@@ -240,11 +253,13 @@ Before going to production:
 ## 📞 Support Resources
 
 ### Official Documentation
+
 - [Vercel Monorepo Guide](https://vercel.com/docs/monorepos)
-- [Turborepo Deployment with Vercel](https://turbo.build/repo/docs/handbook/deploying-with-vercel)
+- [Nx Documentation](https://nx.dev/getting-started/intro)
 - [Vite Environment Variables](https://vitejs.dev/guide/env-and-mode.html)
 
 ### Project-Specific Docs
+
 - `BUILD_SYSTEM_FIXES.md` - Build configuration details
 - `DEPLOYMENT_TROUBLESHOOTING.md` - Common issues and fixes
 - `.env.example` - All available environment variables
@@ -253,8 +268,8 @@ Before going to production:
 
 ```bash
 # Test build locally (simulates Vercel)
-npm ci
-npx turbo run build --filter=@esta-tracker/frontend
+npm install
+npx nx build frontend
 
 # Validate deployment requirements
 npm run validate:deployment
@@ -297,8 +312,16 @@ Your deployment is successful when:
 
 ## 📝 Changelog
 
+### 2024-11-26 - Updated for Nx Monorepo
+
+- Updated build commands from Turborepo to Nx
+- Added public Landing page for estatracker.com
+- Updated output directory to apps/frontend/dist
+- Verified Node.js 22.x compatibility
+
 ### 2024-11-21 - Initial Deployment Configuration
-- Configured turbo.json with explicit environment variables
+
+- Configured nx.json with explicit environment variables
 - Enhanced vite.config.ts with env validation
 - Optimized vercel.json for monorepo structure
 - Documented all deployment requirements
