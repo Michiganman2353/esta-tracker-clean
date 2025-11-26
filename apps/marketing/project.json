@@ -29,10 +29,11 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
+      "executor": "nx:run-commands",
+      "outputs": [],
       "options": {
-        "lintFilePatterns": ["apps/marketing/**/*.{ts,tsx,js,jsx}"]
+        "command": "eslint . --ext .ts,.tsx,.js,.jsx --report-unused-disable-directives --max-warnings 0",
+        "cwd": "apps/marketing"
       }
     },
     "test:e2e": {

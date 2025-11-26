@@ -26,6 +26,13 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Reset Nx Cache
+        run: npx nx reset
+
+      - name: Security Audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
       - name: Validate JSON Configuration Files
         run: |
           echo "Validating vercel.json..."
@@ -92,7 +99,7 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
 
       - name: Clean Nx Cache
-        run: rm -rf .nx/cache .nx/workspace-data
+        run: npx nx reset
 
       - name: Validate Nx Workspace
         run: |
@@ -305,7 +312,7 @@ jobs:
         run: npm ci
 
       - name: Clean Nx Cache
-        run: rm -rf .nx/cache .nx/workspace-data
+        run: npx nx reset
 
       - name: Validate Frontend Entry Point
         run: |
@@ -458,7 +465,7 @@ jobs:
         run: npm ci
 
       - name: Clean Nx Cache
-        run: rm -rf .nx/cache .nx/workspace-data
+        run: npx nx reset
 
       - name: Validate Frontend Entry Point
         run: |
