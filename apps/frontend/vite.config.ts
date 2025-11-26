@@ -1,12 +1,12 @@
-import { defineConfig, loadEnv } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import { defineConfig, loadEnv } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
-  const env = loadEnv(mode, process.cwd(), '')
-  
+  const env = loadEnv(mode, process.cwd(), '');
+
   // Validate required environment variables for production builds
   if (mode === 'production') {
     const requiredEnvVars = [
@@ -15,17 +15,22 @@ export default defineConfig(({ mode }) => {
       'VITE_FIREBASE_PROJECT_ID',
       'VITE_FIREBASE_STORAGE_BUCKET',
       'VITE_FIREBASE_MESSAGING_SENDER_ID',
-      'VITE_FIREBASE_APP_ID'
-    ]
-    
-    const missingVars = requiredEnvVars.filter(key => !env[key])
+      'VITE_FIREBASE_APP_ID',
+    ];
+
+    const missingVars = requiredEnvVars.filter((key) => !env[key]);
     if (missingVars.length > 0) {
-      console.error('⚠️  Error: Missing required environment variables:', missingVars.join(', '))
-      console.error('   Firebase will not initialize correctly in production.')
-      console.error('   Set these variables in your Vercel Dashboard or .env file.')
+      console.error(
+        '⚠️  Error: Missing required environment variables:',
+        missingVars.join(', ')
+      );
+      console.error('   Firebase will not initialize correctly in production.');
+      console.error(
+        '   Set these variables in your Vercel Dashboard or .env file.'
+      );
     }
   }
-  
+
   return {
     // Explicitly set root for Vercel/Turborepo compatibility
     // Root must be the directory containing index.html and src/
@@ -64,9 +69,13 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    // Base public path for assets - ensures correct asset resolution in production
+    base: '/',
     build: {
-      // Output directory relative to the root (packages/frontend)
+      // Output directory relative to the root (apps/frontend)
       outDir: 'dist',
+      // Ensure dist folder is cleaned to prevent stale artifacts
+      emptyOutDir: true,
       sourcemap: true,
       // Performance optimizations
       rollupOptions: {
@@ -81,5 +90,5 @@ export default defineConfig(({ mode }) => {
       // Chunk size warning limit
       chunkSizeWarningLimit: 1000,
     },
-  }
-})
+  };
+});

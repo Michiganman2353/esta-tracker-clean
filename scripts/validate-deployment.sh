@@ -30,6 +30,26 @@ else
         ERRORS=$((ERRORS + 1))
     else
         echo -e "${GREEN}✅ index.html found${NC}"
+        
+        # Validate index.html content to prevent blank screen issues
+        if grep -q '<div id="root">' apps/frontend/dist/index.html && \
+           grep -q '<script type="module"' apps/frontend/dist/index.html && \
+           grep -q 'src="/assets/' apps/frontend/dist/index.html; then
+            echo -e "${GREEN}✅ index.html contains root element and bundled assets${NC}"
+        else
+            echo -e "${RED}❌ Error: index.html appears to be missing required content${NC}"
+            echo "   The build may have failed - check for script tags and root div"
+            ERRORS=$((ERRORS + 1))
+        fi
+        
+        # Check that the assets directory has files
+        ASSET_COUNT=$(find apps/frontend/dist/assets -name "*.js" 2>/dev/null | wc -l)
+        if [ "$ASSET_COUNT" -eq 0 ]; then
+            echo -e "${RED}❌ Error: No JavaScript files found in assets directory${NC}"
+            ERRORS=$((ERRORS + 1))
+        else
+            echo -e "${GREEN}✅ Found $ASSET_COUNT JavaScript bundles in assets${NC}"
+        fi
     fi
 fi
 

@@ -5,6 +5,8 @@
   "installCommand": "npm ci --prefer-offline",
   "devCommand": "npm run dev:frontend",
   "framework": null,
+  "cleanUrls": true,
+  "trailingSlash": false,
   "functions": {
     "api/background/*.ts": {
       "maxDuration": 300,
@@ -21,7 +23,7 @@
   },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/((?!assets/).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
