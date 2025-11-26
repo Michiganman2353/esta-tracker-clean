@@ -26,12 +26,12 @@ ESTA Tracker is a full-stack SaaS platform that automates compliance with the Mi
 
 ### Prerequisites
 
-- **Node.js 22.x** (required - see `.nvmrc`)
+- **Node.js 22.11+ LTS** (required - see `.nvmrc`)
 - npm ≥10.0.0
 - Firebase account
 - Vercel account (for deployment)
 
-> ⚠️ **Important**: This project requires Node.js 22.x. Earlier versions are not supported.
+> ⚠️ **Important**: This project requires Node.js 22.11+ LTS. Earlier versions are not supported.
 
 ## ⚠️ Environment Configuration (MANDATORY)
 
@@ -87,6 +87,7 @@ Add all 6 variables as **repository secrets**:
 - ❌ **REACT*APP*** variables are **NOT supported**
 - ❌ **Unprefixed FIREBASE\_** variables are **NOT supported** for frontend
 - ⚠️ All workflows, builds, and tests require these variables to succeed
+- 🔒 **Security Note**: Firebase API keys with `VITE_` prefix are designed for client-side use and are safe to expose in the browser. Security is enforced by Firebase Security Rules, not by hiding these keys. See [Firebase Security Documentation](./docs/SECURITY.md) for details.
 
 ### Installation
 
@@ -142,9 +143,10 @@ For detailed setup instructions, see:
 
 This project uses a modern monorepo structure powered by:
 
-- **Nx** - Build orchestration and task running
-- **Lerna** - Package management
-- **npm Workspaces** - Dependency management
+- **Nx (v22+)** - Build orchestration, task running, and intelligent caching
+- **npm Workspaces** - Dependency management and package linking
+
+> **Note**: While `lerna.json` exists for version management and publishing, day-to-day development uses Nx commands exclusively. Lerna's legacy `bootstrap`, `add`, and `link` commands are deprecated and not used.
 
 #### Available Commands
 
@@ -175,17 +177,24 @@ npx nx show projects     # List all projects
 npx nx build <package>   # Build specific package
 ```
 
-#### Package Structure
+#### Project Structure
 
 ```
-packages/
-├── frontend/          # React + Vite frontend application
-├── backend/           # Node.js Express backend
-├── accrual-engine/    # ESTA accrual logic library
-├── csv-processor/     # CSV import handling
-├── firebase/          # Firebase Admin SDK service
-├── shared-types/      # Shared TypeScript types
-└── shared-utils/      # Shared utilities
+apps/                    # Application projects
+├── frontend/           # React + Vite frontend application
+├── backend/            # Node.js Express backend API
+└── marketing/          # Next.js marketing site
+
+libs/                    # Shared libraries
+├── accrual-engine/     # ESTA accrual calculation logic
+├── csv-processor/      # CSV import/export handling
+├── esta-firebase/      # Firebase client SDK wrapper
+├── shared-types/       # Shared TypeScript type definitions
+└── shared-utils/       # Shared utility functions
+
+packages/                # Additional packages
+├── esta-core/          # Core ESTA business logic
+└── esta-firebase-adapter/  # Firebase adapter layer
 ```
 
 ## Features
@@ -229,10 +238,10 @@ See [Security Documentation](./docs/security/) for complete security details.
 
 ### Build & Development Tools
 
-- **Monorepo Management**: Nx + Lerna + npm Workspaces
-- **Build Orchestration**: Nx (v20+)
-- **Package Management**: Lerna (v8+) with Nx integration
-- **Node Version**: 22.x (enforced across all environments)
+- **Monorepo Management**: Nx (v22+) + npm Workspaces
+- **Build Orchestration**: Nx with intelligent caching and task dependencies
+- **Version Management**: Lerna (for publishing only, not package management)
+- **Node Version**: 22.11+ LTS (enforced via `.nvmrc`)
 - **CI/CD**: GitHub Actions with Nx caching
 
 For architectural details, see [Architecture Documentation](./docs/architecture/architecture.md).
