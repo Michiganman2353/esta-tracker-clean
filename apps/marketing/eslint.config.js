@@ -22,7 +22,7 @@ export default tseslint.config(
     },
     settings: {
       next: {
-        rootDir: 'apps/marketing',
+        rootDir: import.meta.dirname,
       },
     },
     rules: {
