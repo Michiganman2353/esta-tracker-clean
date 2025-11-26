@@ -261,15 +261,49 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Validate Vercel Secrets
+        run: |
+          # Check that all required Vercel secrets are configured
+          MISSING_SECRETS=()
+          if [ -z "$VERCEL_TOKEN" ]; then
+            MISSING_SECRETS+=("VERCEL_TOKEN")
+          fi
+          if [ -z "$VERCEL_ORG_ID" ]; then
+            MISSING_SECRETS+=("VERCEL_ORG_ID")
+          fi
+          if [ -z "$VERCEL_PROJECT_ID" ]; then
+            MISSING_SECRETS+=("VERCEL_PROJECT_ID")
+          fi
+
+          if [ ${#MISSING_SECRETS[@]} -ne 0 ]; then
+            echo "❌ ERROR: Missing required Vercel secrets:"
+            printf '  - %s\n' "${MISSING_SECRETS[@]}"
+            echo ""
+            echo "Please configure all required secrets in:"
+            echo "GitHub Repository → Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+
+          echo "✅ All required Vercel secrets are configured"
+          echo "VERCEL_TOKEN length: ${#VERCEL_TOKEN}"
+          echo "VERCEL_ORG_ID length: ${#VERCEL_ORG_ID}"
+          echo "VERCEL_PROJECT_ID length: ${#VERCEL_PROJECT_ID}"
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Build Project Artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --token="$VERCEL_TOKEN"
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
@@ -277,7 +311,7 @@ jobs:
         id: deploy
         run: |
           set -e
-          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          url=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
           if [ -z "$url" ]; then
             echo "Error: Deployment failed - no URL returned"
             exit 1
@@ -285,6 +319,7 @@ jobs:
           echo "url=$url" >> $GITHUB_OUTPUT
           echo "Preview URL: $url"
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
@@ -379,27 +414,62 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Validate Vercel Secrets
+        run: |
+          # Check that all required Vercel secrets are configured
+          MISSING_SECRETS=()
+          if [ -z "$VERCEL_TOKEN" ]; then
+            MISSING_SECRETS+=("VERCEL_TOKEN")
+          fi
+          if [ -z "$VERCEL_ORG_ID" ]; then
+            MISSING_SECRETS+=("VERCEL_ORG_ID")
+          fi
+          if [ -z "$VERCEL_PROJECT_ID" ]; then
+            MISSING_SECRETS+=("VERCEL_PROJECT_ID")
+          fi
+
+          if [ ${#MISSING_SECRETS[@]} -ne 0 ]; then
+            echo "❌ ERROR: Missing required Vercel secrets:"
+            printf '  - %s\n' "${MISSING_SECRETS[@]}"
+            echo ""
+            echo "Please configure all required secrets in:"
+            echo "GitHub Repository → Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+
+          echo "✅ All required Vercel secrets are configured"
+          echo "VERCEL_TOKEN length: ${#VERCEL_TOKEN}"
+          echo "VERCEL_ORG_ID length: ${#VERCEL_ORG_ID}"
+          echo "VERCEL_PROJECT_ID length: ${#VERCEL_PROJECT_ID}"
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token="$VERCEL_TOKEN"
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy to Vercel Production
         run: |
           set -e
-          url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          url=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
           if [ -z "$url" ]; then
             echo "Error: Deployment failed - no URL returned"
             exit 1
           fi
           echo "Production URL: $url"
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
