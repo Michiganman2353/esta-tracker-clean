@@ -1,4 +1,12 @@
 import Ajv from 'ajv';
+/**
+ * Blueprint schema - this is a copy from libs/blueprints/schema/blueprint.v1.json
+ * The copy is maintained here because Next.js SSG requires the schema during build
+ * and cross-package imports have compatibility issues with the build process.
+ *
+ * IMPORTANT: When updating the schema in libs/blueprints/schema/blueprint.v1.json,
+ * also update this copy to maintain consistency.
+ */
 import schema from './blueprint.v1.json';
 
 // Create and configure AJV instance

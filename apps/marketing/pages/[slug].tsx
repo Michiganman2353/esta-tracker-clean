@@ -40,11 +40,15 @@ interface PageProps {
   blueprint: Blueprint;
 }
 
-// Path to blueprints directory - resolve relative to apps/marketing
-const BLUEPRINTS_DIR = join(
-  process.cwd(),
-  '../../content/marketing/blueprints'
-);
+/**
+ * Resolve the path to blueprints directory.
+ * When running from apps/marketing (via npm run dev/build),
+ * process.cwd() is the app directory, so we need to navigate up.
+ * This is configurable via BLUEPRINTS_PATH env var for flexibility.
+ */
+const BLUEPRINTS_DIR =
+  process.env.BLUEPRINTS_PATH ||
+  join(process.cwd(), '../../content/marketing/blueprints');
 
 /**
  * Get all available blueprint slugs for static path generation

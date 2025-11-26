@@ -199,15 +199,10 @@ jobs:
           name: playwright-report
           path: playwright-report/
 
-  # Blueprint validation job - runs on PRs touching blueprints or libs/blueprints
+  # Blueprint validation job - validates marketing blueprints
   blueprints-validate:
     name: Validate Blueprints
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'pull_request' && (
-        contains(github.event.pull_request.changed_files, 'content/marketing/') ||
-        contains(github.event.pull_request.changed_files, 'libs/blueprints/')
-      ) || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
 
@@ -245,16 +240,11 @@ jobs:
           name: blueprint-coverage
           path: libs/blueprints/coverage/
 
-  # Marketing visual tests - runs on PRs touching marketing app or blueprints
+  # Marketing visual tests - validates marketing app builds and renders correctly
   marketing-visual:
     name: Marketing Visual Tests
     runs-on: ubuntu-latest
     needs: [test]
-    if: |
-      github.event_name == 'pull_request' && (
-        contains(github.event.pull_request.changed_files, 'apps/marketing/') ||
-        contains(github.event.pull_request.changed_files, 'content/marketing/')
-      ) || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
 
