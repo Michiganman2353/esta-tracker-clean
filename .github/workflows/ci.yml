@@ -30,7 +30,8 @@ jobs:
         run: npx nx reset
 
       - name: Security Audit
-        run: npm audit --audit-level=high || echo "Security audit completed with warnings"
+        run: npm audit --audit-level=high
+        continue-on-error: true
 
       - name: Validate JSON Configuration Files
         run: |
