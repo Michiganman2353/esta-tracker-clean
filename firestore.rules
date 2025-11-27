@@ -68,8 +68,9 @@ service cloud.firestore {
     }
     
     // Validate required fields exist in document
+    // Returns true if all required fields are present in data
     function hasRequiredFields(data, fields) {
-      return fields.toSet().hasAll(data.keys().toSet());
+      return data.keys().toSet().hasAll(fields.toSet());
     }
     
     // Validate data size limits to prevent abuse

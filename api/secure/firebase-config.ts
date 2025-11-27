@@ -103,9 +103,13 @@ export default async function handler(
 ): Promise<void> {
   // CORS handling - set headers for all requests
   const origin = req.headers.origin || '';
-  const isAllowedOrigin = ALLOWED_ORIGINS.some(
-    (allowed) => origin.startsWith(allowed) || allowed === '*'
-  );
+
+  // Use exact matching for allowed origins to prevent subdomain bypasses
+  const isAllowedOrigin = ALLOWED_ORIGINS.some((allowed) => {
+    if (allowed === '*') return true;
+    // Exact match for security
+    return origin === allowed;
+  });
 
   if (isAllowedOrigin) {
     res.setHeader('Access-Control-Allow-Origin', origin);
