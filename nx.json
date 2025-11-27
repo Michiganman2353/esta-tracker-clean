@@ -10,7 +10,8 @@
       "outputs": [
         "{projectRoot}/dist",
         "{projectRoot}/build",
-        "{projectRoot}/lib"
+        "{projectRoot}/lib",
+        "{projectRoot}/.vercel/output"
       ],
       "cache": true,
       "inputs": [
@@ -20,7 +21,8 @@
         "{projectRoot}/tsconfig.*.json",
         "{projectRoot}/vite.config.ts",
         "{projectRoot}/index.html",
-        "{workspaceRoot}/tsconfig.base.json"
+        "{workspaceRoot}/tsconfig.base.json",
+        "{workspaceRoot}/vercel.json"
       ]
     },
     "test": {
@@ -93,7 +95,8 @@
       "{workspaceRoot}/firestore.rules",
       "{workspaceRoot}/firestore.indexes.json",
       "{workspaceRoot}/storage.rules"
-    ]
+    ],
+    "vercel": ["{workspaceRoot}/vercel.json", "{projectRoot}/.vercel/**"]
   },
   "tasksRunnerOptions": {
     "default": {

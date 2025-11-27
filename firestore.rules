@@ -2,44 +2,90 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper functions
+    // =====================================================
+    // SECURITY HELPER FUNCTIONS
+    // =====================================================
+    
+    // Basic authentication check
     function isAuthenticated() {
       return request.auth != null;
     }
     
+    // Check if the requester owns the document
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
     
-    // FIXED: Check role from Firestore document instead of custom claims
+    // Get user data from Firestore (cached per request)
     function getUserData() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
     
+    // Check if user has specific role
     function isRole(role) {
       return isAuthenticated() && getUserData().role == role;
     }
     
+    // Check tenant membership
     function belongsToTenant(tenantId) {
       return isAuthenticated() && getUserData().tenantId == tenantId;
     }
     
+    // Check if user is employer or admin
     function isEmployer() {
       return isAuthenticated() && (getUserData().role == 'employer' || getUserData().role == 'admin');
     }
     
+    // Check if user is employee
     function isEmployee() {
       return isAuthenticated() && getUserData().role == 'employee';
     }
     
+    // Check if employee belongs to specific employer
     function belongsToEmployer(employerId) {
       return isAuthenticated() && getUserData().employerId == employerId;
     }
     
-    // Employer Profiles collection
+    // =====================================================
+    // DATA VALIDATION HELPERS
+    // =====================================================
+    
+    // Validate timestamp is recent (within 5 minutes) - prevents replay attacks
+    function isRecentTimestamp(timestamp) {
+      return timestamp is timestamp && 
+        timestamp > request.time - duration.value(5, 'm') &&
+        timestamp < request.time + duration.value(1, 'm');
+    }
+    
+    // Validate string field constraints
+    function isValidString(field, minLen, maxLen) {
+      return field is string && field.size() >= minLen && field.size() <= maxLen;
+    }
+    
+    // Validate email format (basic check)
+    function isValidEmail(email) {
+      return email is string && email.matches('^[^@]+@[^@]+\\.[^@]+$');
+    }
+    
+    // Validate required fields exist in document
+    // Returns true if all required fields are present in data
+    function hasRequiredFields(data, fields) {
+      return data.keys().toSet().hasAll(fields.toSet());
+    }
+    
+    // Validate data size limits to prevent abuse
+    function isWithinSizeLimit() {
+      return request.resource.data.keys().size() <= 100;
+    }
+    
+    // =====================================================
+    // EMPLOYER PROFILES COLLECTION
+    // =====================================================
     match /employerProfiles/{employerId} {
       // Allow employer to create their own profile during registration
-      allow create: if isAuthenticated() && request.auth.uid == employerId;
+      allow create: if isAuthenticated() && 
+        request.auth.uid == employerId &&
+        isWithinSizeLimit();
       
       // Employer can read/update their own profile
       allow read, update: if isAuthenticated() && request.auth.uid == employerId;
@@ -59,25 +105,35 @@ service cloud.firestore {
         allow read: if isAuthenticated() && request.auth.uid == employeeUid;
         
         // Employer can create/update employee records
-        allow create, update: if isAuthenticated() && request.auth.uid == employerId;
+        allow create, update: if isAuthenticated() && 
+          request.auth.uid == employerId &&
+          isWithinSizeLimit();
         
         // No deletion of employee records
         allow delete: if false;
       }
     }
     
-    // Users collection
+    // =====================================================
+    // USERS COLLECTION
+    // =====================================================
     match /users/{userId} {
-      // FIXED: Allow authenticated users to create their own document during registration
-      allow create: if isAuthenticated() && request.auth.uid == userId;
+      // Allow authenticated users to create their own document during registration
+      allow create: if isAuthenticated() && 
+        request.auth.uid == userId &&
+        isWithinSizeLimit() &&
+        // Prevent users from setting privileged fields on creation
+        (!('isAdmin' in request.resource.data) || request.resource.data.isAdmin == false);
       
       // Users can read their own document
       allow read: if isOwner(userId);
       
       // Users can update their own document (limited fields)
+      // Prevent modification of security-sensitive fields
       allow update: if isOwner(userId) && 
+        isWithinSizeLimit() &&
         !request.resource.data.diff(resource.data).affectedKeys()
-          .hasAny(['role', 'tenantId', 'employerId', 'status']);
+          .hasAny(['role', 'tenantId', 'employerId', 'status', 'isAdmin', 'permissions']);
       
       // Employers can read users in their tenant
       allow read: if isEmployer() && 
@@ -91,10 +147,14 @@ service cloud.firestore {
       allow delete: if false;
     }
     
-    // Tenants collection
+    // =====================================================
+    // TENANTS COLLECTION
+    // =====================================================
     match /tenants/{tenantId} {
-      // FIXED: Allow authenticated users to create tenant during registration
-      allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
+      // Allow authenticated users to create tenant during registration
+      allow create: if isAuthenticated() && 
+        request.resource.data.ownerId == request.auth.uid &&
+        isWithinSizeLimit();
       
       // Tenant owner can read/update
       allow read, update: if isAuthenticated() && 
@@ -107,7 +167,9 @@ service cloud.firestore {
       allow delete: if false;
     }
     
-    // Work logs
+    // =====================================================
+    // WORK LOGS COLLECTION
+    // =====================================================
     match /workLogs/{logId} {
       // Employers can read all logs in their tenant
       allow read: if isEmployer() && 
@@ -118,11 +180,21 @@ service cloud.firestore {
         isOwner(resource.data.userId);
       
       // Only employers can create/update/delete logs
-      allow create, update, delete: if isEmployer() && 
-        belongsToTenant(request.resource.data.employerId);
+      // Validate data constraints on create/update
+      allow create, update: if isEmployer() && 
+        belongsToTenant(request.resource.data.employerId) &&
+        isWithinSizeLimit() &&
+        // Validate hours worked is reasonable (0-24 hours per day)
+        (!('hoursWorked' in request.resource.data) || 
+          (request.resource.data.hoursWorked >= 0 && request.resource.data.hoursWorked <= 24));
+      
+      allow delete: if isEmployer() && 
+        belongsToTenant(resource.data.employerId);
     }
     
-    // Sick time requests
+    // =====================================================
+    // SICK TIME REQUESTS COLLECTION
+    // =====================================================
     match /sickTimeRequests/{requestId} {
       // Employers can read all requests in their tenant
       allow read: if isEmployer() && 
@@ -132,10 +204,15 @@ service cloud.firestore {
       allow read: if isEmployee() && 
         isOwner(resource.data.userId);
       
-      // Employees can create requests for themselves
+      // Employees can create requests for themselves with validation
       allow create: if isEmployee() && 
         request.resource.data.userId == request.auth.uid &&
-        belongsToTenant(request.resource.data.employerId);
+        belongsToTenant(request.resource.data.employerId) &&
+        isWithinSizeLimit() &&
+        // Validate hours requested is reasonable (0-72 hours max per ESTA)
+        ('hoursRequested' in request.resource.data && 
+          request.resource.data.hoursRequested > 0 && 
+          request.resource.data.hoursRequested <= 72);
       
       // Only employers can update (approve/deny) requests
       allow update: if isEmployer() && 
@@ -145,10 +222,14 @@ service cloud.firestore {
       allow delete: if false;
     }
     
-    // Audit logs (read-only for users)
+    // =====================================================
+    // AUDIT LOGS COLLECTION
+    // =====================================================
     match /auditLogs/{logId} {
-      // FIXED: Allow authenticated users to create audit logs during registration
-      allow create: if isAuthenticated();
+      // Allow authenticated users to create audit logs
+      // Rate-limited at application level
+      allow create: if isAuthenticated() &&
+        isWithinSizeLimit();
       
       // Employers can read logs for their tenant
       allow read: if isEmployer() && 
@@ -158,11 +239,13 @@ service cloud.firestore {
       allow read: if isEmployee() && 
         isOwner(resource.data.userId);
       
-      // No updates or deletes allowed
+      // Audit logs are immutable - no updates or deletes
       allow update, delete: if false;
     }
     
-    // Retaliation reports
+    // =====================================================
+    // RETALIATION REPORTS COLLECTION
+    // =====================================================
     match /retaliationReports/{reportId} {
       // Only employers and admins can read reports
       allow read: if isEmployer() && 
@@ -171,7 +254,8 @@ service cloud.firestore {
       // Employees can create reports for their tenant
       allow create: if isEmployee() && 
         belongsToTenant(request.resource.data.employerId) &&
-        request.resource.data.reporterId == request.auth.uid;
+        request.resource.data.reporterId == request.auth.uid &&
+        isWithinSizeLimit();
       
       // Only employers can update reports
       allow update: if isEmployer() && 
@@ -181,7 +265,9 @@ service cloud.firestore {
       allow delete: if false;
     }
     
-    // Documents/attachments metadata
+    // =====================================================
+    // DOCUMENTS/ATTACHMENTS METADATA COLLECTION
+    // =====================================================
     match /documents/{documentId} {
       // Employers can read all documents in their tenant
       allow read: if isEmployer() && 
@@ -194,7 +280,8 @@ service cloud.firestore {
       // Employees can create documents for their own requests
       allow create: if isAuthenticated() && 
         request.resource.data.userId == request.auth.uid &&
-        belongsToTenant(request.resource.data.tenantId);
+        belongsToTenant(request.resource.data.tenantId) &&
+        isWithinSizeLimit();
       
       // Documents can be updated by the owner if not marked immutable
       allow update: if isAuthenticated() && 
@@ -207,7 +294,30 @@ service cloud.firestore {
         (!('immutable' in resource.data) || resource.data.immutable == false);
     }
     
-    // Default: deny all other access
+    // =====================================================
+    // ACCRUAL CACHE COLLECTION (for high-performance queries)
+    // =====================================================
+    match /accrualCache/{cacheId} {
+      // Only read by authenticated users for their employer
+      allow read: if isAuthenticated() && 
+        (belongsToEmployer(resource.data.employerId) || 
+         (isEmployer() && request.auth.uid == resource.data.employerId));
+      
+      // Only system/backend can write (via Admin SDK)
+      allow create, update, delete: if false;
+    }
+    
+    // =====================================================
+    // RATE LIMIT TRACKING (for velocity checks)
+    // =====================================================
+    match /rateLimits/{clientId} {
+      // Only system/backend can read/write (via Admin SDK)
+      allow read, write: if false;
+    }
+    
+    // =====================================================
+    // DEFAULT: DENY ALL OTHER ACCESS
+    // =====================================================
     match /{document=**} {
       allow read, write: if false;
     }
