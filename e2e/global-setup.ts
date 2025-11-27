@@ -8,6 +8,10 @@
 
 import { chromium, FullConfig } from '@playwright/test';
 
+// Test credentials - can be overridden via environment variables
+const TEST_EMAIL = process.env.E2E_TEST_EMAIL || 'employee@test.com';
+const TEST_PASSWORD = process.env.E2E_TEST_PASSWORD || 'password123';
+
 async function globalSetup(config: FullConfig) {
   // Skip auth setup if we're not in CI and just want quick local tests
   if (process.env.SKIP_AUTH_SETUP === 'true') {
@@ -41,12 +45,12 @@ async function globalSetup(config: FullConfig) {
     }
 
     // Fill in test credentials
-    await emailField.fill('employee@test.com');
+    await emailField.fill(TEST_EMAIL);
     await page
       .locator(
         '[data-testid="password"], input[type="password"], input[name="password"]'
       )
-      .fill('password123');
+      .fill(TEST_PASSWORD);
 
     // Click sign in button
     await page
