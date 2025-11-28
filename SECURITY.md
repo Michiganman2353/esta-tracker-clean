@@ -69,6 +69,43 @@ The Sentinel is configured via `.github/workflows/sentinel.yml` and can be manua
 - Audit logging for all data access and modifications
 - No PII is logged or exposed in error messages
 
+### Advanced Cryptographic Security
+
+#### Argon2id Key Derivation
+
+- Employer master keys are derived using Argon2id (PHC winner)
+- Memory-hard function resistant to GPU/ASIC attacks
+- Parameters: 64 MiB memory, 3 iterations, parallelism 4
+- Produces 256-bit keys for AES-256 encryption
+
+#### Quantum-Resistant Encryption (Dual-Key Mode)
+
+- KMS-Kyber768 hybrid encryption provides post-quantum security
+- Data protected by both RSA-4096 (classical) and Kyber768 (quantum-safe)
+- NIST-standard key encapsulation mechanism (KEM)
+- Future-proof against quantum computer attacks
+
+#### Constant-Time Operations
+
+- All cryptographic comparisons use timing-safe functions
+- Side-channel resistant implementations prevent timing attacks
+- WebCrypto-hardened random number generation
+- Secure memory zeroing for sensitive data
+
+#### Automated Key Rotation
+
+- 90-day automatic key rotation via Cloud Scheduler
+- Compliance with SOC2 and HIPAA key management requirements
+- Old key versions retained for backward compatibility
+- Audit trail of all rotation events
+
+#### Property-Based Fuzzing
+
+- Fast-check property tests for all cryptographic operations
+- Malformed input handling verified automatically
+- Edge case coverage through random generation
+- Continuous validation in CI/CD pipeline
+
 ### Authentication & Authorization
 
 - Firebase Authentication for secure user management
