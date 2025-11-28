@@ -123,15 +123,15 @@ function buildSecurityReportBlocks(summary) {
 }
 
 /**
- * Send a Slack notification using Block Kit
+ * Send a POST request to a Slack webhook
  *
  * @param {string} webhookUrl - Slack incoming webhook URL
- * @param {Object} summary - Security scan summary
+ * @param {Object} payload - JSON payload to send
  * @returns {Promise<string>} Response from Slack
  */
-async function sendSlackNotification(webhookUrl, summary) {
+function postToSlack(webhookUrl, payload) {
   return new Promise((resolve, reject) => {
-    const payload = JSON.stringify(buildSecurityReportBlocks(summary));
+    const payloadString = JSON.stringify(payload);
 
     const url = new URL(webhookUrl);
     const options = {
@@ -141,7 +141,7 @@ async function sendSlackNotification(webhookUrl, summary) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(payload),
+        'Content-Length': Buffer.byteLength(payloadString),
       },
     };
 
@@ -160,9 +160,20 @@ async function sendSlackNotification(webhookUrl, summary) {
     });
 
     req.on('error', reject);
-    req.write(payload);
+    req.write(payloadString);
     req.end();
   });
+}
+
+/**
+ * Send a Slack notification using Block Kit
+ *
+ * @param {string} webhookUrl - Slack incoming webhook URL
+ * @param {Object} summary - Security scan summary
+ * @returns {Promise<string>} Response from Slack
+ */
+function sendSlackNotification(webhookUrl, summary) {
+  return postToSlack(webhookUrl, buildSecurityReportBlocks(summary));
 }
 
 /**
@@ -172,40 +183,8 @@ async function sendSlackNotification(webhookUrl, summary) {
  * @param {string} text - Message text
  * @returns {Promise<string>} Response from Slack
  */
-async function sendTextNotification(webhookUrl, text) {
-  return new Promise((resolve, reject) => {
-    const payload = JSON.stringify({ text });
-
-    const url = new URL(webhookUrl);
-    const options = {
-      hostname: url.hostname,
-      port: 443,
-      path: url.pathname,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(payload),
-      },
-    };
-
-    const req = https.request(options, (res) => {
-      let body = '';
-      res.on('data', (chunk) => (body += chunk));
-      res.on('end', () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          resolve(body);
-        } else {
-          reject(
-            new Error(`Slack notification failed: ${res.statusCode} - ${body}`)
-          );
-        }
-      });
-    });
-
-    req.on('error', reject);
-    req.write(payload);
-    req.end();
-  });
+function sendTextNotification(webhookUrl, text) {
+  return postToSlack(webhookUrl, { text });
 }
 
 module.exports = {
