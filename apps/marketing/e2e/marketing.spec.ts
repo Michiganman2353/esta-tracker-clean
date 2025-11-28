@@ -111,11 +111,17 @@ test.describe('Marketing Pages', () => {
         page.getByRole('heading', { name: /Simple, Transparent Pricing/i })
       ).toBeVisible();
 
-      // Check pricing plans
+      // Check pricing plans - use heading role to avoid matching feature list items
       await expect(page.getByText(/Choose Your Plan/i)).toBeVisible();
-      await expect(page.getByText(/Starter/i)).toBeVisible();
-      await expect(page.getByText(/Professional/i)).toBeVisible();
-      await expect(page.getByText(/Enterprise/i)).toBeVisible();
+      await expect(
+        page.getByRole('heading', { name: /Starter/i })
+      ).toBeVisible();
+      await expect(
+        page.getByRole('heading', { name: /Professional/i })
+      ).toBeVisible();
+      await expect(
+        page.getByRole('heading', { name: /Enterprise/i })
+      ).toBeVisible();
 
       // Check price details
       await expect(page.getByText(/\$4\.99/)).toBeVisible();
