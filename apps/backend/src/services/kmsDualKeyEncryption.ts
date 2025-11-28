@@ -35,6 +35,7 @@ import {
   Kyber768KeyPair,
   KYBER768_ALGORITHM_VERSION,
 } from './kyber768Service';
+import { constantTimeXor } from './constantTimeOps';
 
 /**
  * Dual-key encrypted envelope
@@ -153,13 +154,10 @@ export async function createDualKeyEnvelope(
   const encrypted = Buffer.concat([cipher.update(dataBuffer), cipher.final()]);
   const authTag = cipher.getAuthTag();
 
-  // Step 3: Split AES key into two shares using XOR
+  // Step 3: Split AES key into two shares using constant-time XOR
   // This ensures both keys are required for decryption
   const keyShare1 = randomBytes(32);
-  const keyShare2 = Buffer.alloc(32);
-  for (let i = 0; i < 32; i++) {
-    keyShare2[i] = aesKey[i]! ^ keyShare1[i]!;
-  }
+  const keyShare2 = constantTimeXor(aesKey, keyShare1);
 
   // Step 4: Encrypt first share with KMS RSA-4096
   const kmsEncryptedShare = await kmsService.asymmetricEncrypt(keyShare1);
@@ -169,11 +167,8 @@ export async function createDualKeyEnvelope(
   const kyberEncap = kyber768Encapsulate(kyberPublicKey);
   const kyberSharedSecret = Buffer.from(kyberEncap.sharedSecret, 'base64');
 
-  // XOR the second share with Kyber shared secret
-  const encryptedShare2 = Buffer.alloc(32);
-  for (let i = 0; i < 32; i++) {
-    encryptedShare2[i] = keyShare2[i]! ^ kyberSharedSecret[i]!;
-  }
+  // XOR the second share with Kyber shared secret using constant-time operation
+  const encryptedShare2 = constantTimeXor(keyShare2, kyberSharedSecret);
 
   // Get KMS key info
   const kmsKeyInfo = await kmsService.getPublicKey(kmsKeyVersion);
@@ -250,17 +245,11 @@ export async function openDualKeyEnvelope(
   );
   const sharedSecretBuffer = Buffer.from(kyberSharedSecret, 'base64');
 
-  // Step 4: Recover second share by XORing with Kyber shared secret
-  const keyShare2 = Buffer.alloc(32);
-  for (let i = 0; i < 32; i++) {
-    keyShare2[i] = encryptedShare2[i]! ^ sharedSecretBuffer[i]!;
-  }
+  // Step 4: Recover second share by XORing with Kyber shared secret using constant-time operation
+  const keyShare2 = constantTimeXor(encryptedShare2, sharedSecretBuffer);
 
-  // Step 5: Combine shares to recover AES key
-  const aesKey = Buffer.alloc(32);
-  for (let i = 0; i < 32; i++) {
-    aesKey[i] = keyShare1[i]! ^ keyShare2[i]!;
-  }
+  // Step 5: Combine shares to recover AES key using constant-time operation
+  const aesKey = constantTimeXor(keyShare1, keyShare2);
 
   // Step 6: Decrypt data with AES-256-GCM
   const iv = Buffer.from(envelope.iv, 'base64');

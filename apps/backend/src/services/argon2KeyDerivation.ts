@@ -109,9 +109,22 @@ export async function deriveKeyFromPassphrase(
   passphrase: string,
   salt?: Buffer
 ): Promise<DerivedKeyResult> {
-  // Validate passphrase
-  if (!passphrase || passphrase.length < 8) {
-    throw new Error('Passphrase must be at least 8 characters long');
+  // Validate passphrase - check both character count and byte length
+  // This ensures consistent security regardless of Unicode content
+  if (!passphrase) {
+    throw new Error('Passphrase is required');
+  }
+
+  const byteLength = Buffer.byteLength(passphrase, 'utf8');
+  const charLength = passphrase.length;
+
+  // Require minimum 8 characters AND minimum 8 bytes
+  // This handles edge cases where multi-byte characters could
+  // result in fewer actual bytes than expected
+  if (charLength < 8 || byteLength < 8) {
+    throw new Error(
+      'Passphrase must be at least 8 characters and 8 bytes long'
+    );
   }
 
   // Generate or use provided salt

@@ -179,14 +179,28 @@ export function constantTimeCopyIf(
  *
  * Generates cryptographically secure random bytes with
  * additional hardening against side-channel attacks.
+ * Output is mixed through HMAC-SHA256 for additional security.
  *
- * @param length - Number of bytes to generate
- * @returns Random bytes
+ * Note: Maximum output length is 32 bytes (SHA-256 output size).
+ * For lengths > 32, only 32 bytes will be returned.
+ * For longer outputs, call this function multiple times
+ * and concatenate the results.
+ *
+ * @param length - Number of bytes to generate (max 32)
+ * @returns Random bytes (up to 32 bytes)
+ * @throws Error if length is less than 1
  */
 export function hardenedRandomBytes(length: number): Buffer {
+  if (length < 1) {
+    throw new Error('Length must be at least 1');
+  }
+
+  // Cap at SHA-256 output size
+  const actualLength = Math.min(length, 32);
+
   // Generate extra randomness and mix
-  const primary = randomBytes(length);
-  const secondary = randomBytes(length);
+  const primary = randomBytes(actualLength);
+  const secondary = randomBytes(actualLength);
   const timestamp = Buffer.alloc(8);
   timestamp.writeBigInt64BE(BigInt(Date.now()));
 
@@ -197,7 +211,7 @@ export function hardenedRandomBytes(length: number): Buffer {
   const mixed = hmac.digest();
 
   // Return only the requested length
-  return mixed.subarray(0, length);
+  return mixed.subarray(0, actualLength);
 }
 
 /**
@@ -308,22 +322,33 @@ export function secureZero(buffer: Buffer): void {
  * Constant-time modular reduction (for small values)
  *
  * Reduces value mod modulus in constant time.
+ * Uses a repeated conditional subtraction approach.
  *
- * @param value - Value to reduce
- * @param modulus - Modulus
+ * @param value - Value to reduce (must be >= 0)
+ * @param modulus - Modulus (must be > 0)
  * @returns value mod modulus
  */
 export function constantTimeMod(value: number, modulus: number): number {
+  if (modulus <= 0) {
+    throw new Error('Modulus must be positive');
+  }
+  if (value < 0) {
+    throw new Error('Value must be non-negative');
+  }
+
   // Simple constant-time modulo for small integers
-  // Uses bitwise operations to avoid branches
+  // Uses repeated subtraction with constant-time selection
   let result = value;
   const iterations = 32; // Sufficient for 32-bit integers
 
   for (let i = 0; i < iterations; i++) {
     // Subtract modulus if result >= modulus
     const diff = result - modulus;
-    const mask = (diff >> 31) & 1; // 1 if diff < 0, 0 otherwise
-    result = mask * result + (1 - mask) * diff;
+    // If diff >= 0 (result >= modulus), use diff; otherwise keep result
+    // diff >> 31 is -1 (all 1s) if diff < 0, 0 if diff >= 0
+    const negative = diff >> 31; // -1 if negative, 0 if non-negative
+    // Select: if negative, keep result; if non-negative, use diff
+    result = (result & negative) | (diff & ~negative);
   }
 
   return result;

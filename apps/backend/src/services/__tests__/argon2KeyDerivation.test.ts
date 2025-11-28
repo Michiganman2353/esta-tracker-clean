@@ -67,12 +67,12 @@ describe('Argon2id Key Derivation Service', () => {
 
     it('should reject short passphrases', async () => {
       await expect(deriveKeyFromPassphrase('short')).rejects.toThrow(
-        'at least 8 characters'
+        'at least 8 characters and 8 bytes'
       );
     });
 
     it('should reject empty passphrases', async () => {
-      await expect(deriveKeyFromPassphrase('')).rejects.toThrow();
+      await expect(deriveKeyFromPassphrase('')).rejects.toThrow('required');
     });
 
     it('should handle unicode passphrases', async () => {
