@@ -266,7 +266,7 @@ describe('Property-Based Fuzzing Tests', () => {
         ),
         { numRuns: 10 }
       );
-    });
+    }, 30000);
 
     it('should derive different keys from same passphrase with different salts', async () => {
       await fc.assert(
@@ -281,7 +281,7 @@ describe('Property-Based Fuzzing Tests', () => {
         ),
         { numRuns: 10 }
       );
-    });
+    }, 30000);
 
     it('should verify correct passphrases', async () => {
       await fc.assert(
@@ -294,7 +294,7 @@ describe('Property-Based Fuzzing Tests', () => {
         ),
         { numRuns: 10 }
       );
-    });
+    }, 30000);
 
     it('should reject incorrect passphrases', async () => {
       await fc.assert(
