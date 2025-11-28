@@ -48,6 +48,19 @@ We only provide security updates for the latest stable release on the `main` bra
 - **Dependency Scanning**: Dependabot monitors for vulnerable dependencies
 - **Secret Scanning**: Gitleaks prevents accidental credential commits
 - **Pre-commit Hooks**: Automated linting and security checks before commits
+- **AI Threat Simulation**: The Sentinel runs daily to proactively identify theoretical attack vectors
+
+### The Sentinel - AI-Driven Threat Simulation
+
+ESTA Tracker employs an AI-powered red team agent called **The Sentinel** that runs daily at 3:00 AM UTC. This proactive security measure:
+
+- Uses xAI's grok-beta model to generate novel theoretical attack vectors
+- Analyzes encryption, KMS, authentication, and key escrow flows
+- Scores each attack for likelihood and impact (0-100 risk scale)
+- Reports findings to the security team via Slack
+- Maintains a 99%+ confidence rating through continuous security validation
+
+The Sentinel is configured via `.github/workflows/sentinel.yml` and can be manually triggered with customizable targets.
 
 ### Data Security
 
