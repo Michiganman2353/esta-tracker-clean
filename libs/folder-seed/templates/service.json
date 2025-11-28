@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "service",
+  "description": "Generate a new backend service module",
+  "type": "service",
+  "targetDir": "apps/backend/src/services",
+  "variables": [
+    {
+      "name": "name",
+      "type": "string",
+      "description": "Name of the service (camelCase)",
+      "required": true
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "description": "Class name for the service (derived from name)",
+      "required": true,
+      "transform": "PascalCase"
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "description": "Short description of the service",
+      "default": "A new service for ESTA Tracker"
+    },
+    {
+      "name": "includeTests",
+      "type": "boolean",
+      "description": "Include test file",
+      "default": true
+    }
+  ],
+  "files": [
+    {
+      "path": "{{name}}Service.ts",
+      "template": "/**\n * {{className}} Service\n *\n * {{description}}\n */\n\nexport interface {{className}}Config {\n  // Add configuration options here\n}\n\nexport interface {{className}}Result {\n  success: boolean;\n  message?: string;\n  data?: unknown;\n}\n\n/**\n * {{description}}\n */\nexport class {{className}}Service {\n  private readonly config: {{className}}Config;\n\n  constructor(config: {{className}}Config = {}) {\n    this.config = config;\n  }\n\n  /**\n   * Initialize the service\n   */\n  async initialize(): Promise<void> {\n    // Add initialization logic here\n  }\n\n  /**\n   * Execute the main service operation\n   */\n  async execute(): Promise<{{className}}Result> {\n    return {\n      success: true,\n      message: '{{className}} operation completed',\n    };\n  }\n}\n\n// Export singleton factory\nexport function create{{className}}Service(\n  config?: {{className}}Config\n): {{className}}Service {\n  return new {{className}}Service(config);\n}\n"
+    },
+    {
+      "path": "__tests__/{{name}}Service.test.ts",
+      "template": "import { describe, it, expect, beforeEach } from 'vitest';\nimport { {{className}}Service, create{{className}}Service } from '../{{name}}Service.js';\n\ndescribe('{{className}}Service', () => {\n  let service: {{className}}Service;\n\n  beforeEach(() => {\n    service = create{{className}}Service();\n  });\n\n  describe('initialize()', () => {\n    it('should initialize without errors', async () => {\n      await expect(service.initialize()).resolves.not.toThrow();\n    });\n  });\n\n  describe('execute()', () => {\n    it('should execute successfully', async () => {\n      const result = await service.execute();\n      expect(result.success).toBe(true);\n    });\n  });\n});\n",
+      "condition": "{{includeTests}}"
+    }
+  ]
+}

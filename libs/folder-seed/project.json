@@ -1,0 +1,38 @@
+{
+  "name": "folder-seed",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/folder-seed/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:shared", "scope:tooling"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc",
+        "cwd": "libs/folder-seed"
+      },
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit",
+        "cwd": "libs/folder-seed"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --passWithNoTests",
+        "cwd": "libs/folder-seed"
+      }
+    },
+    "clean": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "rm -rf dist",
+        "cwd": "libs/folder-seed"
+      }
+    }
+  }
+}

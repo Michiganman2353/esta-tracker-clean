@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Procedure Template v1",
+  "description": "Schema for defining folder seeding procedures that generate code structures",
+  "type": "object",
+  "required": ["schemaVersion", "name", "description", "type", "files"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "description": "Schema version for this procedure (e.g., '1.0.0')"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Unique identifier for the procedure (lowercase, alphanumeric with hyphens)"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable description of what this procedure generates"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["library", "component", "service", "feature", "module"],
+      "description": "Type of code structure to generate"
+    },
+    "targetDir": {
+      "type": "string",
+      "description": "Default directory for output (relative to workspace root)"
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/variable"
+      },
+      "description": "Variables that can be interpolated in templates"
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/file"
+      },
+      "minItems": 1,
+      "description": "Files to generate as part of this procedure"
+    },
+    "postGenerate": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Commands to run after generation (e.g., 'npm install')"
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "variable": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+          "description": "Variable name (camelCase or PascalCase)"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["string", "boolean", "number", "choice"],
+          "description": "Type of the variable"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description shown to user when prompting"
+        },
+        "default": {
+          "description": "Default value for the variable"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this variable is required"
+        },
+        "choices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Available choices (for 'choice' type)"
+        },
+        "transform": {
+          "type": "string",
+          "enum": [
+            "camelCase",
+            "PascalCase",
+            "kebab-case",
+            "UPPER_CASE",
+            "lower_case"
+          ],
+          "description": "Transform to apply to the value"
+        }
+      },
+      "additionalProperties": false
+    },
+    "file": {
+      "type": "object",
+      "required": ["path"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Relative path for the file (supports {{variable}} interpolation)"
+        },
+        "template": {
+          "type": "string",
+          "description": "Template content (supports {{variable}} interpolation)"
+        },
+        "templateFile": {
+          "type": "string",
+          "description": "Path to external template file (relative to procedure file)"
+        },
+        "condition": {
+          "type": "string",
+          "description": "Condition for generating this file (e.g., '{{includeTests}}')"
+        },
+        "overwrite": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to overwrite existing files"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
