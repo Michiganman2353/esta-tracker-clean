@@ -28,17 +28,23 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
+      - name: Cache Nx
+        uses: actions/cache@v4
+        with:
+          path: |
+            .nx/cache
+            node_modules/.cache
+          key: ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json') }}-
+            ${{ runner.os }}-nx-
+
       - name: Validate Lockfile Sync
         run: |
           npm ci --dry-run || (echo "Lockfile desync detected – run 'npm install' locally" && exit 1)
 
       - name: Install Dependencies
         run: npm ci
-
-      - name: Reset Nx Cache (Zero-Entropy Build)
-        run: |
-          npx nx reset
-          rm -rf .nx/cache .nx/workspace-data
 
       - name: Security Audit
         run: |
@@ -56,23 +62,6 @@ jobs:
             exit 1
           fi
           echo "✅ vercel.json is valid JSON"
-
-      - name: Debug Secrets
-        run: |
-          echo "Checking if secrets are set:"
-          echo "VITE_FIREBASE_API_KEY length: ${#VITE_FIREBASE_API_KEY}"
-          echo "VITE_FIREBASE_AUTH_DOMAIN length: ${#VITE_FIREBASE_AUTH_DOMAIN}"
-          echo "VITE_FIREBASE_PROJECT_ID length: ${#VITE_FIREBASE_PROJECT_ID}"
-          echo "VITE_FIREBASE_STORAGE_BUCKET length: ${#VITE_FIREBASE_STORAGE_BUCKET}"
-          echo "VITE_FIREBASE_MESSAGING_SENDER_ID length: ${#VITE_FIREBASE_MESSAGING_SENDER_ID}"
-          echo "VITE_FIREBASE_APP_ID length: ${#VITE_FIREBASE_APP_ID}"
-        env:
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
 
       - name: Validate Environment Secrets
         run: |

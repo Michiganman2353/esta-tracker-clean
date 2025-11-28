@@ -36,25 +36,27 @@ const allowedOrigins = [
   process.env.ALLOWED_ORIGIN,
 ].filter(Boolean) as string[];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, Postman)
-    if (!origin) {
-      return callback(null, true);
-    }
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, Postman)
+      if (!origin) {
+        return callback(null, true);
+      }
 
-    // Check if origin is in allowed list or matches Vercel preview deployments
-    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
-      callback(null, true);
-    } else {
-      console.warn(`CORS blocked origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+      // Check if origin is in allowed list or matches Vercel preview deployments
+      if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+        callback(null, true);
+      } else {
+        console.warn(`CORS blocked origin: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
 app.use(express.json());
 
@@ -79,11 +81,17 @@ app.use('/api/v1/compliance', complianceRouter);
 // Error handling
 app.use(errorHandler);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`✅ ESTA Tracker API running on http://localhost:${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🏥 Health check: http://localhost:${PORT}/health`);
-});
+// Only start the server if this file is run directly (not imported for testing)
+// Check for both NODE_ENV and VITEST to properly detect test environment
+const isTestEnvironment =
+  process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
+
+if (!isTestEnvironment) {
+  app.listen(PORT, () => {
+    console.log(`✅ ESTA Tracker API running on http://localhost:${PORT}`);
+    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🏥 Health check: http://localhost:${PORT}/health`);
+  });
+}
 
 export default app;
