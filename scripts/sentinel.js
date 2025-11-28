@@ -29,7 +29,9 @@
  */
 
 const https = require('https');
-const crypto = require('crypto');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 
 // Colors for console output
 const colors = {
@@ -281,9 +283,9 @@ function generateMockAttacks(targetName) {
 
 // Calculate risk score (0-100) from attack parameters
 function calculateRiskScore(attack) {
-  // Risk = (Likelihood * Impact) normalized to 0-100
+  // Risk = Likelihood * Impact (each 1-10), giving 1-100 range
   const rawScore = attack.likelihood * attack.impact;
-  return Math.round((rawScore / 100) * 100);
+  return Math.round(rawScore);
 }
 
 // Parse attacks from AI response
@@ -540,8 +542,8 @@ async function runSentinel() {
   }
 
   // Write results to file for CI artifact upload
-  const resultFile = `/tmp/sentinel-results-${Date.now()}.json`;
-  const fs = require('fs');
+  const tmpDir = os.tmpdir();
+  const resultFile = path.join(tmpDir, `sentinel-results-${Date.now()}.json`);
   fs.writeFileSync(
     resultFile,
     JSON.stringify(
