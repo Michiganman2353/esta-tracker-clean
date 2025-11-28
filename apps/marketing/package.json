@@ -3,12 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "main": "./.next/index.js",
-  "exports": {
-    ".": {
-      "import": "./.next/index.js"
-    }
-  },
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",

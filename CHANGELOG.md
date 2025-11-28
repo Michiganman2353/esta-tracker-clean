@@ -61,12 +61,10 @@ This release converts ESTA-Logic from prototype to production-grade platform wit
   - All `nx reset` calls now include explicit cache directory cleanup
   - Added Zero-Entropy Build comments for clarity
   - Both ci.yml and ci-elite.yml follow same deterministic patterns
-- **Package Exports Standardization**:
+- **Package Standardization**:
   - `functions/package.json`: Added `type: module` and `exports`
   - `api/package.json`: Added explicit `exports` field
-  - `apps/backend/package.json`: Added explicit `exports` field
-  - `apps/frontend/package.json`: Added explicit `exports` field
-  - `apps/marketing/package.json`: Added explicit `exports` field
+  - Application packages (`frontend`, `backend`, `marketing`): Ensured `type: module` is set (exports removed as these are standalone applications, not importable libraries)
 
 ### Architecture
 
