@@ -32,6 +32,15 @@ const https = require('https');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const pLimit = require('p-limit');
+
+// Rate limiting configuration
+const RPM_LIMIT = 10; // Requests per minute cap
+const TPM_BUFFER = 50000; // Tokens per minute buffer
+const TPM_WARNING_DIVISOR = 10; // Warn when single request uses > TPM_BUFFER/TPM_WARNING_DIVISOR tokens
+const DEFAULT_RETRY_DELAY_SECONDS = 60; // Default delay when rate limited (if no retry-after header)
+const MAX_RETRY_ATTEMPTS = 3; // Maximum number of retry attempts for rate-limited requests
+const limit = pLimit(RPM_LIMIT);
 
 // Colors for console output
 const colors = {
@@ -187,8 +196,8 @@ IMPORTANT: These are THEORETICAL attacks for defensive planning only. Focus on a
 are technically plausible but would be blocked by modern security controls.`;
 }
 
-// Make API request to xAI
-async function callXAI(prompt, model, apiKey) {
+// Make API request to xAI (returns response with status for rate limit handling)
+async function callXAIRaw(prompt, model, apiKey) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
       model: model,
@@ -223,16 +232,11 @@ async function callXAI(prompt, model, apiKey) {
       let body = '';
       res.on('data', (chunk) => (body += chunk));
       res.on('end', () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          try {
-            const parsed = JSON.parse(body);
-            resolve(parsed);
-          } catch (e) {
-            reject(new Error(`Failed to parse API response: ${e.message}`));
-          }
-        } else {
-          reject(new Error(`API request failed: ${res.statusCode} - ${body}`));
-        }
+        resolve({
+          statusCode: res.statusCode,
+          headers: res.headers,
+          body: body,
+        });
       });
     });
 
@@ -240,6 +244,48 @@ async function callXAI(prompt, model, apiKey) {
     req.write(data);
     req.end();
   });
+}
+
+// Rate-limited API call with retry logic for 429 responses
+async function safeApiCall(prompt, model, apiKey, retryCount = 0) {
+  const response = await callXAIRaw(prompt, model, apiKey);
+
+  if (response.statusCode === 429) {
+    if (retryCount >= MAX_RETRY_ATTEMPTS) {
+      throw new Error(
+        `Rate limit exceeded after ${MAX_RETRY_ATTEMPTS} retry attempts`
+      );
+    }
+    const retryAfter =
+      response.headers['retry-after'] || DEFAULT_RETRY_DELAY_SECONDS;
+    logWarning(
+      `Rate limited. Waiting ${retryAfter}s... (attempt ${retryCount + 1}/${MAX_RETRY_ATTEMPTS})`
+    );
+    await new Promise((r) => setTimeout(r, retryAfter * 1000));
+    return safeApiCall(prompt, model, apiKey, retryCount + 1); // Retry with incremented count
+  }
+
+  if (response.statusCode >= 200 && response.statusCode < 300) {
+    try {
+      const data = JSON.parse(response.body);
+      const tokensUsed = data.usage?.total_tokens || 0;
+      if (tokensUsed > TPM_BUFFER / TPM_WARNING_DIVISOR) {
+        logWarning('High TPM usage — consider optimizing prompt');
+      }
+      return data;
+    } catch (e) {
+      throw new Error(`Failed to parse API response: ${e.message}`);
+    }
+  } else {
+    throw new Error(
+      `API request failed: ${response.statusCode} - ${response.body}`
+    );
+  }
+}
+
+// Legacy wrapper for backward compatibility
+async function callXAI(prompt, model, apiKey) {
+  return safeApiCall(prompt, model, apiKey);
 }
 
 // Generate mock attacks for dry-run mode
@@ -434,36 +480,58 @@ async function runSentinel() {
   const allAttacks = [];
   const recommendations = [];
 
-  // Analyze each target
+  // Build attack prompts for all targets
+  const attackPrompts = [];
   for (const targetKey of targets) {
     const target = SECURITY_TARGETS[targetKey];
     if (!target) {
       logWarning(`Unknown target: ${targetKey}, skipping...`);
       continue;
     }
+    attackPrompts.push({
+      targetKey,
+      target,
+      prompt: buildThreatPrompt(target, target.components),
+    });
+  }
 
-    logInfo(`Analyzing: ${target.name}`);
+  // Analyze targets with rate-limited parallel execution
+  let targetResults = [];
 
-    let attacks = [];
-
-    if (args.dryRun) {
-      // Use mock attacks in dry-run mode
-      attacks = generateMockAttacks(target.name);
+  if (args.dryRun) {
+    // Use mock attacks in dry-run mode (sequential)
+    for (const { targetKey, target } of attackPrompts) {
+      logInfo(`Analyzing: ${target.name}`);
+      const attacks = generateMockAttacks(target.name);
       logInfo('Using simulated attacks (dry-run mode)');
-    } else {
-      // Call xAI API
-      try {
-        const prompt = buildThreatPrompt(target, target.components);
-        const response = await callXAI(prompt, args.model, apiKey);
-        const content = response.choices?.[0]?.message?.content || '';
-        attacks = parseAttacks(content);
-      } catch (err) {
-        logError(`API call failed for ${target.name}: ${err.message}`);
-        continue;
-      }
+      targetResults.push({ targetKey, target, attacks });
     }
+  } else {
+    // Call xAI API with rate limiting using Promise.all
+    logInfo(
+      `Processing ${attackPrompts.length} targets with rate-limited API calls (RPM: ${RPM_LIMIT})`
+    );
 
-    // Process and score attacks
+    const apiCalls = attackPrompts.map(({ target, prompt }) =>
+      limit(async () => {
+        logInfo(`Analyzing: ${target.name}`);
+        try {
+          const response = await safeApiCall(prompt, args.model, apiKey);
+          const content = response.choices?.[0]?.message?.content || '';
+          const attacks = parseAttacks(content);
+          return { target, attacks, error: null };
+        } catch (err) {
+          logError(`API call failed for ${target.name}: ${err.message}`);
+          return { target, attacks: [], error: err.message };
+        }
+      })
+    );
+
+    targetResults = await Promise.all(apiCalls);
+  }
+
+  // Process and score attacks from all targets
+  for (const { target, attacks } of targetResults) {
     for (const attack of attacks) {
       const riskScore = calculateRiskScore(attack);
       attack.riskScore = riskScore;
