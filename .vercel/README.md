@@ -2,7 +2,7 @@
 
 > **For complete deployment instructions, see [Vercel Deployment Guide](../docs/deployment/deployment.md)**
 
-This directory contains the Vercel project configuration for deploy context integrity.
+This directory contains the Vercel project configuration template for deploy context integrity.
 
 ## Swiss Watch 2025: Immutable Infrastructure Contract
 
@@ -13,35 +13,25 @@ As part of the Production-Grade Architecture Overhaul, this directory now contai
 The `project.json` file is committed to version control as an **immutable infrastructure contract**. This ensures:
 
 - Deploy context integrity across all environments
-- No reliance on environment secrets for project binding
-- Reproducible and auditable deployment configuration
+- Consistent Node.js version configuration
+- Reproducible and auditable deployment settings
 
-**Note**: The template file does not contain actual credentials. Actual `orgId` and `projectId` should be:
-1. Configured via `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` environment variables in CI/CD
-2. Or obtained by running `vercel link` locally (this will update the project.json)
+**Important**: The template file does not contain `orgId` or `projectId` values. These must be:
 
-## What's in this directory?
+1. **For CI/CD**: Configured via `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` GitHub Secrets
+2. **For local development**: Obtained by running `vercel link` (this will create/update `.vercel/project.json` locally with your credentials)
 
-### `project.json`
+The `.gitignore` is configured to preserve only the template structure (`project.json` and this `README.md`) while ignoring any locally-generated credentials.
 
-Contains your Vercel project configuration template:
+## Required GitHub Secrets
 
-```json
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "settings": {
-    "nodeVersion": "22.x"
-  },
-  "readme": {
-    "note": "Configure via environment variables or vercel link"
-  }
-}
-```
+For CI/CD deployments, configure these secrets in your GitHub repository:
 
-**These values are needed for:**
-- GitHub Actions CI/CD deployments
-- Vercel CLI deployments
-- Project-specific configuration
+| Secret             | Description                | How to Obtain                                              |
+| ------------------ | -------------------------- | ---------------------------------------------------------- |
+| `VERCEL_TOKEN`     | API authentication token   | [Vercel Account Tokens](https://vercel.com/account/tokens) |
+| `VERCEL_ORG_ID`    | Organization/team ID       | Run `vercel link` → check `.vercel/project.json`           |
+| `VERCEL_PROJECT_ID`| Project ID                 | Run `vercel link` → check `.vercel/project.json`           |
 
 ## Quick Setup Guide
 
@@ -74,6 +64,8 @@ You'll be asked:
 
 ### Step 4: Extract the IDs
 
+After linking, a local `.vercel/project.json` file will be created with your credentials:
+
 ```bash
 cat .vercel/project.json
 ```
@@ -85,6 +77,8 @@ Example output:
   "projectId": "prj_abcdef1234567890"
 }
 ```
+
+**Note**: Your local `project.json` with actual credentials is gitignored. Only the template is committed.
 
 ### Step 5: Add to GitHub Secrets
 
@@ -126,15 +120,24 @@ Make sure you've created the project in Vercel Dashboard first, or let `vercel l
 
 Ensure you ran `vercel link` in the project root directory and completed all prompts.
 
+### Token Format Issues
+
+The CI/CD workflows include automatic token sanitization to handle common formatting issues (newlines, spaces, etc.). If you still encounter token errors:
+
+1. Generate a new token in Vercel Dashboard
+2. Copy it carefully without extra whitespace
+3. Update the `VERCEL_TOKEN` secret in GitHub
+
 ## Security Notes
 
-- Never commit `.vercel/` directory to git (already in `.gitignore`)
-- Never share `project.json` publicly
-- Treat orgId and projectId as sensitive (though less critical than tokens)
-- Rotate Vercel tokens if compromised
+- The `.vercel/` directory template is committed, but local credentials are gitignored
+- Never share `VERCEL_TOKEN` via insecure channels
+- Treat `orgId` and `projectId` as semi-sensitive (they identify your project but can't authorize actions)
+- Rotate Vercel tokens periodically (recommended: every 6-12 months)
+- CI/CD workflows automatically mask and sanitize tokens for security
 
 ## For More Information
 
 - **[Complete Deployment Guide](../docs/deployment/deployment.md)** - Comprehensive setup and deployment instructions
 - **[Vercel Token Setup](../docs/deployment/VERCEL_TOKEN_SETUP.md)** - Detailed token configuration and troubleshooting
-- **[Quick Start](../docs/setup/VERCEL_QUICK_START.md)** - Quick reference for setup
+- **[GitHub Secrets Setup](../docs/GITHUB-SECRETS-SETUP.md)** - Step-by-step secrets configuration

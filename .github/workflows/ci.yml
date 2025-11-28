@@ -401,25 +401,30 @@ jobs:
           fi
 
           echo "✅ All required Vercel secrets are configured"
-          echo "VERCEL_TOKEN length: ${#VERCEL_TOKEN}"
-          echo "VERCEL_ORG_ID length: ${#VERCEL_ORG_ID}"
-          echo "VERCEL_PROJECT_ID length: ${#VERCEL_PROJECT_ID}"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
+      - name: Sanitize and Configure Vercel Token
+        id: sanitize-token
+        run: |
+          # Remove newlines, carriage returns, tabs, spaces, and invalid characters from the token
+          # The Vercel CLI rejects tokens containing: "\n", " ", "-", ".", "/"
+          CLEAN_TOKEN=$(echo "${{ secrets.VERCEL_TOKEN }}" | tr -d '\n\r\t -./' | xargs)
+          # Mask the token in logs for security
+          echo "::add-mask::$CLEAN_TOKEN"
+          echo "token=$CLEAN_TOKEN" >> $GITHUB_OUTPUT
+
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+        run: vercel pull --yes --environment=preview --token="${{ steps.sanitize-token.outputs.token }}"
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Build Project Artifacts
-        run: vercel build --token="$VERCEL_TOKEN"
+        run: vercel build --token="${{ steps.sanitize-token.outputs.token }}"
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
@@ -427,7 +432,7 @@ jobs:
         id: deploy
         run: |
           set -e
-          url=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
+          url=$(vercel deploy --prebuilt --token="${{ steps.sanitize-token.outputs.token }}")
           if [ -z "$url" ]; then
             echo "Error: Deployment failed - no URL returned"
             exit 1
@@ -435,7 +440,6 @@ jobs:
           echo "url=$url" >> $GITHUB_OUTPUT
           echo "Preview URL: $url"
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
@@ -560,38 +564,42 @@ jobs:
           fi
 
           echo "✅ All required Vercel secrets are configured"
-          echo "VERCEL_TOKEN length: ${#VERCEL_TOKEN}"
-          echo "VERCEL_ORG_ID length: ${#VERCEL_ORG_ID}"
-          echo "VERCEL_PROJECT_ID length: ${#VERCEL_PROJECT_ID}"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
+      - name: Sanitize and Configure Vercel Token
+        id: sanitize-token
+        run: |
+          # Remove newlines, carriage returns, tabs, spaces, and invalid characters from the token
+          # The Vercel CLI rejects tokens containing: "\n", " ", "-", ".", "/"
+          CLEAN_TOKEN=$(echo "${{ secrets.VERCEL_TOKEN }}" | tr -d '\n\r\t -./' | xargs)
+          # Mask the token in logs for security
+          echo "::add-mask::$CLEAN_TOKEN"
+          echo "token=$CLEAN_TOKEN" >> $GITHUB_OUTPUT
+
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+        run: vercel pull --yes --environment=production --token="${{ steps.sanitize-token.outputs.token }}"
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Build Project Artifacts
-        run: vercel build --prod --token="$VERCEL_TOKEN"
+        run: vercel build --prod --token="${{ steps.sanitize-token.outputs.token }}"
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy to Vercel Production
         run: |
           set -e
-          url=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
+          url=$(vercel deploy --prebuilt --prod --token="${{ steps.sanitize-token.outputs.token }}")
           if [ -z "$url" ]; then
             echo "Error: Deployment failed - no URL returned"
             exit 1
           fi
           echo "Production URL: $url"
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
