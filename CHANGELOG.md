@@ -36,6 +36,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added CodeQL analysis for JavaScript/TypeScript
 - Added Dependabot configuration for automated security updates
 
+## [2.1.0] - 2025-11-28
+
+### Production-Grade Architecture & CI/CD Overhaul (Swiss Watch 2025)
+
+This release converts ESTA-Logic from prototype to production-grade platform with deterministic, replayable builds, emulator-backed acceptance testing, and strict dependency contract enforcement.
+
+### Added
+
+- **Deterministic CI Pipeline**:
+  - Zero-entropy builds with `nx reset` + cache directory cleanup
+  - Lockfile validation (`npm ci --dry-run`) before every build step
+  - Workflow concurrency control to prevent race conditions
+- **Immutable Vercel Infrastructure Contract**:
+  - `.vercel/project.json` template committed for deploy context integrity
+  - Updated `.gitignore` to allow `project.json` while excluding credentials
+- **Contract-Driven Monorepo (2025 ESM Standard)**:
+  - Explicit `exports` fields added to all packages
+  - Unified `type: module` across all workspaces
+
+### Changed
+
+- **CI Workflow Improvements**:
+  - All `nx reset` calls now include explicit cache directory cleanup
+  - Added Zero-Entropy Build comments for clarity
+  - Both ci.yml and ci-elite.yml follow same deterministic patterns
+- **Package Exports Standardization**:
+  - `functions/package.json`: Added `type: module` and `exports`
+  - `api/package.json`: Added explicit `exports` field
+  - `apps/backend/package.json`: Added explicit `exports` field
+  - `apps/frontend/package.json`: Added explicit `exports` field
+  - `apps/marketing/package.json`: Added explicit `exports` field
+
+### Architecture
+
+- **Swiss Watch 2025 Doctrine**:
+  - Deterministic, replayable builds enforced
+  - Strict package contract compliance
+  - Emulator-driven acceptance tests (via global-setup.ts)
+  - Zero warnings, zero drift policy
+  - No unstable secrets in critical paths
+  - Verified deploy context integrity
+
+### Rollback Plan
+
+In case of deployment issues:
+
+1. Revert to previous commit: `git revert HEAD`
+2. Force redeploy from Vercel dashboard
+3. Check workflow run logs for specific failures
+
 ## [2.0.0] - Previous Release
 
 ### Added
@@ -52,9 +102,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Migrated from single app to monorepo architecture
-- Standardized on VITE_ prefix for environment variables
+- Standardized on VITE\_ prefix for environment variables
 
 ---
 
-[Unreleased]: https://github.com/Michiganman2353/ESTA-Logic/compare/main...HEAD
+[Unreleased]: https://github.com/Michiganman2353/ESTA-Logic/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/Michiganman2353/ESTA-Logic/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/Michiganman2353/ESTA-Logic/releases/tag/v2.0.0

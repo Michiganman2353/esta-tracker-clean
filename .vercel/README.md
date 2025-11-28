@@ -2,24 +2,39 @@
 
 > **For complete deployment instructions, see [Vercel Deployment Guide](../docs/deployment/deployment.md)**
 
-This directory is automatically created when you run `vercel link` to connect your local project to a Vercel project.
+This directory contains the Vercel project configuration for deploy context integrity.
 
-## ⚠️ Important: This directory is gitignored
+## Swiss Watch 2025: Immutable Infrastructure Contract
 
-The `.vercel/` directory contains sensitive project configuration and should never be committed to version control.
+As part of the Production-Grade Architecture Overhaul, this directory now contains:
+
+### `project.json` (Template)
+
+The `project.json` file is committed to version control as an **immutable infrastructure contract**. This ensures:
+
+- Deploy context integrity across all environments
+- No reliance on environment secrets for project binding
+- Reproducible and auditable deployment configuration
+
+**Note**: The template file does not contain actual credentials. Actual `orgId` and `projectId` should be:
+1. Configured via `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` environment variables in CI/CD
+2. Or obtained by running `vercel link` locally (this will update the project.json)
 
 ## What's in this directory?
 
-After running `vercel link`, you'll find:
-
 ### `project.json`
 
-Contains your Vercel project configuration:
+Contains your Vercel project configuration template:
 
 ```json
 {
-  "orgId": "team_xxxxxxxxxxxxxxxxxxxx",
-  "projectId": "prj_xxxxxxxxxxxxxxxxxxxx"
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "settings": {
+    "nodeVersion": "22.x"
+  },
+  "readme": {
+    "note": "Configure via environment variables or vercel link"
+  }
 }
 ```
 

@@ -2,7 +2,14 @@
   "name": "functions",
   "version": "1.0.0",
   "description": "Firebase Cloud Functions for ESTA Tracker",
+  "type": "module",
   "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "test": "echo 'No tests configured'"

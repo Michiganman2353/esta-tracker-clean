@@ -47,6 +47,7 @@ vitest.config.*.timestamp-*
 # Vercel
 .vercel/
 !.vercel/README.md
+!.vercel/project.json
 
 # TypeScript
 *.tsbuildinfo

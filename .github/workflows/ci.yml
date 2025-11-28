@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main, master]
 
+# Swiss Watch 2025: Ensure only one workflow runs at a time per branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Test & Build
@@ -30,8 +35,10 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Reset Nx Cache
-        run: npx nx reset
+      - name: Reset Nx Cache (Zero-Entropy Build)
+        run: |
+          npx nx reset
+          rm -rf .nx/cache .nx/workspace-data
 
       - name: Security Audit
         run: |
@@ -105,8 +112,10 @@ jobs:
           VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
 
-      - name: Clean Nx Cache
-        run: npx nx reset
+      - name: Clean Nx Cache (Zero-Entropy Build)
+        run: |
+          npx nx reset
+          rm -rf .nx/cache .nx/workspace-data
 
       - name: Validate Nx Workspace
         run: |
@@ -334,8 +343,10 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Clean Nx Cache
-        run: npx nx reset
+      - name: Clean Nx Cache (Zero-Entropy Build)
+        run: |
+          npx nx reset
+          rm -rf .nx/cache .nx/workspace-data
 
       - name: Validate Frontend Entry Point
         run: |
@@ -491,8 +502,10 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Clean Nx Cache
-        run: npx nx reset
+      - name: Clean Nx Cache (Zero-Entropy Build)
+        run: |
+          npx nx reset
+          rm -rf .nx/cache .nx/workspace-data
 
       - name: Validate Frontend Entry Point
         run: |
