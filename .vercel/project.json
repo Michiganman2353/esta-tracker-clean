@@ -1,0 +1,19 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "settings": {
+    "createdAt": 1732757000000,
+    "framework": null,
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "22.x"
+  },
+  "readme": {
+    "projectId": "Configure via VERCEL_PROJECT_ID environment variable or `vercel link`",
+    "orgId": "Configure via VERCEL_ORG_ID environment variable or `vercel link`",
+    "note": "This file is committed to version control for deploy context integrity. Actual orgId and projectId should be configured via environment variables in CI/CD."
+  }
+}
