@@ -177,3 +177,5 @@ local-env.json
 # Misc
 *.orig
 *.rej
+# Playwright Storage State
+e2e/storageState.json
