@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "library",
+  "description": "Generate a new TypeScript library in the libs directory",
+  "type": "library",
+  "targetDir": "libs",
+  "variables": [
+    {
+      "name": "name",
+      "type": "string",
+      "description": "Name of the library (kebab-case)",
+      "required": true,
+      "transform": "kebab-case"
+    },
+    {
+      "name": "packageName",
+      "type": "string",
+      "description": "NPM package name (defaults to @esta-tracker/<name>)",
+      "required": false
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "description": "Short description of the library",
+      "default": "A new library for ESTA Tracker"
+    },
+    {
+      "name": "includeTests",
+      "type": "boolean",
+      "description": "Include test infrastructure",
+      "default": true
+    }
+  ],
+  "files": [
+    {
+      "path": "{{name}}/package.json",
+      "template": "{\n  \"name\": \"@esta-tracker/{{name}}\",\n  \"version\": \"1.0.0\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"main\": \"./dist/index.js\",\n  \"types\": \"./dist/index.d.ts\",\n  \"exports\": {\n    \".\": {\n      \"types\": \"./dist/index.d.ts\",\n      \"import\": \"./dist/index.js\"\n    }\n  },\n  \"scripts\": {\n    \"build\": \"tsc\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"test\": \"vitest run --passWithNoTests\",\n    \"clean\": \"rm -rf dist\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.3.3\",\n    \"vitest\": \"^2.1.8\"\n  }\n}\n"
+    },
+    {
+      "path": "{{name}}/project.json",
+      "template": "{\n  \"name\": \"{{name}}\",\n  \"$schema\": \"../../node_modules/nx/schemas/project-schema.json\",\n  \"sourceRoot\": \"libs/{{name}}/src\",\n  \"projectType\": \"library\",\n  \"tags\": [\"type:lib\", \"scope:shared\"],\n  \"targets\": {\n    \"build\": {\n      \"executor\": \"nx:run-commands\",\n      \"options\": {\n        \"command\": \"tsc\",\n        \"cwd\": \"libs/{{name}}\"\n      },\n      \"outputs\": [\"{projectRoot}/dist\"]\n    },\n    \"typecheck\": {\n      \"executor\": \"nx:run-commands\",\n      \"options\": {\n        \"command\": \"tsc --noEmit\",\n        \"cwd\": \"libs/{{name}}\"\n      }\n    },\n    \"test\": {\n      \"executor\": \"nx:run-commands\",\n      \"options\": {\n        \"command\": \"vitest run --passWithNoTests\",\n        \"cwd\": \"libs/{{name}}\"\n      }\n    },\n    \"clean\": {\n      \"executor\": \"nx:run-commands\",\n      \"options\": {\n        \"command\": \"rm -rf dist\",\n        \"cwd\": \"libs/{{name}}\"\n      }\n    }\n  }\n}\n"
+    },
+    {
+      "path": "{{name}}/tsconfig.json",
+      "template": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2020\",\n    \"module\": \"ESNext\",\n    \"lib\": [\"ES2020\"],\n    \"moduleResolution\": \"bundler\",\n    \"declaration\": true,\n    \"declarationMap\": true,\n    \"sourceMap\": true,\n    \"outDir\": \"./dist\",\n    \"rootDir\": \"./src\",\n    \"strict\": true,\n    \"strictNullChecks\": true,\n    \"strictFunctionTypes\": true,\n    \"strictBindCallApply\": true,\n    \"strictPropertyInitialization\": true,\n    \"noImplicitThis\": true,\n    \"alwaysStrict\": true,\n    \"noUnusedLocals\": true,\n    \"noUnusedParameters\": true,\n    \"noImplicitReturns\": true,\n    \"noFallthroughCasesInSwitch\": true,\n    \"noUncheckedIndexedAccess\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true,\n    \"forceConsistentCasingInFileNames\": true,\n    \"resolveJsonModule\": true,\n    \"types\": [\"vitest/globals\"]\n  },\n  \"include\": [\"src\"],\n  \"exclude\": [\"node_modules\", \"dist\", \"**/*.test.ts\"]\n}\n"
+    },
+    {
+      "path": "{{name}}/src/index.ts",
+      "template": "/**\n * {{description}}\n */\n\nexport {};\n"
+    },
+    {
+      "path": "{{name}}/vitest.config.ts",
+      "template": "import { defineConfig } from 'vitest/config';\n\nexport default defineConfig({\n  test: {\n    globals: true,\n    environment: 'node',\n    coverage: {\n      provider: 'v8',\n      reporter: ['text', 'json', 'html'],\n      exclude: ['node_modules/', 'dist/', '**/*.d.ts', '**/*.config.*'],\n    },\n  },\n});\n",
+      "condition": "{{includeTests}}"
+    },
+    {
+      "path": "{{name}}/src/__tests__/.gitkeep",
+      "template": "",
+      "condition": "{{includeTests}}"
+    }
+  ],
+  "postGenerate": ["npm install"]
+}
