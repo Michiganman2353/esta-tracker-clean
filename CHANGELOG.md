@@ -52,7 +52,7 @@ This release converts ESTA-Logic from prototype to production-grade platform wit
   - `.vercel/project.json` template committed for deploy context integrity
   - Updated `.gitignore` to allow `project.json` while excluding credentials
 - **Contract-Driven Monorepo (2025 ESM Standard)**:
-  - Explicit `exports` fields added to all packages
+  - Explicit `exports` field added to Cloud Functions package with TypeScript declarations
   - Unified `type: module` across all workspaces
 
 ### Changed
