@@ -4,7 +4,17 @@ import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import React from 'react';
 
-import { Hero, FeatureGrid, PricingTable, CTA } from '../components';
+import {
+  Hero,
+  FeatureGrid,
+  PricingTable,
+  CTA,
+  Navbar,
+  TrustSection,
+  Footer,
+  PremiumFeatureGrid,
+  FinalCTA,
+} from '../components';
 import { validateOrThrow } from '../lib/validateBlueprint';
 
 // Component registry maps block types to React components
@@ -14,6 +24,11 @@ const componentRegistry: Record<string, React.ComponentType<any>> = {
   FeatureGrid,
   PricingTable,
   CTA,
+  Navbar,
+  TrustSection,
+  Footer,
+  PremiumFeatureGrid,
+  FinalCTA,
 };
 
 // Blueprint types

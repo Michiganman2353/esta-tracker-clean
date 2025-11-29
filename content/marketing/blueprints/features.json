@@ -1,19 +1,28 @@
 {
   "schemaVersion": "1.0.0",
   "slug": "features",
-  "title": "Features - ESTA Tracker",
+  "title": "Features - ESTATracker",
   "meta": {
-    "description": "Explore all the features that make ESTA Tracker the best Michigan ESTA compliance solution: automatic calculations, employee portals, audit reports, and more.",
+    "description": "Explore all the features that make ESTATracker the best Michigan ESTA compliance solution: Zero-Entry Sync™, ESTA-Logic™ engine, audit reports, and more.",
     "ogImage": "/images/og-features.png"
   },
   "blocks": [
     {
+      "type": "Navbar",
+      "props": {
+        "logoText": "ESTATracker",
+        "pricingLink": "/pricing",
+        "employerLoginLink": "https://app.estatracker.com",
+        "employeeLoginLink": "https://employee.estatracker.com"
+      }
+    },
+    {
       "type": "Hero",
       "props": {
         "headline": "Everything You Need for ESTA Compliance",
-        "subheadline": "From automatic tracking to audit-ready reports, ESTA Tracker handles it all.",
-        "ctaText": "Start Free Trial",
-        "ctaLink": "/signup",
+        "subheadline": "From automatic tracking to audit-ready reports, ESTATracker handles it all.",
+        "ctaText": "Book Private Demo",
+        "ctaLink": "https://calendly.com/estatracker/demo",
         "variant": "compact"
       }
     },
@@ -25,12 +34,12 @@
         "features": [
           {
             "icon": "clock",
-            "title": "Automatic Time Tracking",
-            "description": "Connect to your existing payroll or time tracking system. Hours worked are imported automatically."
+            "title": "Zero-Entry Sync™",
+            "description": "Connect to QuickBooks, Gusto, ADP, Square, When I Work. Hours worked are imported automatically forever."
           },
           {
             "icon": "calculator",
-            "title": "Smart Accrual Engine",
+            "title": "ESTA-Logic™ Engine",
             "description": "Our engine calculates accruals based on Michigan ESTA law: 1 hour for every 30 hours worked."
           },
           {
@@ -115,13 +124,21 @@
       }
     },
     {
-      "type": "CTA",
+      "type": "FinalCTA",
       "props": {
         "headline": "See these features in action",
-        "subheadline": "Start your free trial and experience effortless ESTA compliance.",
-        "ctaText": "Start Free Trial",
-        "ctaLink": "/signup",
-        "variant": "secondary"
+        "subheadline": "Book a private demo and experience effortless ESTA compliance.",
+        "ctaText": "Book Private Demo",
+        "ctaLink": "https://calendly.com/estatracker/demo",
+        "secondaryCtaText": "View Pricing",
+        "secondaryCtaLink": "/pricing"
+      }
+    },
+    {
+      "type": "Footer",
+      "props": {
+        "copyrightText": "© 2025 ESTATracker.com",
+        "poweredByText": "ESTA-Logic™"
       }
     }
   ]

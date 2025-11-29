@@ -2,3 +2,8 @@ export { Hero } from './Hero';
 export { FeatureGrid } from './FeatureGrid';
 export { PricingTable } from './PricingTable';
 export { CTA } from './CTA';
+export { Navbar } from './Navbar';
+export { TrustSection } from './TrustSection';
+export { Footer } from './Footer';
+export { PremiumFeatureGrid } from './PremiumFeatureGrid';
+export { FinalCTA } from './FinalCTA';

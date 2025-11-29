@@ -1,60 +1,89 @@
 {
   "schemaVersion": "1.0.0",
   "slug": "home",
-  "title": "ESTA Tracker - Michigan Employee Earned Sick Time Compliance",
+  "title": "ESTATracker – Michigan's Only Zero-Entry ESTA Solution",
   "meta": {
-    "description": "Simplify Michigan ESTA compliance with automated sick time tracking, accurate calculations, and audit-ready documentation for employers of all sizes.",
+    "description": "You enter hours once — anywhere — and ESTA-Logic™ handles compliance forever. Michigan's only zero-entry ESTA solution for employers.",
     "ogImage": "/images/og-home.png"
   },
   "blocks": [
     {
-      "type": "Hero",
+      "type": "Navbar",
       "props": {
-        "headline": "Effortless Michigan ESTA Compliance",
-        "subheadline": "Stop worrying about sick time calculations. ESTA Tracker automates everything so you stay compliant without the headache.",
-        "ctaText": "Start Free Trial",
-        "ctaLink": "/signup",
-        "secondaryCtaText": "See How It Works",
-        "secondaryCtaLink": "/features",
-        "backgroundImage": "/images/hero-bg.jpg"
+        "logoText": "ESTATracker",
+        "pricingLink": "/pricing",
+        "employerLoginLink": "https://app.estatracker.com",
+        "employeeLoginLink": "https://employee.estatracker.com"
       }
     },
     {
-      "type": "FeatureGrid",
+      "type": "Hero",
       "props": {
-        "headline": "Built for Michigan Employers",
+        "headline": "Michigan's Only",
+        "highlightedText": "Zero-Entry",
+        "subheadline": "You enter hours once — anywhere — and ESTA-Logic™ handles compliance forever.",
+        "ctaText": "Book Private Demo",
+        "ctaLink": "https://calendly.com/estatracker/demo",
+        "secondaryCtaText": "View Plans & Pricing",
+        "secondaryCtaLink": "/pricing",
+        "variant": "premium"
+      }
+    },
+    {
+      "type": "TrustSection",
+      "props": {
+        "text": "Trusted by Michigan's top construction, healthcare, hospitality, and professional service firms"
+      }
+    },
+    {
+      "type": "PremiumFeatureGrid",
+      "props": {
+        "columns": 4,
         "features": [
           {
-            "icon": "calculator",
-            "title": "Automatic Accrual Calculations",
-            "description": "Earn 1 hour of sick time for every 30 hours worked. We handle the math automatically."
+            "title": "Zero-Entry Sync™",
+            "description": "Connect QuickBooks, Gusto, ADP, Square, When I Work once. Hours flow in automatically forever.",
+            "learnMoreLink": "/features#zero-entry",
+            "learnMoreText": "Learn more →"
           },
           {
-            "icon": "shield",
-            "title": "Employer-Size Policies",
-            "description": "Rules adapt based on your workforce size - whether you have 10 employees or 500."
+            "title": "ESTA-Logic™ Engine",
+            "description": "Automatically calculates accruals, carryover, and usage caps based on Michigan law and employer size.",
+            "learnMoreLink": "/features#logic-engine",
+            "learnMoreText": "Learn more →"
           },
           {
-            "icon": "document",
             "title": "Audit-Ready Records",
-            "description": "Generate compliant documentation instantly when you need it."
+            "description": "Generate compliant PDF documentation instantly for state audits with one click.",
+            "learnMoreLink": "/features#audit-ready",
+            "learnMoreText": "Learn more →"
           },
           {
-            "icon": "users",
             "title": "Employee Self-Service",
-            "description": "Employees check their own balances. No more HR phone calls."
+            "description": "Employees check balances anytime. No more HR phone calls or email requests.",
+            "learnMoreLink": "/features#employee-portal",
+            "learnMoreText": "Learn more →"
           }
         ]
       }
     },
     {
-      "type": "CTA",
+      "type": "FinalCTA",
       "props": {
-        "headline": "Ready to simplify ESTA compliance?",
-        "subheadline": "Join hundreds of Michigan employers who trust ESTA Tracker.",
-        "ctaText": "Get Started Today",
-        "ctaLink": "/signup",
-        "variant": "primary"
+        "headline": "Never Touch an ESTA Spreadsheet Again",
+        "subheadline": "Join the Michigan employers who decided compliance should be automatic, predictive, and effortless.",
+        "ctaText": "Claim Your Private Demo",
+        "ctaLink": "https://calendly.com/estatracker/demo",
+        "secondaryCtaText": "See Pricing",
+        "secondaryCtaLink": "/pricing",
+        "footnote": "Limited to 10 new partners per month"
+      }
+    },
+    {
+      "type": "Footer",
+      "props": {
+        "copyrightText": "© 2025 ESTATracker.com",
+        "poweredByText": "ESTA-Logic™"
       }
     }
   ]

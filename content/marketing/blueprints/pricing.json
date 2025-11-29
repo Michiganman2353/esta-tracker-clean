@@ -1,17 +1,28 @@
 {
   "schemaVersion": "1.0.0",
   "slug": "pricing",
-  "title": "Pricing - ESTA Tracker",
+  "title": "Pricing & Plans - ESTATracker",
   "meta": {
-    "description": "Simple, transparent pricing for Michigan ESTA compliance. Pay per employee, no hidden fees. Start with a free trial.",
+    "description": "Simple, transparent pricing for Michigan ESTA compliance. Pay per employee, no hidden fees. Book a private demo today.",
     "ogImage": "/images/og-pricing.png"
   },
   "blocks": [
+    {
+      "type": "Navbar",
+      "props": {
+        "logoText": "ESTATracker",
+        "pricingLink": "/pricing",
+        "employerLoginLink": "https://app.estatracker.com",
+        "employeeLoginLink": "https://employee.estatracker.com"
+      }
+    },
     {
       "type": "Hero",
       "props": {
         "headline": "Simple, Transparent Pricing",
         "subheadline": "No hidden fees. No long-term contracts. Just straightforward pricing that scales with your team.",
+        "ctaText": "Book Private Demo",
+        "ctaLink": "https://calendly.com/estatracker/demo",
         "variant": "compact"
       }
     },
@@ -24,7 +35,7 @@
             "name": "Starter",
             "price": 0,
             "period": "month",
-            "description": "Perfect for trying out ESTA Tracker",
+            "description": "Perfect for trying out ESTATracker",
             "features": [
               "Up to 5 employees",
               "Basic accrual tracking",
@@ -43,11 +54,11 @@
             "description": "For growing Michigan businesses",
             "features": [
               "Unlimited employees",
-              "Advanced accrual engine",
-              "Custom policies",
+              "Zero-Entry Sync™ integrations",
+              "ESTA-Logic™ engine",
               "Audit-ready reports",
               "Priority email support",
-              "Payroll integrations",
+              "QuickBooks, Gusto, ADP integrations",
               "Multi-location support"
             ],
             "ctaText": "Get Started",
@@ -69,7 +80,7 @@
               "API access"
             ],
             "ctaText": "Contact Sales",
-            "ctaLink": "/contact?plan=enterprise",
+            "ctaLink": "https://calendly.com/estatracker/demo",
             "highlighted": false
           }
         ]
@@ -105,13 +116,21 @@
       }
     },
     {
-      "type": "CTA",
+      "type": "FinalCTA",
       "props": {
         "headline": "Questions about pricing?",
-        "subheadline": "Our team is happy to help you find the right plan for your business.",
-        "ctaText": "Contact Us",
-        "ctaLink": "/contact",
-        "variant": "tertiary"
+        "subheadline": "Our team is happy to help you find the right plan for your business. Book a private demo.",
+        "ctaText": "Book Private Demo",
+        "ctaLink": "https://calendly.com/estatracker/demo",
+        "secondaryCtaText": "Contact Us",
+        "secondaryCtaLink": "/contact"
+      }
+    },
+    {
+      "type": "Footer",
+      "props": {
+        "copyrightText": "© 2025 ESTATracker.com",
+        "poweredByText": "ESTA-Logic™"
       }
     }
   ]
