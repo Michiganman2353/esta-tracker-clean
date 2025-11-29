@@ -14,6 +14,8 @@
     "migrate": "node dist/db/migrate.js"
   },
   "dependencies": {
+    "@esta/shared-types": "file:../../libs/shared-types",
+    "@esta-tracker/risk-engine": "file:../../libs/risk-engine",
     "@google-cloud/kms": "^5.2.1",
     "argon2": "^0.41.1",
     "bcrypt": "^6.0.0",

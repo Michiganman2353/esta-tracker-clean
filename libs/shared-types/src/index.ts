@@ -14,3 +14,4 @@ export * from './employer-profile.js';
 export * from './request.js';
 export * from './compliance.js';
 export * from './escrow.js';
+export * from './risk.js';

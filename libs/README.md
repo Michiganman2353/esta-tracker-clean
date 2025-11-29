@@ -10,7 +10,8 @@ libs/
 ├── shared-utils/      # Utility functions shared across all projects
 ├── esta-firebase/     # Centralized Firebase service and configuration
 ├── accrual-engine/    # ESTA sick time accrual calculation logic
-└── csv-processor/     # CSV import/export functionality
+├── csv-processor/     # CSV import/export functionality
+└── risk-engine/       # ESTA Score Predictive Risk Engine for audit risk assessment
 ```
 
 ## Libraries
@@ -20,6 +21,7 @@ libs/
 TypeScript types, interfaces, and Zod schemas used across the entire monorepo.
 
 **Purpose:**
+
 - Define data models and types
 - Provide runtime validation with Zod
 - Ensure type consistency across frontend and backend
@@ -27,12 +29,14 @@ TypeScript types, interfaces, and Zod schemas used across the entire monorepo.
 **Module Scope:** `scope:shared`
 
 **Key Exports:**
+
 - `EmployerProfile` - Employer profile data structure
 - `Employee` - Employee data structure
 - `AccrualRecord` - Sick time accrual record
 - Validation schemas for all models
 
 **Usage:**
+
 ```typescript
 import type { EmployerProfile } from '@esta-tracker/shared-types';
 import { employerProfileSchema } from '@esta-tracker/shared-types';
@@ -43,6 +47,7 @@ import { employerProfileSchema } from '@esta-tracker/shared-types';
 Common utility functions used across multiple projects.
 
 **Purpose:**
+
 - Date/time utilities
 - String manipulation
 - Common calculations
@@ -51,11 +56,13 @@ Common utility functions used across multiple projects.
 **Module Scope:** `scope:shared`
 
 **Key Features:**
+
 - Pure functions (no side effects)
 - Fully typed with TypeScript
 - Unit tested
 
 **Usage:**
+
 ```typescript
 import { formatDate, calculateDuration } from '@esta-tracker/shared-utils';
 ```
@@ -65,6 +72,7 @@ import { formatDate, calculateDuration } from '@esta-tracker/shared-utils';
 Centralized Firebase initialization and service layer.
 
 **Purpose:**
+
 - Single source of truth for Firebase configuration
 - Encapsulate Firebase SDK usage
 - Provide consistent Firebase operations
@@ -72,6 +80,7 @@ Centralized Firebase initialization and service layer.
 **Module Scope:** `scope:shared` (with frontend-specific usage)
 
 **Key Features:**
+
 - Firebase app initialization
 - Authentication helpers
 - Firestore operations
@@ -80,6 +89,7 @@ Centralized Firebase initialization and service layer.
 - Employee management
 
 **Usage:**
+
 ```typescript
 // Frontend
 import { getAuth, getFirestore } from '@esta/firebase';
@@ -94,6 +104,7 @@ import { getAdminFirestore } from '@esta/firebase/admin';
 Core business logic for calculating ESTA sick time accruals.
 
 **Purpose:**
+
 - Implement Michigan ESTA Act requirements
 - Calculate accrual rates based on employer size
 - Handle carryover rules
@@ -102,6 +113,7 @@ Core business logic for calculating ESTA sick time accruals.
 **Module Scope:** `scope:shared`
 
 **Key Features:**
+
 - Employer size-based logic (< 10 employees vs ≥ 10 employees)
 - Hourly accrual calculations
 - Annual limits and carryover
@@ -109,13 +121,17 @@ Core business logic for calculating ESTA sick time accruals.
 - Compliant with Michigan law
 
 **Usage:**
+
 ```typescript
-import { calculateAccrual, getMaximumUsage } from '@esta-tracker/accrual-engine';
+import {
+  calculateAccrual,
+  getMaximumUsage,
+} from '@esta-tracker/accrual-engine';
 
 const accrual = calculateAccrual({
   hoursWorked: 40,
   employerSize: 'large', // ≥ 10 employees
-  currentAccrued: 32
+  currentAccrued: 32,
 });
 ```
 
@@ -124,6 +140,7 @@ const accrual = calculateAccrual({
 CSV import and export functionality for bulk operations.
 
 **Purpose:**
+
 - Import employee data from CSV
 - Export reports to CSV
 - Validate CSV data
@@ -132,14 +149,69 @@ CSV import and export functionality for bulk operations.
 **Module Scope:** `scope:shared`
 
 **Key Features:**
+
 - Type-safe CSV parsing
 - Data validation
 - Error reporting
 - Format conversion
 
 **Usage:**
+
 ```typescript
 import { parseEmployeeCsv, exportToCsv } from '@esta-tracker/csv-processor';
+```
+
+### Risk Engine (`libs/risk-engine`)
+
+ESTA Score Predictive Risk Engine for audit risk assessment and prevention.
+
+**Purpose:**
+
+- Analyze employer accrual patterns, denial rates, and compliance behaviors
+- Predict ESTA audit risk using weighted scoring across 8 factors
+- Provide actionable recommendations to reduce compliance risk
+- Support XGBoost-compatible feature extraction for future ML model training
+
+**Module Scope:** `scope:shared`
+
+**Key Features:**
+
+- **Feature Extraction:** Extract 24+ features for risk analysis
+- **Weighted Risk Scoring:** 8 factors with configurable weights:
+  - Denial rate (25%) - primary audit trigger indicator
+  - Accrual patterns (15%)
+  - Documentation compliance (15%)
+  - Usage patterns (10%)
+  - Timeliness (10%)
+  - Employee complaints (10%)
+  - Record keeping (10%)
+  - Policy adherence (5%)
+- **Risk Bracket Percentiles:** Compare employers (e.g., "top 8% risk bracket")
+- **Actionable Recommendations:** Priority-ranked suggestions with estimated impact
+- **XGBoost Compatibility:** Feature format ready for ML model training
+
+**Usage:**
+
+```typescript
+import {
+  extractRiskFeatures,
+  calculateESTAScore,
+} from '@esta-tracker/risk-engine';
+
+// Extract features from employer data
+const features = extractRiskFeatures(employerData);
+
+// Calculate ESTA Score
+const score = calculateESTAScore(features);
+
+console.log(`Risk Level: ${score.riskLevel}`); // 'low', 'medium', 'high', 'critical'
+console.log(`Risk Bracket: ${score.riskBracket.description}`);
+// "You're in the top 8% risk bracket for an ESTA audit this quarter"
+
+// Review recommendations
+for (const rec of score.recommendations) {
+  console.log(`[${rec.priority}] ${rec.title}`);
+}
 ```
 
 ## Development Guidelines
@@ -149,12 +221,14 @@ import { parseEmployeeCsv, exportToCsv } from '@esta-tracker/csv-processor';
 To create a new library:
 
 1. **Create the directory structure:**
+
 ```bash
 mkdir -p libs/my-library/src
 cd libs/my-library
 ```
 
 2. **Add package.json:**
+
 ```json
 {
   "name": "@esta-tracker/my-library",
@@ -173,6 +247,7 @@ cd libs/my-library
 ```
 
 3. **Add project.json with appropriate tags:**
+
 ```json
 {
   "name": "my-library",
@@ -210,6 +285,7 @@ Libraries should be tagged with appropriate scope:
 1. **Keep libraries focused** - Each library should have a single, clear purpose
 
 2. **Export through index.ts** - Always export through a barrel file:
+
 ```typescript
 // libs/my-library/src/index.ts
 export * from './myModule';
@@ -221,6 +297,7 @@ export type { MyType } from './types';
 4. **Write tests** - All library code should be well-tested
 
 5. **Document exports** - Add JSDoc comments for public APIs:
+
 ```typescript
 /**
  * Calculates sick time accrual based on hours worked
@@ -228,7 +305,7 @@ export type { MyType } from './types';
  * @param employerSize - Size classification of employer
  * @returns Accrued sick time in hours
  */
-export function calculateAccrual(/* ... */) { }
+export function calculateAccrual(/* ... */) {}
 ```
 
 6. **Avoid side effects** - Libraries should be pure when possible
@@ -268,11 +345,13 @@ npx nx affected --target=test
 Libraries can depend on other libraries, but must respect module boundaries:
 
 **Valid:**
+
 - `shared-types` ← any library (everyone can use types)
 - `shared-utils` ← any library (everyone can use utilities)
 - `accrual-engine` ← `shared-types`, `shared-utils`
 
 **Invalid:**
+
 - Libraries cannot depend on applications
 - `scope:frontend` libraries cannot use `scope:backend` libraries
 - Circular dependencies are not allowed
