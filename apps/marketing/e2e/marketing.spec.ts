@@ -8,32 +8,36 @@ test.describe('Marketing Pages', () => {
       await page.goto('/home');
 
       // Check page title
-      await expect(page).toHaveTitle(/ESTA Tracker/);
+      await expect(page).toHaveTitle(/ESTATracker/);
 
       // Check Hero section
       await expect(
         page.getByRole('heading', {
-          name: /Effortless Michigan ESTA Compliance/i,
+          name: /Michigan's Only/i,
         })
       ).toBeVisible();
       await expect(
-        page.getByText(/Stop worrying about sick time calculations/i)
+        page.getByText(/You enter hours once — anywhere/i)
       ).toBeVisible();
 
       // Check CTA buttons
       await expect(
-        page.getByRole('link', { name: /Start Free Trial/i }).first()
+        page.getByRole('link', { name: /Book Private Demo/i }).first()
       ).toBeVisible();
       await expect(
-        page.getByRole('link', { name: /See How It Works/i })
+        page.getByRole('link', { name: /View Plans & Pricing/i })
       ).toBeVisible();
 
       // Check Feature Grid
+      await expect(page.getByText(/Zero-Entry Sync™/i)).toBeVisible();
+      await expect(page.getByText(/ESTA-Logic™ Engine/i)).toBeVisible();
+
+      // Check Navbar
       await expect(
-        page.getByText(/Built for Michigan Employers/i)
+        page.getByRole('link', { name: /Employer Login/i })
       ).toBeVisible();
       await expect(
-        page.getByText(/Automatic Accrual Calculations/i)
+        page.getByRole('link', { name: /Employee Login/i })
       ).toBeVisible();
 
       // Check data attributes
@@ -60,7 +64,7 @@ test.describe('Marketing Pages', () => {
       await page.goto('/features');
 
       // Check page title
-      await expect(page).toHaveTitle(/Features - ESTA Tracker/);
+      await expect(page).toHaveTitle(/Features - ESTATracker/);
 
       // Check Hero section
       await expect(
@@ -75,7 +79,7 @@ test.describe('Marketing Pages', () => {
       await expect(page.getByText(/For Employees/i)).toBeVisible();
 
       // Check specific features
-      await expect(page.getByText(/Smart Accrual Engine/i)).toBeVisible();
+      await expect(page.getByText(/ESTA-Logic™ Engine/i)).toBeVisible();
       await expect(page.getByText(/Employer Dashboard/i)).toBeVisible();
       await expect(page.getByText(/Mobile-Friendly Portal/i)).toBeVisible();
 
@@ -104,7 +108,7 @@ test.describe('Marketing Pages', () => {
       await page.goto('/pricing');
 
       // Check page title
-      await expect(page).toHaveTitle(/Pricing - ESTA Tracker/);
+      await expect(page).toHaveTitle(/Pricing & Plans - ESTATracker/);
 
       // Check Hero section
       await expect(
@@ -160,13 +164,13 @@ test.describe('Marketing Pages', () => {
     test('should navigate between pages using CTA links', async ({ page }) => {
       await page.goto('/home');
 
-      // Click "See How It Works" to go to features
-      await page.getByRole('link', { name: /See How It Works/i }).click();
-      await expect(page).toHaveURL('/features');
+      // Click "View Plans & Pricing" to go to pricing
+      await page.getByRole('link', { name: /View Plans & Pricing/i }).click();
+      await expect(page).toHaveURL('/pricing');
 
-      // Verify features page loaded
+      // Verify pricing page loaded
       await expect(
-        page.getByRole('heading', { name: /Everything You Need/i })
+        page.getByRole('heading', { name: /Simple, Transparent Pricing/i })
       ).toBeVisible();
     });
   });
@@ -177,14 +181,11 @@ test.describe('Marketing Pages', () => {
 
       // Check meta description
       const metaDesc = page.locator('meta[name="description"]');
-      await expect(metaDesc).toHaveAttribute(
-        'content',
-        /Michigan ESTA compliance/i
-      );
+      await expect(metaDesc).toHaveAttribute('content', /ESTA-Logic/i);
 
       // Check OG tags
       const ogTitle = page.locator('meta[property="og:title"]');
-      await expect(ogTitle).toHaveAttribute('content', /ESTA Tracker/);
+      await expect(ogTitle).toHaveAttribute('content', /ESTATracker/);
     });
   });
 });

@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 export interface NavbarProps {
   logoText?: string;
@@ -16,16 +17,16 @@ export function Navbar({
   return (
     <nav className="bg-midnight-950/90 border-gold-anchored fixed left-0 right-0 top-0 z-50 border-b backdrop-blur-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <a href="/" className="cinzel text-gold-400 text-2xl tracking-wider">
+        <Link href="/" className="cinzel text-gold-400 text-2xl tracking-wider">
           {logoText}
-        </a>
+        </Link>
         <div className="flex items-center space-x-4 md:space-x-8">
-          <a
+          <Link
             href={pricingLink}
             className="text-gold-300 hover:text-gold-100 hidden font-medium transition sm:inline"
           >
-            Pricing &amp; Plans
-          </a>
+            Pricing & Plans
+          </Link>
 
           {/* Employer / Manager Login */}
           <a
