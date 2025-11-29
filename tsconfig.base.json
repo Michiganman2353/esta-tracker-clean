@@ -28,6 +28,8 @@
       "@esta/shared-types/*": ["libs/shared-types/dist/*"],
       "@esta-tracker/shared-utils": ["libs/shared-utils/dist"],
       "@esta-tracker/shared-utils/*": ["libs/shared-utils/dist/*"],
+      "@esta-tracker/risk-engine": ["libs/risk-engine/src"],
+      "@esta-tracker/risk-engine/*": ["libs/risk-engine/src/*"],
       "@esta/firebase": ["libs/esta-firebase/dist"],
       "@esta/firebase/*": ["libs/esta-firebase/dist/*"],
       "@esta/core": ["packages/esta-core/dist"],
