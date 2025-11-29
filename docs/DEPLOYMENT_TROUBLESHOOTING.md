@@ -1,16 +1,19 @@
 # Deployment Troubleshooting Guide
 
 ## Overview
+
 This guide helps diagnose and resolve common deployment issues for the ESTA Tracker application.
 
 ## Quick Diagnostics
 
 ### GitHub Actions Status
+
 1. Check the [Actions tab](https://github.com/Michiganman2353/ESTA-Logic/actions)
 2. Look for failed workflows
 3. Click on failed workflow to see logs
 
 ### Vercel Dashboard
+
 1. Visit [Vercel Dashboard](https://vercel.com/dashboard)
 2. Select the esta-logic project
 3. Check deployment status
@@ -21,10 +24,12 @@ This guide helps diagnose and resolve common deployment issues for the ESTA Trac
 ### Issue 1: GitHub Actions Build Fails
 
 **Symptoms:**
+
 - CI workflow fails at the "Build" step
 - Error messages about missing dependencies or TypeScript errors
 
 **Diagnosis:**
+
 ```bash
 # Run locally to reproduce
 npm ci
@@ -32,6 +37,7 @@ npm run build
 ```
 
 **Solutions:**
+
 1. Check that all dependencies are in package.json
 2. Ensure TypeScript files have no errors (`npm run typecheck`)
 3. Verify environment variables are set (see below)
@@ -39,11 +45,13 @@ npm run build
 ### Issue 2: Vercel Deployment Fails
 
 **Symptoms:**
+
 - Deploy step in GitHub Actions fails
 - "Vercel token invalid" or similar error
 - Build succeeds but deployment times out
 
 **Diagnosis:**
+
 1. Check GitHub Secrets are configured:
    - `VERCEL_TOKEN`
    - `VERCEL_ORG_ID`
@@ -58,6 +66,7 @@ npm run build
 **Solutions:**
 
 #### A. Regenerate Vercel Token
+
 1. Go to [Vercel Account Tokens](https://vercel.com/account/tokens)
 2. Create a new token with appropriate scope
 3. Copy the ENTIRE token (it's long!)
@@ -67,6 +76,7 @@ npm run build
    - Paste token WITHOUT any spaces or newlines
 
 #### B. Get Organization and Project IDs
+
 ```bash
 # Link the project (if not already linked)
 cd /path/to/ESTA-Logic
@@ -80,21 +90,50 @@ cat .vercel/project.json
 Add these to GitHub Secrets as `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`
 
 #### C. Verify Build Command
+
 Check that `vercel.json` build command matches project structure:
+
 ```json
 {
   "buildCommand": "npm install && cd api && npm install && cd .. && npm run build:frontend"
 }
 ```
 
+### Issue 2b: "Could not retrieve Project Settings" Error
+
+**Symptoms:**
+
+- `vercel pull` command fails with:
+  ```
+  Error: Could not retrieve Project Settings. To link your Project, remove the `.vercel` directory and deploy again.
+  ```
+
+**Root Cause:**
+The Vercel CLI requires a `.vercel/project.json` file to link the project. In CI environments, this file doesn't exist because the `.vercel/` directory is gitignored.
+
+**Solution:**
+This is now handled automatically in the CI workflow. The workflow creates the `.vercel/project.json` file dynamically using the `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` secrets before running `vercel pull`.
+
+If you're running locally and see this error:
+
+```bash
+# Remove stale .vercel directory
+rm -rf .vercel
+
+# Re-link the project
+vercel link
+```
+
 ### Issue 3: Manager Registration "Failed to Load"
 
 **Symptoms:**
+
 - User completes registration form
 - Email verification screen shows
 - User gets stuck or sees "failed to load" error
 
 **Diagnosis:**
+
 1. Check browser console for errors (F12 → Console tab)
 2. Check Network tab for failed requests
 3. Look for Firebase errors or CORS issues
@@ -102,12 +141,15 @@ Check that `vercel.json` build command matches project structure:
 **Solutions:**
 
 #### A. Email Verification Issues
+
 - User can now click "Continue to Login" without verifying
 - Verification email sending is non-fatal
 - User will be auto-activated on first login if email is verified
 
 #### B. Firebase Configuration
+
 Check that all Firebase env vars are set in Vercel:
+
 - `VITE_FIREBASE_API_KEY`
 - `VITE_FIREBASE_AUTH_DOMAIN`
 - `VITE_FIREBASE_PROJECT_ID`
@@ -116,12 +158,15 @@ Check that all Firebase env vars are set in Vercel:
 - `VITE_FIREBASE_APP_ID`
 
 **Setting in Vercel:**
+
 1. Go to Vercel Dashboard → Project → Settings → Environment Variables
 2. Add each variable with production value
 3. Redeploy after adding variables
 
 #### C. Firebase Functions Not Available
+
 The app now handles this gracefully:
+
 - Function call failures are logged but don't block user
 - User will be auto-activated on first login
 - No manual intervention needed
@@ -129,6 +174,7 @@ The app now handles this gracefully:
 ### Issue 4: Environment Variables Missing
 
 **Symptoms:**
+
 - Blank screen after deployment
 - Firebase errors in console
 - "Configuration not found" errors
@@ -136,6 +182,7 @@ The app now handles this gracefully:
 **Solutions:**
 
 #### Check Local Development
+
 ```bash
 # Copy example env file
 cp .env.example .env.local
@@ -145,12 +192,14 @@ nano .env.local
 ```
 
 #### Check Vercel Production
+
 1. Go to Project Settings → Environment Variables
 2. Ensure all variables from `.env.example` are set
 3. Variables should be set for "Production" environment
 4. After adding, trigger new deployment
 
 #### Required Variables
+
 ```
 # Frontend (all must start with VITE_)
 VITE_FIREBASE_API_KEY
@@ -167,6 +216,7 @@ EDGE_CONFIG (for feature flags)
 ### Issue 5: Tests Fail and Block Deployment
 
 **Symptoms:**
+
 - CI passes build but fails on tests
 - Deployment is blocked even though build succeeds
 
@@ -175,6 +225,7 @@ Tests are now set to `continue-on-error: true` in CI workflow, so they won't blo
 
 **Long-term Solution:**
 Fix failing tests before merging to master:
+
 ```bash
 # Run tests locally
 npm run test
@@ -228,11 +279,13 @@ After deployment, verify these endpoints:
 If deployment breaks production:
 
 ### Via Vercel Dashboard
+
 1. Go to Deployments tab
 2. Find last working deployment
 3. Click "..." → "Promote to Production"
 
 ### Via CLI
+
 ```bash
 vercel rollback
 ```
@@ -263,6 +316,7 @@ If issues persist:
 To avoid deployment issues:
 
 1. **Test Locally First:**
+
    ```bash
    npm ci
    npm run build
@@ -280,6 +334,7 @@ To avoid deployment issues:
    - Test production after deploy
 
 4. **Keep Dependencies Updated:**
+
    ```bash
    npm audit
    npm audit fix
@@ -292,12 +347,14 @@ To avoid deployment issues:
 ## Quick Reference
 
 ### Key Files
+
 - `.github/workflows/ci.yml` - CI/CD configuration
 - `vercel.json` - Vercel deployment settings
 - `.env.example` - Environment variables reference
 - `turbo.json` - Monorepo build configuration
 
 ### Key Commands
+
 ```bash
 npm ci                  # Clean install
 npm run build           # Build all packages
@@ -309,6 +366,7 @@ vercel --prod           # Deploy to production
 ```
 
 ### Key URLs
+
 - [GitHub Actions](https://github.com/Michiganman2353/ESTA-Logic/actions)
 - [Vercel Dashboard](https://vercel.com/dashboard)
 - [Firebase Console](https://console.firebase.google.com/)
