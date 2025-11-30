@@ -1,0 +1,7 @@
+{
+  "package": { "productName": "ESTA Rainforest", "version": "1.0.0" },
+  "tauri": {
+    "allowlist": { "all": true },
+    "windows": [{ "title": "ESTA Rainforest", "width": 1200, "height": 800 }]
+  }
+}
